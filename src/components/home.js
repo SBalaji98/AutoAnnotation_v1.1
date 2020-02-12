@@ -8,12 +8,6 @@ class Home extends Component {
 
   render() {
     const loggedIn = this.props.loggedIn;
-    console.log(this.props);
-    console.log(loggedIn);
-    const imageStyle = {
-      margin: 200,
-      width: 400
-    };
     return (
       <div>
         {loggedIn ? (
