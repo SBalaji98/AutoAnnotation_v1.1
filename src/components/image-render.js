@@ -5,7 +5,7 @@ class App extends Component {
     src: "",
     imgKey: "",
     imgListObject: [],
-    imgCount: 0,
+    imgCount: 1,
     buttonVal: "Start"
   };
 
