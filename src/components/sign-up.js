@@ -9,6 +9,10 @@ class Signup extends Component {
       username: "",
       password: "",
       confirmPassword: "",
+      firsName: "",
+      lastName: "",
+      email: "",
+      mobile: "",
       redirectTo: null
     };
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -23,28 +27,36 @@ class Signup extends Component {
     console.log("sign-up handleSubmit, username: ");
     console.log(this.state.username);
     event.preventDefault();
-
-    //request to server to add a new username/password
-    axios
-      .post("/user/", {
-        username: this.state.username,
-        password: this.state.password
-      })
-      .then(response => {
-        if (!response.data.error) {
-          console.log("successful signup");
-          this.setState({
-            //redirect to login page
-            redirectTo: "/login"
-          });
-        } else {
-          console.log("username already taken");
-        }
-      })
-      .catch(error => {
-        console.log("signup error: ");
-        console.log(error);
-      });
+    if (this.state.password !== this.state.confirmPassword) {
+      alert("Passwords did not match");
+    } else {
+      //request to server to add a new username/password
+      axios
+        .post("/user/", {
+          username: this.state.username,
+          password: this.state.password,
+          confirmPassword: this.state.confirmPassword,
+          firstName: this.state.firstName,
+          lastName: this.state.lastName,
+          email: this.state.email,
+          mobile: this.state.mobile
+        })
+        .then(response => {
+          if (!response.data.error) {
+            console.log("successful signup");
+            this.setState({
+              //redirect to login page
+              redirectTo: "/login"
+            });
+          } else {
+            alert("username already taken");
+          }
+        })
+        .catch(error => {
+          console.log("signup error: ");
+          console.log(error);
+        });
+    }
   }
 
   render() {
@@ -54,7 +66,45 @@ class Signup extends Component {
       return (
         <div className="SignupForm">
           <h4>Sign up</h4>
-          <form className="form-horizontal">
+          <form className="form-horizontal" onSubmit={this.handleSubmit}>
+            <div className="form-group">
+              <div className="col-1 col-ml-auto">
+                <label className="form-label" htmlFor="username">
+                  First Name
+                </label>
+              </div>
+              <div className="col-3 col-mr-auto">
+                <input
+                  className="form-input"
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  required="required"
+                  placeholder="First Name"
+                  value={this.state.firstName}
+                  onChange={this.handleChange}
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <div className="col-1 col-ml-auto">
+                <label className="form-label" htmlFor="username">
+                  Last Name
+                </label>
+              </div>
+              <div className="col-3 col-mr-auto">
+                <input
+                  className="form-input"
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  required="required"
+                  placeholder="Last Name"
+                  value={this.state.lastName}
+                  onChange={this.handleChange}
+                />
+              </div>
+            </div>
             <div className="form-group">
               <div className="col-1 col-ml-auto">
                 <label className="form-label" htmlFor="username">
@@ -67,12 +117,53 @@ class Signup extends Component {
                   type="text"
                   id="username"
                   name="username"
+                  required="required"
                   placeholder="Username"
                   value={this.state.username}
                   onChange={this.handleChange}
                 />
               </div>
             </div>
+            <div className="form-group">
+              <div className="col-1 col-ml-auto">
+                <label className="form-label" htmlFor="username">
+                  Email
+                </label>
+              </div>
+              <div className="col-3 col-mr-auto">
+                <input
+                  className="form-input"
+                  type="email"
+                  id="email"
+                  name="email"
+                  placeholder="Email"
+                  value={this.state.email}
+                  onChange={this.handleChange}
+                  required="required"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <div className="col-1 col-ml-auto">
+                <label className="form-label" htmlFor="username">
+                  Mobile Number
+                </label>
+              </div>
+              <div className="col-3 col-mr-auto">
+                <input
+                  className="form-input"
+                  type="Number"
+                  id="mobile"
+                  name="mobile"
+                  placeholder="Mobile Number"
+                  value={this.state.mobile}
+                  onChange={this.handleChange}
+                  required="required"
+                />
+              </div>
+            </div>
+
             <div className="form-group">
               <div className="col-1 col-ml-auto">
                 <label className="form-label" htmlFor="password">
@@ -87,6 +178,25 @@ class Signup extends Component {
                   name="password"
                   value={this.state.password}
                   onChange={this.handleChange}
+                  required="required"
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <div className="col-1 col-ml-auto">
+                <label className="form-label" htmlFor="username">
+                  Confirm Password
+                </label>
+              </div>
+              <div className="col-3 col-mr-auto">
+                <input
+                  className="form-input"
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  value={this.state.confirmPassword}
+                  onChange={this.handleChange}
+                  required="required"
                 />
               </div>
             </div>
@@ -94,7 +204,6 @@ class Signup extends Component {
               <div className="col-7"></div>
               <button
                 className="btn btn-primary col-1 col-mr-auto"
-                onClick={this.handleSubmit}
                 type="submit"
               >
                 Sign up
