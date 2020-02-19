@@ -12,12 +12,24 @@ module.exports = {
     aws.config.setPromisesDependency();
     let params;
     if (prefix !== null) {
-      params = { Bucket: jsonConfig.bucket, Prefix: prefix };
+      try {
+        params = { Bucket: jsonConfig.bucket, Prefix: prefix };
+      } catch (e) {
+        console.log("error" + e);
+        throw e;
+      }
     } else {
-      params = { Bucket: jsonConfig.bucket };
+      try {
+        params = { Bucket: jsonConfig.bucket };
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
     }
 
-    let res = s3.listObjectsV2(params).promise();
+    let res = s3
+      .listObjectsV2({ Bucket: jsonConfig.bucket, Prefix: prefix })
+      .promise();
     // console.log(res);
     return res;
   },

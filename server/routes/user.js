@@ -41,13 +41,13 @@ router.post("/logout", (req, res) => {
 router.get("/image-data", async (req, res) => {
   if (req.user) {
     aws.config.setPromisesDependency();
-
-    const resp = await s3Controller.getObjectList(req.user.username);
+    const resp = await s3Controller.getObjectList(req.user.userName);
     res.json(resp.Contents);
   }
 });
 
 router.get("/image", async (req, res) => {
+  // console.log(req);
   await s3Controller.getListedObject(req, res);
 });
 

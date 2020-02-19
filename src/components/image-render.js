@@ -11,11 +11,12 @@ class App extends Component {
 
   async componentDidMount() {
     let objList = await axios.get("/user/image-data", () => {});
-
-    this.setState({
-      imgListObject: objList,
-      imgKey: objList.data[0].Key
-    });
+    if (objList.data.length > 0) {
+      this.setState({
+        imgListObject: objList,
+        imgKey: objList.data[0].Key
+      });
+    }
   }
 
   nextImage = async () => {
