@@ -10,21 +10,11 @@ const s3 = new aws.S3({
 module.exports = {
   getObjectList(prefix) {
     aws.config.setPromisesDependency();
-    let params;
+    let params = {};
     if (prefix !== null) {
-      try {
-        params = { Bucket: jsonConfig.bucket, Prefix: prefix };
-      } catch (e) {
-        console.log("error" + e);
-        throw e;
-      }
+      params = { Bucket: jsonConfig.bucket, Prefix: prefix };
     } else {
-      try {
-        params = { Bucket: jsonConfig.bucket };
-      } catch (e) {
-        console.log(e);
-        throw e;
-      }
+      params = { Bucket: jsonConfig.bucket };
     }
 
     let res = s3
@@ -58,7 +48,7 @@ module.exports = {
       Body: ""
     };
 
-    s3.upload(params, function(err, data) {
+    s3.upload(params, function(err) {
       if (err) {
         console.log("Error creating the folder: ", err);
       } else {

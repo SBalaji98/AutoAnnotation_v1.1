@@ -11,7 +11,6 @@ class Navbar extends Component {
   }
 
   logout(event) {
-    event.preventDefault();
     console.log("logging out");
     axios
       .post("/user/logout")
