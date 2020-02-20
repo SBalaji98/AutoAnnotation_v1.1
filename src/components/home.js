@@ -2,10 +2,6 @@ import React, { Component } from "react";
 import ImageRender from "./image-render";
 
 class Home extends Component {
-  constructor() {
-    super();
-  }
-
   render() {
     const loggedIn = this.props.loggedIn;
     return (
