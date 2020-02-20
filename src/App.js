@@ -37,7 +37,7 @@ class App extends Component {
 
         this.setState({
           loggedIn: true,
-          username: response.data.user.username
+          username: response.data.user.userName
         });
       } else {
         console.log("Get user: no user");

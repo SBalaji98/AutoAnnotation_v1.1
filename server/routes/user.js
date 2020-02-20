@@ -14,41 +14,60 @@ router.post(
   },
   passport.authenticate("local"),
   (req, res) => {
-    var userInfo = {
-      username: req.user.username
-    };
-    res.send(userInfo);
+    try {
+      var userInfo = {
+        username: req.user.username
+      };
+      res.send(userInfo);
+    } catch (e) {
+      res.send(e);
+    }
   }
 );
 
 router.get("/", (req, res, next) => {
-  if (req.user) {
-    res.json({ user: req.user });
-  } else {
-    res.json({ user: null });
+  try {
+    if (req.user) {
+      res.json({ user: req.user });
+    } else {
+      res.json({ user: null });
+    }
+  } catch (e) {
+    throw e;
   }
 });
 
 router.post("/logout", (req, res) => {
-  if (req.user) {
-    req.logout();
-    res.send({ msg: "logging out" });
-  } else {
-    res.send({ msg: "no user to log out" });
+  try {
+    if (req.user) {
+      req.logout();
+      res.send({ msg: "logging out" });
+    } else {
+      res.send({ msg: "no user to log out" });
+    }
+  } catch (e) {
+    throw e;
   }
 });
 
 router.get("/image-data", async (req, res) => {
-  if (req.user) {
-    aws.config.setPromisesDependency();
-    const resp = await s3Controller.getObjectList(req.user.userName);
-    res.json(resp.Contents);
+  try {
+    if (req.user) {
+      aws.config.setPromisesDependency();
+      const resp = await s3Controller.getObjectList(req.user.userName);
+      res.json(resp.Contents);
+    }
+  } catch (e) {
+    throw e;
   }
 });
 
 router.get("/image", async (req, res) => {
-  // console.log(req);
-  await s3Controller.getListedObject(req, res);
+  try {
+    await s3Controller.getListedObject(req, res);
+  } catch (e) {
+    throw e;
+  }
 });
 
 module.exports = router;
