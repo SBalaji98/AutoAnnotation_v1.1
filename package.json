@@ -30,10 +30,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "node_build": "webpack",
     "test": "react-scripts test --env=jsdom",
-    "eslint": "eslint ./",
-    "eslint-fix": "eslint ./ --fix",
     "eject": "react-scripts eject",
     "api": "nodemon ./server/server.js",
     "prod": "node dist/api.bundle.js",
@@ -41,11 +38,7 @@
   },
   "devDependencies": {
     "concurrently": "^3.5.1",
-    "eslint": "^6.8.0",
-    "eslint-plugin-react": "^7.18.3",
-    "nodemon": "^1.17.5",
-    "webpack": "^4.41.6",
-    "webpack-cli": "^3.3.11"
+    "nodemon": "^1.17.5"
   },
   "proxy": "http://localhost:8080"
 }
