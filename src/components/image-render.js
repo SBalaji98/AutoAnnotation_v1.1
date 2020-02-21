@@ -6,7 +6,9 @@ class App extends Component {
     imgKey: "",
     imgListObject: [],
     imgCount: 0,
-    buttonVal: "Start"
+    buttonVal: "Start",
+    isAnnotated: null,
+    annotatedData: {}
   };
 
   async componentDidMount() {
@@ -18,6 +20,22 @@ class App extends Component {
       });
     }
   }
+
+  saveImageData = async () => {
+    console.log("annotations");
+    await axios
+      .post("/annotations", {
+        fileName: this.state.imgKey,
+        annotatedData: this.state.annotatedData,
+        isAnnotated: this.state.isAnnotated
+      })
+      .then(resp => {
+        console.log(resp);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  };
 
   nextImage = async () => {
     let { imgCount, imgKey, imgListObject } = this.state;
@@ -48,8 +66,11 @@ class App extends Component {
     this.setState({
       imgCount: imgCount + 1,
       imgKey: imgListObject.data[imgCount].Key,
-      buttonVal: "Next"
+      buttonVal: "Next",
+      isAnnotated: false
     });
+
+    this.saveImageData();
   };
 
   render() {
