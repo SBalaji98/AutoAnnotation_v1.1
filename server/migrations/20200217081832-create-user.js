@@ -26,10 +26,6 @@ module.exports = {
       password: {
         type: Sequelize.STRING
       },
-      is_annotated: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: null
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
