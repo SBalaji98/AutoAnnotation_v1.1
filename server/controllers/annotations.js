@@ -2,6 +2,16 @@ const Annotations = require("../models").Annotation;
 const User = require("../models").User;
 
 module.exports = {
+  async getAllAnnotations(req, res) {
+    try {
+      const annotatedData = await Annotations.findAll({});
+      console.log(annotatedData);
+      return annotatedData;
+    } catch (e) {
+      console.log(e);
+      res.status(500).send(e);
+    }
+  },
   async getAnnotationsByUsers(req, res) {
     try {
       const annotatedData = await Annotations.findAll({
@@ -15,12 +25,14 @@ module.exports = {
       res.status(500).send(e);
     }
   },
-  async create(req, res) {
+  async create(req) {
     try {
       let annotation = await Annotations.findOne({
         where: { userId: req.user.id, fileName: req.body.fileName }
       });
       if (annotation) {
+        console.log("already exist");
+        return;
       } else {
         const addAnnotation = await Annotations.create({
           userId: req.user.id,

@@ -8,7 +8,23 @@ router.get("/", async (req, res, next) => {
       let data = await annotationController.getAnnotationsByUsers(req, res);
       return res.json({ data: data });
     } else {
-      return res.json({ data: null });
+      return res.json({ error: "User does not exist" });
+    }
+  } catch (e) {
+    res.json({ error: e });
+  }
+});
+
+router.get("/admin/all-annotations", async (req, res, next) => {
+  try {
+    if (req.user) {
+      let allAnnotations = await annotationController.getAllAnnotations(
+        req,
+        res
+      );
+      return res.json({ data: allAnnotations });
+    } else {
+      return res.json({ error: "User does not exist" });
     }
   } catch (e) {
     res.json({ error: e });
