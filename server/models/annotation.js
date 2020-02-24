@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
       userId: DataTypes.INTEGER,
       fileName: DataTypes.STRING,
       isAnnotated: DataTypes.BOOLEAN,
-      annotatedData: DataTypes.JSONB
+      annotatedData: DataTypes.JSONB,
+      isDeleted: DataTypes.BOOLEAN
     },
     {}
   );

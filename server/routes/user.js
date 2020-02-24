@@ -37,6 +37,17 @@ router.get("/", (req, res, next) => {
   }
 });
 
+router.put("/update", async (req, res) => {
+  try {
+    if (req.user) {
+      let updateUser = userController.update(req, res);
+      res.json({ response: updateUser });
+    }
+  } catch (e) {
+    res.json({ error: e });
+  }
+});
+
 router.post("/logout", (req, res) => {
   try {
     if (req.user) {

@@ -28,6 +28,10 @@ module.exports = {
       annotatedData: {
         type: Sequelize.JSONB
       },
+      isDeleted: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

@@ -5,7 +5,11 @@ const s3Controller = require("../S3-bucket/s3.controller");
 module.exports = {
   async getAllUsers(req, res) {
     try {
-      const userCollection = await User.findAll({});
+      const userCollection = await User.findAll({
+        where: {
+          isDeleted: false
+        }
+      });
       return userCollection;
     } catch (e) {
       console.log(e);
@@ -17,7 +21,9 @@ module.exports = {
   async create(req, res) {
     // console.log(req.body);
     try {
-      await User.findOne({ where: { userName: req.body.username } })
+      await User.findOne({
+        where: { userName: req.body.username, isDeleted: false }
+      })
         .then(async user => {
           if (user) {
             res.json({
@@ -36,7 +42,7 @@ module.exports = {
             });
 
             s3Controller.createFolderS3(req.body.username);
-
+            console.log(userCollection);
             res.status(201).send(userCollection);
           }
         })
@@ -52,12 +58,16 @@ module.exports = {
   async update(req, res) {
     try {
       const userCollection = await User.find({
-        id: req.params.userId
+        id: req.params.userId,
+        isDeleted: false
       });
 
       if (userCollection) {
         const updatedUser = await User.update({
-          id: req.body.email
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          email: req.body.email,
+          phone: req.body.phone
         });
 
         res.status(201).send(updatedUser);
