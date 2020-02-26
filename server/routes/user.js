@@ -2,28 +2,11 @@ const express = require("express");
 const aws = require("aws-sdk");
 const router = express.Router();
 const userController = require("../controllers/user");
-const passport = require("../passport");
 const s3Controller = require("../S3-bucket/s3.controller");
 
 router.post("/", userController.create);
 
-router.post(
-  "/login",
-  (req, res, next) => {
-    next();
-  },
-  passport.authenticate("local"),
-  (req, res) => {
-    try {
-      var userInfo = {
-        username: req.user.username
-      };
-      res.send(userInfo);
-    } catch (e) {
-      res.send(e);
-    }
-  }
-);
+router.post("/login", userController.userLogin);
 
 router.get("/", (req, res, next) => {
   try {

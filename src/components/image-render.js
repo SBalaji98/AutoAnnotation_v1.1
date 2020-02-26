@@ -70,7 +70,7 @@ class App extends Component {
       isAnnotated: false
     });
 
-    this.saveImageData();
+    // this.saveImageData();
   };
 
   render() {
