@@ -31,10 +31,12 @@ router.get("/admin/all-annotations", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.put("/", async (req, res, next) => {
   try {
+    // console.log(req);
+    console.log(req.user);
     if (req.user) {
-      let result = await annotationController.create(req, res);
+      let result = await annotationController.update(req, res);
       res.send(result);
     } else {
       res.send({ msg: "please login" });

@@ -55,5 +55,32 @@ module.exports = {
       console.log(e);
       res.status(400).send(e);
     }
+  },
+  async update(req, res) {
+    try {
+      let annotation = await Annotations.findOne({
+        where: {
+          userId: req.user.id,
+          fileName: req.body.fileName,
+          isDeleted: false
+        }
+      });
+      console.log(annotation);
+
+      if (annotation) {
+        let updatedAnnotation = Annotations.update({
+          isAnnotated: req.body.isAnnotated,
+          annotatedData: req.body.annotatedData,
+          isDeleted: req.body.isDeleted
+        });
+
+        // console.log(updatedAnnotation);
+        res.status(201).send(updatedAnnotation);
+      } else {
+        res.status(404).send("Not Found");
+      }
+    } catch (e) {
+      res.json({ error: e });
+    }
   }
 };
