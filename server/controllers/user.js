@@ -8,7 +8,6 @@ const jwtSecret = require("../passport/jwtConfig");
 module.exports = {
   // Register for a new user
   async create(req, res) {
-    // console.log(req.body);
     try {
       await User.findOne({
         where: { userName: req.body.username, isDeleted: false }
@@ -102,7 +101,14 @@ module.exports = {
         } else {
           try {
             if (user) {
-              res.json({ user: user });
+              let data = {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                userName: user.userName
+              };
+              res.json({ user: data });
             } else {
               res.json({ user: null });
             }
