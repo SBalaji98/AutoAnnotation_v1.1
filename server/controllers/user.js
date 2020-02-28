@@ -4,13 +4,14 @@ const s3Controller = require("../S3-bucket/s3.controller");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const jwtSecret = require("../passport/jwtConfig");
-
+const salt = 10;
 module.exports = {
   // Register for a new user
   async create(req, res) {
+    const { username, password, firstName, lastName, email, mobile } = req.body;
     try {
       await User.findOne({
-        where: { userName: req.body.username, isDeleted: false }
+        where: { userName: username, isDeleted: false }
       })
         .then(async user => {
           if (user) {
@@ -19,19 +20,18 @@ module.exports = {
             });
           } else {
             const userCollection = await User.create({
-              email: req.body.email,
-              firstName: req.body.firstName,
-              lastName: req.body.lastName,
-              phone: req.body.mobile,
-              userName: req.body.username,
-              password: await bcrypt.hash(req.body.password, 10).then(hash => {
+              email: email,
+              firstName: firstName,
+              lastName: lastName,
+              phone: mobile,
+              userName: username,
+              password: await bcrypt.hash(password, salt).then(hash => {
                 return hash;
               })
             });
 
-            s3Controller.createFolderS3(req.body.username);
-            console.log(userCollection);
-            res.status(201).send(userCollection);
+            // s3Controller.createFolderS3(username);
+            res.status(201).json(userCollection);
           }
         })
         .catch(e => {
@@ -69,9 +69,13 @@ module.exports = {
                 userName: req.body.username
               }
             }).then(user => {
-              const token = jwt.sign({ id: user.id }, jwtSecret.secret, {
-                expiresIn: 60 * 60
-              });
+              const token = jwt.sign(
+                { sub: user.id, username: user.userName },
+                jwtSecret.secret,
+                {
+                  expiresIn: 60 * 60
+                }
+              );
               res.status(200).send({
                 auth: true,
                 token,
@@ -177,7 +181,7 @@ module.exports = {
                 }
               });
 
-              res.status(201).send(updatedUser);
+              res.status(201).json({ data: updatedUser });
             } else {
               res.status(404).send("User Not Found");
             }

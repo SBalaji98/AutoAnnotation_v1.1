@@ -2,8 +2,29 @@ const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/user");
 const imageRenderController = require("../controllers/imageRender");
+const { check, validationResult } = require("express-validator");
 
-router.post("/", userController.create);
+router.post(
+  "/",
+  [
+    check("username").notEmpty(),
+    check("email")
+      .isEmail()
+      .notEmpty(),
+    check("mobile").isMobilePhone(),
+    check("password")
+      .notEmpty()
+      .isLength({ min: 5 })
+  ],
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    userController.create(req, res);
+  }
+);
 
 router.get("/", (req, res, next) => {
   userController.IsUserAuthorized(req, res, next);

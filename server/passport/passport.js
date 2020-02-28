@@ -80,7 +80,7 @@ passport.use(
     try {
       User.findOne({
         where: {
-          id: jwt_payload.id
+          id: jwt_payload.sub
         }
       }).then(user => {
         if (user) {

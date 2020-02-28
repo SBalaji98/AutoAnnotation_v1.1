@@ -16,7 +16,7 @@ module.exports = {
         if (info !== undefined) {
           console.log(info.message);
           res.status(401).json({ message: info.message });
-        } else {
+        } else if (user) {
           try {
             const annotatedData = await Annotations.findAll({
               where: {
@@ -34,7 +34,7 @@ module.exports = {
   },
 
   //get all the data of annotations by user
-  getAnnotationsByUsers(req, res, next) {
+  getAnnotationsByUsers(req, res) {
     passport.authenticate(
       "jwt",
       { session: false },
@@ -47,6 +47,7 @@ module.exports = {
           console.log(info.message);
           res.status(401).json({ message: info.message });
         } else {
+          console.log(user);
           try {
             const annotatedData = await Annotations.findAll({
               where: {
@@ -61,7 +62,7 @@ module.exports = {
           }
         }
       }
-    )(req, res, next);
+    )(req, res);
   },
 
   //adding images for annotations in the table

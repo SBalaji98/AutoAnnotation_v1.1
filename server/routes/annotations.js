@@ -6,8 +6,8 @@ router.post("/", async (req, res, next) => {
   annotationController.create(req, res, next);
 });
 
-router.get("/", (req, res, next) => {
-  annotationController.getAnnotationsByUsers(req, res, next);
+router.get("/", (req, res) => {
+  annotationController.getAnnotationsByUsers(req, res);
 });
 
 router.get("/admin/all-annotations", (req, res, next) => {
