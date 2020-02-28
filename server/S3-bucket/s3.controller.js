@@ -17,9 +17,7 @@ module.exports = {
       params = { Bucket: jsonConfig.bucket };
     }
 
-    let res = s3
-      .listObjectsV2({ Bucket: jsonConfig.bucket, Prefix: prefix })
-      .promise();
+    let res = s3.listObjectsV2(params).promise();
     // console.log(res);
     return res;
   },

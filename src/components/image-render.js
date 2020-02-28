@@ -24,7 +24,7 @@ class App extends Component {
   saveImageData = async () => {
     console.log("annotations");
     await axios
-      .post("/annotations", {
+      .put("/annotations", {
         fileName: this.state.imgKey,
         annotatedData: this.state.annotatedData,
         isAnnotated: this.state.isAnnotated
