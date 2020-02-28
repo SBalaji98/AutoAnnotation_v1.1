@@ -6,20 +6,6 @@ const jwt = require("jsonwebtoken");
 const jwtSecret = require("../passport/jwtConfig");
 
 module.exports = {
-  async getAllUsers(req, res) {
-    try {
-      const userCollection = await User.findAll({
-        where: {
-          isDeleted: false
-        }
-      });
-      return userCollection;
-    } catch (e) {
-      console.log(e);
-      res.status(500).send(e);
-    }
-  },
-
   // Register for a new user
   async create(req, res) {
     // console.log(req.body);
@@ -58,32 +44,7 @@ module.exports = {
     }
   },
 
-  async update(req, res) {
-    try {
-      const userCollection = await User.find({
-        id: req.params.userId,
-        isDeleted: false
-      });
-
-      if (userCollection) {
-        const updatedUser = await User.update({
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          email: req.body.email,
-          phone: req.body.phone
-        });
-
-        res.status(201).send(updatedUser);
-      } else {
-        res.status(404).send("User Not Found");
-      }
-    } catch (e) {
-      console.log(e);
-
-      res.status(500).send(e);
-    }
-  },
-
+  // Login
   async userLogin(req, res, next) {
     try {
       if (!req.body.username || !req.body.password) {
@@ -124,5 +85,128 @@ module.exports = {
     } catch (err) {
       console.log(err);
     }
+  },
+
+  IsUserAuthorized(req, res, next) {
+    passport.authenticate(
+      "jwt",
+      { session: false },
+      async (err, user, info) => {
+        if (err) {
+          console.log(err);
+          return res.json({ error: err });
+        }
+        if (info !== undefined) {
+          console.log(info.message);
+          res.status(401).json({ message: info.message });
+        } else {
+          try {
+            if (user) {
+              res.json({ user: user });
+            } else {
+              res.json({ user: null });
+            }
+          } catch (e) {
+            console.log(e);
+            res.json({ error: e });
+          }
+        }
+      }
+    )(req, res, next);
+  },
+  // get all the availble users from DB
+  getAllUsers(req, res, next) {
+    passport.authenticate(
+      "jwt",
+      { session: false },
+      async (err, user, info) => {
+        if (err) {
+          console.log(err);
+          return res.json({ error: err });
+        }
+        if (info !== undefined) {
+          console.log(info.message);
+          res.status(401).json({ message: info.message });
+        } else {
+          try {
+            const userCollection = await User.findAll({
+              where: {
+                isDeleted: false
+              }
+            });
+            res.json({ users: userCollection });
+          } catch (e) {
+            console.log(e);
+            res.status(500).send(e);
+          }
+        }
+      }
+    );
+  },
+
+  //Update users
+  async update(req, res, next) {
+    passport.authenticate(
+      "jwt",
+      { session: false },
+      async (err, user, info) => {
+        if (err) {
+          console.log(err);
+          return res.json({ error: err });
+        }
+        if (info !== undefined) {
+          console.log(info.message);
+          res.status(401).json({ message: info.message });
+        } else {
+          try {
+            const userCollection = await User.findOne({
+              where: { id: user.id, isDeleted: false }
+            });
+
+            if (userCollection) {
+              const updatedUser = await User.update(req.body, {
+                where: {
+                  id: user.id,
+                  isDeleted: false
+                }
+              });
+
+              res.status(201).send(updatedUser);
+            } else {
+              res.status(404).send("User Not Found");
+            }
+          } catch (e) {
+            console.log(e);
+
+            res.status(500).send(e);
+          }
+        }
+      }
+    )(req, res, next);
+  },
+
+  //Logging out
+  signOut(req, res, next) {
+    passport.authenticate("jwt", { session: false }, (err, user, info) => {
+      if (err) {
+        console.log(err);
+        return res.json({ error: err });
+      }
+      if (info !== undefined) {
+        console.log(info.message);
+        res.status(401).json({ message: info.message });
+      } else {
+        try {
+          if (user) {
+            req.logout();
+            res.send({ msg: "logging out" });
+          } else {
+            res.send({ msg: "no user to log out" });
+          }
+        } catch (e) {
+          throw e;
+        }
+      }
+    })(req, res, next);
   }
 };
