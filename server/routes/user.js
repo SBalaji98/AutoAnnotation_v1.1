@@ -1,12 +1,15 @@
 const express = require("express");
 const aws = require("aws-sdk");
 const router = express.Router();
+const passport = require("passport");
 const userController = require("../controllers/user");
 const s3Controller = require("../S3-bucket/s3.controller");
 
 router.post("/", userController.create);
 
-router.post("/login", userController.userLogin);
+router.post("/login", (req, res, next) => {
+  userController.userLogin(req, res, next);
+});
 
 router.get("/", (req, res, next) => {
   try {
@@ -44,16 +47,29 @@ router.post("/logout", (req, res) => {
   }
 });
 
-router.get("/image-data", async (req, res) => {
-  try {
-    if (req.user) {
-      aws.config.setPromisesDependency();
-      const resp = await s3Controller.getObjectList(req.user.userName);
-      res.json(resp.Contents);
+router.get("/image-data", async (req, res, next) => {
+  passport.authenticate("jwt", (err, user, info) => {
+    if (err) {
+      console.log(err);
     }
-  } catch (e) {
-    throw e;
-  }
+    if (info !== undefined) {
+      console.log(info.message);
+      res.status(401).send(info.message);
+    } else {
+      console.log("successfully called");
+
+      console.log(user);
+
+      // if (req) {
+      //   console.log(req);
+      //   aws.config.setPromisesDependency();
+      //   const resp = await s3Controller.getObjectList(req.user.userName);
+      //   res.json(resp.Contents);
+      // } else {
+      //   res.json({ error: "undefined user" });
+      // }
+    }
+  })(req, res, next);
 });
 
 router.get("/image", async (req, res) => {

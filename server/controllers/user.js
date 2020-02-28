@@ -3,7 +3,7 @@ const User = require("../models").User;
 const s3Controller = require("../S3-bucket/s3.controller");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
-// const jwtConfig = require("../passport/jwtConfig");
+const jwtSecret = require("../passport/jwtConfig");
 
 module.exports = {
   async getAllUsers(req, res) {
@@ -84,48 +84,45 @@ module.exports = {
     }
   },
 
-  userLogin(req, res, next) {
-    // console.log(req);
-    passport.authenticate("login", (err, user, info) => {
-      console.log("pass");
-      if (err) {
-        console.log(err);
-      }
-      if (info != undefined) {
-        console.log("pass");
-        console.log(info.message);
-        res.send(info.message);
-      } else {
-        console.log("pass");
-        req.logIn(user, err => {
-          User.findOne({
-            where: {
-              username: user.username
-            }
-          }).then(user => {
-            const token = jwt.sign({ id: user.username }, jwtSecret.secret);
-            res.status(200).send({
-              auth: true,
-              token: token,
-              message: "user found & logged in"
-            });
-          });
+  async userLogin(req, res, next) {
+    try {
+      if (!req.body.username || !req.body.password) {
+        return res.status(400).json({
+          message: "Something is not right with your input"
         });
       }
-    });
-  },
-
-  register(req, res, next) {
-    passport.authenticate("register", (err, user, info) => {
-      if (err) {
-        console.log(err);
-      }
-      if (info != undefined) {
-        console.log(info.message);
-        res.send(info.message);
-      } else {
-        console.log(req);
-      }
-    });
+      passport.authenticate("login", (err, users, info) => {
+        if (err) {
+          console.error(`error ${err}`);
+        }
+        if (info !== undefined) {
+          console.error(info.message);
+          if (info.message === "bad username") {
+            res.status(401).send(info.message);
+          } else {
+            res.status(403).send(info.message);
+          }
+        } else {
+          req.logIn(users, () => {
+            User.findOne({
+              where: {
+                userName: req.body.username
+              }
+            }).then(user => {
+              const token = jwt.sign({ id: user.id }, jwtSecret.secret, {
+                expiresIn: 60 * 60
+              });
+              res.status(200).send({
+                auth: true,
+                token,
+                message: "user found & logged in"
+              });
+            });
+          });
+        }
+      })(req, res, next);
+    } catch (err) {
+      console.log(err);
+    }
   }
 };
