@@ -1,86 +1,109 @@
 const Annotations = require("../models").Annotation;
+const passport = require("passport");
 const User = require("../models").User;
 
 module.exports = {
-  async getAllAnnotations(req, res) {
-    try {
-      const annotatedData = await Annotations.findAll({
-        where: {
-          isDeleted: false
+  //get all data from annotation table
+  async getAllAnnotations(req, res, next) {
+    passport.authenticate(
+      "jwt",
+      { session: false },
+      async (err, user, info) => {
+        if (err) {
+          console.log(err);
+          res.json({ error: err });
         }
-      });
-      console.log(annotatedData);
-      return annotatedData;
-    } catch (e) {
-      console.log(e);
-      res.status(500).send(e);
-    }
-  },
-  async getAnnotationsByUsers(req, res) {
-    try {
-      const annotatedData = await Annotations.findAll({
-        where: {
-          userId: req.user.id,
-          isDeleted: false
+        if (info !== undefined) {
+          console.log(info.message);
+          res.status(401).json({ message: info.message });
+        } else if (user) {
+          try {
+            const annotatedData = await Annotations.findAll({
+              where: {
+                isDeleted: false
+              }
+            });
+            res.status(200).json({ data: annotatedData });
+          } catch (e) {
+            console.log(e);
+            res.status(500).send(e);
+          }
         }
-      });
-      return annotatedData;
-    } catch (e) {
-      console.log(e);
-      res.status(500).send(e);
-    }
-  },
-  async create(req, res) {
-    try {
-      let annotation = await Annotations.findOne({
-        where: {
-          userId: req.user.id,
-          fileName: req.body.fileName,
-          isDeleted: false
-        }
-      });
-      if (annotation) {
-        console.log("already exist");
-        return;
-      } else {
-        const addAnnotation = await Annotations.create({
-          userId: req.user.id,
-          fileName: req.body.fileName,
-          isAnnotated: req.body.isAnnotated,
-          annotatedData: req.body.annotatedData
-        });
-        res.status(201).send(addAnnotation);
       }
-    } catch (e) {
-      console.log(e);
-      res.status(400).send(e);
-    }
+    )(req, res, next);
   },
-  async update(req, res) {
-    try {
-      let annotation = await Annotations.findOne({
-        where: {
-          userId: req.user.id,
-          fileName: req.body.fileName,
-          isDeleted: false
+
+  //get all the data of annotations by user
+  getAnnotationsByUsers(req, res) {
+    passport.authenticate(
+      "jwt",
+      { session: false },
+      async (err, user, info) => {
+        if (err) {
+          console.log(err);
+          res.json({ error: err });
         }
-      });
-      console.log(annotation);
-
-      if (annotation) {
-        let updatedAnnotation = Annotations.update({
-          isAnnotated: req.body.isAnnotated,
-          annotatedData: req.body.annotatedData,
-          isDeleted: req.body.isDeleted
-        });
-
-        // console.log(updatedAnnotation);
-        res.status(201).send(updatedAnnotation);
-      } else {
-        res.status(404).send("Not Found");
+        if (info !== undefined) {
+          console.log(info.message);
+          res.status(401).json({ message: info.message });
+        } else {
+          console.log(user);
+          try {
+            const annotatedData = await Annotations.findAll({
+              where: {
+                userId: user.id,
+                isDeleted: false
+              }
+            });
+            res.status(200).json({ data: annotatedData });
+          } catch (e) {
+            console.log(e);
+            res.status(500).send(e);
+          }
+        }
       }
-    } catch (e) {
-      res.json({ error: e });
-    }
+    )(req, res);
+  },
+
+  //adding images for annotations in the table
+  create(req, res, next) {
+    passport.authenticate(
+      "jwt",
+      { session: false },
+      async (err, user, info) => {
+        if (err) {
+          console.log(err);
+          res.json({ error: err });
+        }
+        if (info !== undefined) {
+          console.log(info.message);
+          res.status(401).json({ message: info.message });
+        } else {
+          try {
+            let annotation = await Annotations.findOne({
+              where: {
+                userId: user.id,
+                fileName: req.body.fileName,
+                isDeleted: false
+              }
+            });
+            if (annotation) {
+              res.status(200).json({ message: "File is already exist" });
+            } else {
+              const addAnnotation = await Annotations.create({
+                userId: user.id,
+                fileName: req.body.fileName,
+                isAnnotated: req.body.isAnnotated,
+                annotatedData: req.body.annotatedData
+              });
+              res.status(201).send(addAnnotation);
+            }
+          } catch (e) {
+            console.log(e);
+            res.status(400).send(e);
+          }
+        }
+      }
+    )(req, res, next);
   }
 };

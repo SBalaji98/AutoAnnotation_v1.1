@@ -1,84 +1,52 @@
 const express = require("express");
-const aws = require("aws-sdk");
 const router = express.Router();
 const userController = require("../controllers/user");
-const passport = require("../passport");
-const s3Controller = require("../S3-bucket/s3.controller");
-
-router.post("/", userController.create);
+const imageRenderController = require("../controllers/imageRender");
+const { check, validationResult } = require("express-validator");
 
 router.post(
-  "/login",
-  (req, res, next) => {
-    next();
-  },
-  passport.authenticate("local"),
+  "/",
+  [
+    check("username").notEmpty(),
+    check("email")
+      .isEmail()
+      .notEmpty(),
+    check("mobile").isMobilePhone(),
+    check("password")
+      .notEmpty()
+      .isLength({ min: 5 })
+  ],
   (req, res) => {
-    try {
-      var userInfo = {
-        username: req.user.username
-      };
-      res.send(userInfo);
-    } catch (e) {
-      res.send(e);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
     }
+
+    userController.create(req, res);
   }
 );
 
 router.get("/", (req, res, next) => {
-  try {
-    if (req.user) {
-      res.json({ user: req.user });
-    } else {
-      res.json({ user: null });
-    }
-  } catch (e) {
-    throw e;
-  }
+  userController.IsUserAuthorized(req, res, next);
 });
 
-router.put("/update", async (req, res) => {
-  try {
-    if (req.user) {
-      let updateUser = userController.update(req, res);
-      res.json({ response: updateUser });
-    }
-  } catch (e) {
-    res.json({ error: e });
-  }
+router.post("/login", (req, res, next) => {
+  userController.userLogin(req, res, next);
 });
 
-router.post("/logout", (req, res) => {
-  try {
-    if (req.user) {
-      req.logout();
-      res.send({ msg: "logging out" });
-    } else {
-      res.send({ msg: "no user to log out" });
-    }
-  } catch (e) {
-    throw e;
-  }
+router.put("/update", (req, res, next) => {
+  userController.update(req, res, next);
 });
 
-router.get("/image-data", async (req, res) => {
-  try {
-    if (req.user) {
-      aws.config.setPromisesDependency();
-      const resp = await s3Controller.getObjectList(req.user.userName);
-      res.json(resp.Contents);
-    }
-  } catch (e) {
-    throw e;
-  }
+router.get("/image-data", (req, res, next) => {
+  imageRenderController.getAllImageData(req, res, next);
 });
 
-router.get("/image", async (req, res) => {
-  try {
-    await s3Controller.getListedObject(req, res);
-  } catch (e) {
-    throw e;
-  }
+router.get("/image", (req, res, next) => {
+  imageRenderController.renderImageById(req, res, next);
+});
+router.post("/logout", (req, res, next) => {
+  userController.signOut(req, res, next);
 });
 
 module.exports = router;
