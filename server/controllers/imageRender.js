@@ -27,7 +27,6 @@ module.exports = {
       "jwt",
       { session: false },
       async (err, user, info) => {
-        console.log(req);
         if (err) {
           console.log(err);
           res.json({ error: err });

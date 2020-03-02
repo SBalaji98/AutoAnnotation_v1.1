@@ -18,7 +18,6 @@ module.exports = {
     }
 
     let res = s3.listObjectsV2(params).promise();
-    // console.log(res);
     return res;
   },
   async getListedObject(req, res) {

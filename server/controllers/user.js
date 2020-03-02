@@ -199,7 +199,6 @@ module.exports = {
   //Logging out
   signOut(req, res, next) {
     passport.authenticate("jwt", { session: false }, (err, user, info) => {
-      console.log(req.headers);
       if (err) {
         console.log(err);
         return res.json({ error: err });
