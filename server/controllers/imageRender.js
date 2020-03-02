@@ -15,8 +15,6 @@ module.exports = {
           console.log(info.message);
           res.status(401).send(info.message);
         } else {
-          console.log("Authenticated");
-
           aws.config.setPromisesDependency();
           const resp = await s3Controller.getObjectList(user.userName);
           res.json(resp.Contents);
@@ -29,6 +27,7 @@ module.exports = {
       "jwt",
       { session: false },
       async (err, user, info) => {
+        console.log(req);
         if (err) {
           console.log(err);
           res.json({ error: err });

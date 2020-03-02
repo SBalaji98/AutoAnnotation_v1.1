@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import logo from "../logo.png";
 import "../App.css";
-import axios from "axios";
 
 class Navbar extends Component {
   constructor() {
@@ -10,22 +9,15 @@ class Navbar extends Component {
     this.logout = this.logout.bind(this);
   }
 
-  logout(event) {
+  logout = event => {
     console.log("logging out");
-    axios
-      .post("/user/logout")
-      .then(response => {
-        if (response.status === 200) {
-          this.props.updateUser({
-            loggedIn: false,
-            username: null
-          });
-        }
-      })
-      .catch(error => {
-        console.log("Logout error");
-      });
-  }
+    event.preventDefault();
+    localStorage.removeItem("jwt");
+    this.props.updateUser({
+      loggedIn: false,
+      username: null
+    });
+  };
 
   render() {
     const loggedIn = this.props.loggedIn;

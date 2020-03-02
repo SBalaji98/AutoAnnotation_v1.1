@@ -12,7 +12,16 @@ class App extends Component {
   };
 
   async componentDidMount() {
-    let objList = await axios.get("/user/image-data", () => {});
+    let accessString = localStorage.getItem("jwt");
+    let objList = await axios.get(
+      "/user/image-data",
+      {
+        headers: {
+          Authorization: `bearer ${accessString}`
+        }
+      },
+      () => {}
+    );
     if (objList.data.length > 0) {
       this.setState({
         imgListObject: objList,
@@ -23,12 +32,21 @@ class App extends Component {
 
   saveImageData = async () => {
     console.log("annotations");
+    let accessString = localStorage.getItem("jwt");
     await axios
-      .put("/annotations", {
-        fileName: this.state.imgKey,
-        annotatedData: this.state.annotatedData,
-        isAnnotated: this.state.isAnnotated
-      })
+      .put(
+        "/annotations",
+        {
+          fileName: this.state.imgKey,
+          annotatedData: this.state.annotatedData,
+          isAnnotated: this.state.isAnnotated
+        },
+        {
+          headers: {
+            Authorization: `bearer ${accessString}`
+          }
+        }
+      )
       .then(resp => {
         console.log(resp);
       })
@@ -40,10 +58,15 @@ class App extends Component {
   nextImage = async () => {
     let { imgCount, imgKey, imgListObject } = this.state;
     let objLen = imgListObject.data.length;
+    let accessString = localStorage.getItem("jwt");
 
     await axios
       .get(`/user/image?key=${imgKey}`, {
-        responseType: "arraybuffer"
+        responseType: "arraybuffer",
+
+        headers: {
+          Authorization: `bearer ${accessString}`
+        }
       })
       .then(result => {
         const imgFile = new Blob([result.data], {

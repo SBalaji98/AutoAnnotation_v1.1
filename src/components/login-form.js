@@ -35,6 +35,10 @@ class LoginForm extends Component {
             loggedIn: true,
             username: response.data.username
           });
+
+          //update local storage
+          localStorage.setItem("jwt", response.data.token);
+
           // update the state to redirect to home
           this.setState({
             redirectTo: "/"

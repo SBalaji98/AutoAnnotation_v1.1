@@ -78,6 +78,7 @@ module.exports = {
               );
               res.status(200).send({
                 auth: true,
+                username: user.userName,
                 token,
                 message: "user found & logged in"
               });
@@ -198,6 +199,7 @@ module.exports = {
   //Logging out
   signOut(req, res, next) {
     passport.authenticate("jwt", { session: false }, (err, user, info) => {
+      console.log(req.headers);
       if (err) {
         console.log(err);
         return res.json({ error: err });
@@ -209,7 +211,7 @@ module.exports = {
         try {
           if (user) {
             req.logout();
-            res.send({ msg: "logging out" });
+            res.status(200).send({ msg: "logging out" });
           } else {
             res.send({ msg: "no user to log out" });
           }
