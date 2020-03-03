@@ -10,11 +10,12 @@ const salt = 10;
 const Op = Sequelize.Op;
 module.exports = {
   sendForgotPasswordMail(req, res) {
+    console.log(req);
     let email = req.body.email;
 
     if (email === "" || email == undefined) {
       console.log("email is required");
-      res.status(400).json({ msg: "Email is required" });
+      res.json({ msg: "Email is required" });
     } else {
       User.findOne({
         where: {
@@ -31,7 +32,7 @@ module.exports = {
             resetPasswordTokenExpires: Date.now() + 3600000
           });
 
-          const link = `http://localhost:8080/user/reset/${token}`;
+          const link = `http://localhost:3000/reset/${token}`;
 
           const transporter = nodemailer.createTransport({
             service: "gmail",
@@ -54,14 +55,13 @@ module.exports = {
               if you did not request this please ignore this email and your password will remain unchanged`
           };
 
-          console.log("Sending Mail");
-
           transporter.sendMail(mailOpts, (err, resp) => {
             if (err) {
               console.log(err);
+              res.status(400).json({ message: err });
             } else {
               // console.log("here is the res: ", resp);
-              console.log(Date.now());
+
               res.status(200).json(mailOpts);
             }
           });
