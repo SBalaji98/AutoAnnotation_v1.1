@@ -3,6 +3,8 @@ const User = require("../models").User;
 const nodemailer = require("nodemailer");
 const Sequelize = require("sequelize");
 const bcrypt = require("bcrypt");
+const passport = require("passport");
+
 const salt = 10;
 
 const Op = Sequelize.Op;
@@ -120,5 +122,36 @@ module.exports = {
         });
       }
     });
+  },
+  // yet to be completed some bugs cannot get the proper response
+  updatePassword(req, res, next) {
+    passport.authenticate(
+      "jwt",
+      { session: false },
+      async (err, user, info) => {
+        console.log(user);
+
+        if (err) {
+          console.log(err);
+          res.status(400).json({
+            message: err
+          });
+        }
+        if (info !== undefined) {
+          console.log(info.message);
+          res.status(401).json({ message: info.message });
+        } else {
+          User.findOne({
+            where: {
+              userName: user.userName,
+              password: await bcrypt
+                .hash(req.body.password, salt)
+                .then(hashPassword => hashPassword),
+              isDeleted: false
+            }
+          }).then(user => console.log(user));
+        }
+      }
+    )(req, res, next);
   }
 };
