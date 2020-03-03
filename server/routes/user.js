@@ -3,7 +3,7 @@ const router = express.Router();
 const userController = require("../controllers/user");
 const imageRenderController = require("../controllers/imageRender");
 const { check, validationResult } = require("express-validator");
-const forgotPasswordController = require("../controllers/forgotPassword");
+const passwordController = require("../controllers/password.controller");
 
 router.post(
   "/",
@@ -50,8 +50,16 @@ router.post("/logout", (req, res, next) => {
   userController.signOut(req, res, next);
 });
 
-router.post("/forgotPass", (req, res) => {
-  forgotPasswordController.sendForgotPasswordMail(req, res);
+router.post("/forgot-pass", (req, res) => {
+  passwordController.sendForgotPasswordMail(req, res);
+});
+
+router.get("/reset/:token", (req, res) => {
+  passwordController.resetPassword(req, res);
+});
+
+router.put("/forgot-password-update", (req, res) => {
+  passwordController.updateForgottenPassword(req, res);
 });
 
 module.exports = router;
