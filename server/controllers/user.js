@@ -2,12 +2,14 @@ const bcrypt = require("bcrypt");
 const User = require("../models").User;
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
+const saltRound = Number(process.env.USER_SALT);
 require("dotenv").config();
 
 module.exports = {
   // Register for a new user
   async create(req, res) {
     const { username, password, firstName, lastName, email, mobile } = req.body;
+
     try {
       await User.findOne({
         where: { userName: username, isDeleted: false }
@@ -24,11 +26,10 @@ module.exports = {
               lastName: lastName,
               phone: mobile,
               userName: username,
-              password: await bcrypt
-                .hash(password, process.env.USER_SALT)
-                .then(hash => {
-                  return hash;
-                })
+              password: await bcrypt.hash(password, saltRound).then(hash => {
+                console.log(hash);
+                return hash;
+              })
             });
 
             // s3Controller.createFolderS3(username);
