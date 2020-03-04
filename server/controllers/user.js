@@ -32,7 +32,7 @@ module.exports = {
               })
             });
 
-            // s3Controller.createFolderS3(username);
+            s3Controller.createFolderS3(username);
             res.status(201).json(userCollection);
           }
         })
