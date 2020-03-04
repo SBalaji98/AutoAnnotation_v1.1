@@ -5,6 +5,9 @@ import Signup from "./components/sign-up";
 import LoginForm from "./components/login-form";
 import Navbar from "./components/navbar";
 import Home from "./components/home";
+import ForgotPassword from "./components/forgotPassword";
+import ResetPassword from "./components/ResetPassword";
+import Routes from "./Routes";
 
 class App extends Component {
   constructor() {
@@ -37,7 +40,7 @@ class App extends Component {
           path="/login"
           render={() => <LoginForm updateUser={this.updateUser} />}
         />
-        <Route path="/signup" render={() => <Signup />} />
+        <Routes />
       </div>
     );
   }

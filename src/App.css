@@ -24,6 +24,12 @@
 .navbar {
   margin-top: auto;
 }
+.FormField__Link {
+  color: #66707d;
+  text-decoration: none;
+  display: inline-block;
+  padding-bottom: 5px;
+}
 #top-filler {
   margin-bottom: auto;
 }

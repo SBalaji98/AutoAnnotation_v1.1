@@ -10,7 +10,9 @@ module.exports = (sequelize, DataTypes) => {
       userName: { type: DataTypes.STRING, allowNull: false, unique: true },
       phone: { type: DataTypes.DOUBLE, allowNull: false },
       password: { type: DataTypes.STRING, allowNull: false, unique: true },
-      isDeleted: { type: DataTypes.BOOLEAN, defaultValue: false }
+      isDeleted: { type: DataTypes.BOOLEAN, defaultValue: false },
+      resetPasswordToken: { type: DataTypes.STRING },
+      resetPasswordTokenExpires: { type: DataTypes.DATE }
     },
     {}
   );
