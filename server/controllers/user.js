@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models").User;
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
+const s3Controller = require("../S3-bucket/s3.controller");
 const saltRound = Number(process.env.USER_SALT);
 require("dotenv").config();
 
