@@ -8,6 +8,8 @@ const User = require("../models").User;
 
 require("dotenv").config();
 
+const saltRound = Number(process.env.USER_SALT);
+
 passport.use(
   "register",
   new LocalStrategy((req, username, password, done) => {
@@ -23,7 +25,7 @@ passport.use(
             message: "username or email already taken"
           });
         }
-        bcrypt.hash(password, process.env.USER_SALT).then(hashedPassword => {
+        bcrypt.hash(password, saltRound).then(hashedPassword => {
           User.create({
             username,
             password: hashedPassword,

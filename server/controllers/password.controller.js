@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const passport = require("passport");
 
 require("dotenv").config();
+const saltRound = Number(process.env.USER_SALT);
 
 const Op = Sequelize.Op;
 module.exports = {
@@ -109,17 +110,15 @@ module.exports = {
         res.status(400).json({ message: "Password reset link is invalid" });
       } else {
         console.log("user found in db");
-        bcrypt
-          .hash(req.body.password, process.env.USER_SALT)
-          .then(hashPassword => {
-            user.update({
-              password: hashPassword,
-              resetPasswordToken: null,
-              resetPasswordTokenExpires: null
-            });
-
-            res.status(200).json({ message: "password reset successfully" });
+        bcrypt.hash(req.body.password, saltRound).then(hashPassword => {
+          user.update({
+            password: hashPassword,
+            resetPasswordToken: null,
+            resetPasswordTokenExpires: null
           });
+
+          res.status(200).json({ message: "password reset successfully" });
+        });
       }
     });
   },
@@ -145,7 +144,7 @@ module.exports = {
             where: {
               userName: user.userName,
               password: await bcrypt
-                .hash(req.body.password, process.env.USER_SALT)
+                .hash(req.body.password, saltRound)
                 .then(hashPassword => hashPassword),
               isDeleted: false
             }
