@@ -1,10 +1,11 @@
 const aws = require("aws-sdk");
-const jsonConfig = require("../../config.json");
 const fs = require("fs");
 
+require("dotenv").config();
+
 const s3 = new aws.S3({
-  accessKeyId: jsonConfig.aws.accessKeyId,
-  secretAccessKey: jsonConfig.aws.secretAccessKey
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY
 });
 
 module.exports = {
@@ -12,9 +13,9 @@ module.exports = {
     aws.config.setPromisesDependency();
     let params = {};
     if (prefix !== null) {
-      params = { Bucket: jsonConfig.bucket, Prefix: prefix };
+      params = { Bucket: process.env.BUCKET, Prefix: prefix };
     } else {
-      params = { Bucket: jsonConfig.bucket };
+      params = { Bucket: process.env.BUCKET };
     }
 
     let res = s3.listObjectsV2(params).promise();
@@ -22,7 +23,7 @@ module.exports = {
   },
   async getListedObject(req, res) {
     var getParams = {
-      Bucket: jsonConfig.bucket,
+      Bucket: process.env.BUCKET,
       Key: req.query.key
     };
 
@@ -39,7 +40,7 @@ module.exports = {
 
   createFolderS3(folderName) {
     var params = {
-      Bucket: jsonConfig.bucket,
+      Bucket: process.env.BUCKET,
       Key: `${folderName}/`,
       ACL: "public-read",
       Body: ""
@@ -64,7 +65,7 @@ module.exports = {
       let listIndex = 0;
       files.forEach(function(file) {
         s3.putObject({
-          Bucket: jsonConfig.bucket,
+          Bucket: process.env.BUCKET,
           Body: fs.readFileSync(`${directoryPath}/${file}`),
           Key: `${res.Contents[listIndex].Key}${file}`
         })

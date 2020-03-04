@@ -1,10 +1,9 @@
 const bcrypt = require("bcrypt");
 const User = require("../models").User;
-const s3Controller = require("../S3-bucket/s3.controller");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
-const jwtSecret = require("../passport/jwtConfig");
-const salt = 10;
+require("dotenv").config();
+
 module.exports = {
   // Register for a new user
   async create(req, res) {
@@ -25,9 +24,11 @@ module.exports = {
               lastName: lastName,
               phone: mobile,
               userName: username,
-              password: await bcrypt.hash(password, salt).then(hash => {
-                return hash;
-              })
+              password: await bcrypt
+                .hash(password, process.env.USER_SALT)
+                .then(hash => {
+                  return hash;
+                })
             });
 
             // s3Controller.createFolderS3(username);
@@ -71,7 +72,7 @@ module.exports = {
             }).then(user => {
               const token = jwt.sign(
                 { sub: user.id, username: user.userName },
-                jwtSecret.secret,
+                process.env.JWT_SECRET,
                 {
                   expiresIn: 60 * 60
                 }

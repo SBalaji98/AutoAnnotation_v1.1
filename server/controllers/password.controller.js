@@ -5,7 +5,7 @@ const Sequelize = require("sequelize");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
 
-const salt = 10;
+require("dotenv").config();
 
 const Op = Sequelize.Op;
 module.exports = {
@@ -31,13 +31,13 @@ module.exports = {
             resetPasswordTokenExpires: Date.now() + 3600000
           });
 
-          const link = `http://localhost:3000/reset/${token}`;
+          const link = `${process.env.RESET_LINK}/${token}`;
 
           const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-              user: "fluxannotations@gmail.com",
-              pass: "Flux@ut0"
+              user: process.env.SOURCE_EMAIL,
+              pass: process.env.EMAIL_PASSWORD
             }
           });
 
@@ -109,15 +109,17 @@ module.exports = {
         res.status(400).json({ message: "Password reset link is invalid" });
       } else {
         console.log("user found in db");
-        bcrypt.hash(req.body.password, salt).then(hashPassword => {
-          user.update({
-            password: hashPassword,
-            resetPasswordToken: null,
-            resetPasswordTokenExpires: null
-          });
+        bcrypt
+          .hash(req.body.password, process.env.USER_SALT)
+          .then(hashPassword => {
+            user.update({
+              password: hashPassword,
+              resetPasswordToken: null,
+              resetPasswordTokenExpires: null
+            });
 
-          res.status(200).json({ message: "password reset successfully" });
-        });
+            res.status(200).json({ message: "password reset successfully" });
+          });
       }
     });
   },
@@ -143,7 +145,7 @@ module.exports = {
             where: {
               userName: user.userName,
               password: await bcrypt
-                .hash(req.body.password, salt)
+                .hash(req.body.password, process.env.USER_SALT)
                 .then(hashPassword => hashPassword),
               isDeleted: false
             }

@@ -1,14 +1,12 @@
 const bcrypt = require("bcrypt");
-const Sequelize = require("sequelize");
-const jwtSecret = require("./jwtConfig");
-
-const BCRYPT_SALT_ROUNDS = 12;
 
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const JWTstrategy = require("passport-jwt").Strategy;
 const ExtractJWT = require("passport-jwt").ExtractJwt;
 const User = require("../models").User;
+
+require("dotenv").config();
 
 passport.use(
   "register",
@@ -25,7 +23,7 @@ passport.use(
             message: "username or email already taken"
           });
         }
-        bcrypt.hash(password, BCRYPT_SALT_ROUNDS).then(hashedPassword => {
+        bcrypt.hash(password, process.env.USER_SALT).then(hashedPassword => {
           User.create({
             username,
             password: hashedPassword,
@@ -71,7 +69,7 @@ passport.use(
 
 const opts = {
   jwtFromRequest: ExtractJWT.fromAuthHeaderWithScheme("bearer"),
-  secretOrKey: jwtSecret.secret
+  secretOrKey: process.env.JWT_SECRET
 };
 
 passport.use(
