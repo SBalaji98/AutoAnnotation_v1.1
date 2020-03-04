@@ -59,7 +59,7 @@ router.post("/forgot-password", (req, res) => {
   passwordController.sendForgotPasswordMail(req, res);
 });
 
-router.get("/reset/:token", (req, res) => {
+router.get("/reset", (req, res) => {
   passwordController.resetPassword(req, res);
 });
 

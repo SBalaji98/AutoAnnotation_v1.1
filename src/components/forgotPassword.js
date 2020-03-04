@@ -7,7 +7,8 @@ export class forgotPassword extends Component {
     super();
 
     this.state = {
-      email: ""
+      email: "",
+      emailSent: false
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -27,11 +28,27 @@ export class forgotPassword extends Component {
         email: this.state.email
       })
       .then(res => {
-        console.log(res);
+        if ((res.data.message = "recovery mail sent")) {
+          this.setState({
+            emailSent: true
+          });
+        }
+      })
+      .catch(e => {
+        alert(e);
       });
   }
 
   render() {
+    if (this.state.emailSent == true) {
+      return (
+        <div>
+          {" "}
+          <h4>A reset link has been sent to your email</h4>
+        </div>
+      );
+    }
+
     return (
       <div>
         <h4>Forgot Password</h4>

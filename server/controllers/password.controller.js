@@ -10,7 +10,6 @@ const salt = 10;
 const Op = Sequelize.Op;
 module.exports = {
   sendForgotPasswordMail(req, res) {
-    console.log(req);
     let email = req.body.email;
 
     if (email === "" || email == undefined) {
@@ -62,7 +61,7 @@ module.exports = {
             } else {
               // console.log("here is the res: ", resp);
 
-              res.status(200).json(mailOpts);
+              res.status(200).json({ message: "recovery mail sent" });
             }
           });
         }
@@ -72,14 +71,13 @@ module.exports = {
   resetPassword(req, res) {
     User.findOne({
       where: {
-        resetPasswordToken: req.params.token,
+        resetPasswordToken: req.query.resetPasswordToken,
         resetPasswordTokenExpires: {
           [Op.gt]: Date.now()
         }
       }
     })
       .then(user => {
-        console.log(user);
         if (user == null) {
           console.error("password reset link is invalid or has expired");
           res.status(403).send("password reset link is invalid or has expired");
@@ -99,7 +97,7 @@ module.exports = {
   updateForgottenPassword(req, res) {
     User.findOne({
       where: {
-        userName: req.body.userName,
+        userName: req.body.username,
         resetPasswordToken: req.body.resetPasswordToken,
         resetPasswordTokenExpires: {
           [Op.gt]: Date.now()
