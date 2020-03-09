@@ -1,6 +1,8 @@
 const Annotations = require("../models").Annotation;
 const passport = require("passport");
 const User = require("../models").User;
+const csvjson = require("csvjson");
+const { Parser } = require("json2csv");
 
 module.exports = {
   //get all data from annotation table
@@ -105,5 +107,37 @@ module.exports = {
         }
       }
     )(req, res, next);
+  },
+  async changeFormatToCSV(req, res, next) {
+    const fields = ["id", "name", "position"];
+    const opts = { fields };
+
+    const data = await Annotations.findAll({ where: { isDeleted: false } });
+    console.log(data);
+    const myData = [
+      {
+        id: "1",
+        name: "John Smith",
+        position: "Manager"
+      },
+      {
+        id: "2",
+        name: "Johny Bravo",
+        position: "Employee"
+      },
+      {
+        id: "3",
+        name: "Peter",
+        position: "N/A"
+      }
+    ];
+    try {
+      const parser = new Parser(opts);
+      const csv = parser.parse(myData);
+      console.log(csv);
+      res.send(data);
+    } catch (e) {
+      res.json(e);
+    }
   }
 };

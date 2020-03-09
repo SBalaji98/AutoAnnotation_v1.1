@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Redirect, Link } from "react-router-dom";
 import axios from "axios";
 
 export class forgotPassword extends Component {
@@ -40,7 +39,7 @@ export class forgotPassword extends Component {
   }
 
   render() {
-    if (this.state.emailSent == true) {
+    if (this.state.emailSent === true) {
       return (
         <div>
           {" "}

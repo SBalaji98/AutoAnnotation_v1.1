@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
+import PhoneInput from "react-phone-input-2";
 
 class Signup extends Component {
   constructor() {
@@ -53,8 +54,8 @@ class Signup extends Component {
           }
         })
         .catch(error => {
-          console.log("signup error: ");
-          console.log(error);
+          let errors = error.response.data.errors;
+          alert(errors[0].msg);
         });
     }
   }
@@ -147,19 +148,23 @@ class Signup extends Component {
             <div className="form-group">
               <div className="col-1 col-ml-auto">
                 <label className="form-label" htmlFor="username">
-                  Mobile Number
+                  Mobile No.
                 </label>
               </div>
               <div className="col-3 col-mr-auto">
-                <input
-                  className="form-input"
-                  type="Number"
-                  id="mobile"
-                  name="mobile"
+                <PhoneInput
+                  inputClass="form-input"
                   placeholder="Mobile Number"
+                  country={"in"}
+                  inputProps={{
+                    type: "tel",
+                    id: "mobile",
+                    name: "mobile",
+                    renderStringAsFlag: "india",
+                    required: "required"
+                  }}
                   value={this.state.mobile}
-                  onChange={this.handleChange}
-                  required="required"
+                  onChange={mobile => this.setState({ mobile })}
                 />
               </div>
             </div>

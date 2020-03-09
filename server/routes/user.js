@@ -9,17 +9,19 @@ router.post(
   "/",
   [
     check("username").notEmpty(),
-    check("email")
+    check("email", "Invalid Email")
       .isEmail()
       .notEmpty(),
-    check("mobile").isMobilePhone(),
-    check("password")
+    check("mobile", "Invalid Phone number").notEmpty(),
+    check("password", "Password must be atleast of 5 characters")
       .notEmpty()
       .isLength({ min: 5 })
   ],
   (req, res) => {
+    console.log(req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log(errors.array());
       return res.status(422).json({ errors: errors.array() });
     }
 

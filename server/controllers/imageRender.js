@@ -15,9 +15,13 @@ module.exports = {
           console.log(info.message);
           res.status(401).send(info.message);
         } else {
-          aws.config.setPromisesDependency();
-          const resp = await s3Controller.getObjectList(user.userName);
-          res.json(resp.Contents);
+          try {
+            aws.config.setPromisesDependency();
+            const resp = await s3Controller.getObjectList(user.userName);
+            res.json(resp.Contents);
+          } catch (e) {
+            res.status(404).json({ error: "Object not found" });
+          }
         }
       }
     )(req, res, next);
@@ -39,7 +43,7 @@ module.exports = {
           try {
             await s3Controller.getListedObject(req, res);
           } catch (e) {
-            throw e;
+            res.status(401).json({ error: e });
           }
         } else {
           res.send("unauthorized");

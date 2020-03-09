@@ -14,4 +14,8 @@ router.get("/admin/all-annotations", (req, res, next) => {
   annotationController.getAllAnnotations(req, res, next);
 });
 
+router.get("/admin/all-annotations-csv", (req, res, next) => {
+  annotationController.changeFormatToCSV(req, res, next);
+});
+
 module.exports = router;

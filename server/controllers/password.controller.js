@@ -60,7 +60,7 @@ module.exports = {
               console.log(err);
               res.status(400).json({ message: err });
             } else {
-              // console.log("here is the res: ", resp);
+              console.log("here is the response: ", resp);
 
               res.status(200).json({ message: "recovery mail sent" });
             }

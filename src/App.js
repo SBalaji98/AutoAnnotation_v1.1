@@ -1,12 +1,9 @@
 import React, { Component } from "react";
 import { Route } from "react-router-dom";
 // components
-import Signup from "./components/sign-up";
 import LoginForm from "./components/login-form";
 import Navbar from "./components/navbar";
 import Home from "./components/home";
-import ForgotPassword from "./components/forgotPassword";
-import ResetPassword from "./components/ResetPassword";
 import Routes from "./Routes";
 
 class App extends Component {
