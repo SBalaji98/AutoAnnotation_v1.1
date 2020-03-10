@@ -109,33 +109,45 @@ module.exports = {
     )(req, res, next);
   },
   async changeFormatToCSV(req, res, next) {
-    const fields = ["id", "name", "position"];
-    const opts = { fields };
-
-    const data = await Annotations.findAll({ where: { isDeleted: false } });
-    console.log(data);
-    const myData = [
-      {
-        id: "1",
-        name: "John Smith",
-        position: "Manager"
-      },
-      {
-        id: "2",
-        name: "Johny Bravo",
-        position: "Employee"
-      },
-      {
-        id: "3",
-        name: "Peter",
-        position: "N/A"
-      }
+    const fields = [
+      "id",
+      "fileName",
+      "userId",
+      "size",
+      "file_attributes",
+      "regions.shape_attributes",
+      "regions.region_attributes"
     ];
+    const opts = {
+      fields,
+      unwind: ["regions"]
+    };
+
+    // const data = await Annotations.findAll({ where: { isDeleted: false } });
+
     try {
       const parser = new Parser(opts);
-      const csv = parser.parse(myData);
-      console.log(csv);
-      res.send(data);
+
+      const dbData = await Annotations.findOne({
+        where: {
+          isAnnotated: true,
+          isDeleted: false,
+          fileName: req.query.fileName,
+          userId: req.query.userId
+        }
+      });
+
+      let toBeFormatedData = {
+        id: dbData.id,
+        fileName: dbData.fileName,
+        userId: dbData.userId,
+        size: dbData.annotatedData.size,
+        regions: dbData.annotatedData.regions,
+        file_attributes: dbData.annotatedData.file_attributes
+      };
+
+      const csv = parser.parse(toBeFormatedData);
+      res.send(csv);
     } catch (e) {
       res.json(e);
     }
