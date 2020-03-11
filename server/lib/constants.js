@@ -6,5 +6,7 @@ module.exports = Object.freeze({
   FILE_ATTRIBUTES: "file_attributes",
   SHAPE_ATTRIBUTES: "regions.shape_attributes",
   REGION_ATTRIBUTES: "regions.region_attributes",
-  REGIONS: "regions"
+  REGIONS: "regions",
+  XML: "XML",
+  CSV: "CSV"
 });

@@ -146,7 +146,7 @@ module.exports = {
         file_attributes: dbData.annotatedData.file_attributes
       };
 
-      if (exportType === "CSV") {
+      if (exportType === constants.CSV) {
         const parser = new Parser(opts);
         const csv = parser.parse(toBeFormatedData);
         res.send(csv);
