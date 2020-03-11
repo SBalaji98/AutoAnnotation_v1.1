@@ -1,8 +1,8 @@
 const Annotations = require("../models").Annotation;
 const passport = require("passport");
-const User = require("../models").User;
-const csvjson = require("csvjson");
 const { Parser } = require("json2csv");
+const jsonxml = require("jsontoxml");
+const constants = require("../lib/constants");
 
 module.exports = {
   //get all data from annotation table
@@ -108,35 +108,35 @@ module.exports = {
       }
     )(req, res, next);
   },
-  async changeFormatToCSV(req, res, next) {
+
+  async changeFormatToCSVXML(req, res, next) {
     const fields = [
-      "id",
-      "fileName",
-      "userId",
-      "size",
-      "file_attributes",
-      "regions.shape_attributes",
-      "regions.region_attributes"
+      constants.ID,
+      constants.FILENAME,
+      constants.USER_ID,
+      constants.SIZE,
+      constants.FILE_ATTRIBUTES,
+      constants.SHAPE_ATTRIBUTES,
+      constants.REGION_ATTRIBUTES
     ];
     const opts = {
       fields,
-      unwind: ["regions"]
+      unwind: [constants.REGIONS]
     };
 
-    // const data = await Annotations.findAll({ where: { isDeleted: false } });
+    let exportType = req.query.exportType;
+    let userId = req.query.userId;
+    let fileName = req.query.fileName;
 
     try {
-      const parser = new Parser(opts);
-
       const dbData = await Annotations.findOne({
         where: {
           isAnnotated: true,
           isDeleted: false,
-          fileName: req.query.fileName,
-          userId: req.query.userId
+          fileName: fileName,
+          userId: userId
         }
       });
-
       let toBeFormatedData = {
         id: dbData.id,
         fileName: dbData.fileName,
@@ -146,8 +146,14 @@ module.exports = {
         file_attributes: dbData.annotatedData.file_attributes
       };
 
-      const csv = parser.parse(toBeFormatedData);
-      res.send(csv);
+      if (exportType === "CSV") {
+        const parser = new Parser(opts);
+        const csv = parser.parse(toBeFormatedData);
+        res.send(csv);
+      } else {
+        let xml = jsonxml(toBeFormatedData);
+        res.send(xml);
+      }
     } catch (e) {
       res.json(e);
     }
