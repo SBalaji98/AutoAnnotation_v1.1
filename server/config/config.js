@@ -1,9 +1,10 @@
 require("dotenv").config();
 
+const password = parseInt(process.env.DB_PASSWORD);
 module.exports = {
   development: {
     username: "postgres",
-    password: process.env.DB_PASSWORD,
+    password: password,
     database: "annodb",
     host: "127.0.0.1",
     dialect: "postgres",
@@ -11,7 +12,7 @@ module.exports = {
   },
   test: {
     username: "postgres",
-    password: process.env.DB_PASSWORD,
+    password: password,
     database: "annodb",
     host: "127.0.0.1",
     dialect: "postgres",
@@ -19,7 +20,7 @@ module.exports = {
   },
   production: {
     username: "postgres",
-    password: process.env.DB_PASSWORD,
+    password: password,
     database: "annodb",
     host: "127.0.0.1",
     dialect: "postgres",

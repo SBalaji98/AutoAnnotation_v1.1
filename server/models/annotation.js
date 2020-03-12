@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   const Annotation = sequelize.define(
     "Annotation",
     {
-      userId: DataTypes.INTEGER,
+      userId: DataTypes.UUID,
       fileName: DataTypes.STRING,
       isAnnotated: DataTypes.BOOLEAN,
       annotatedData: DataTypes.JSONB,
