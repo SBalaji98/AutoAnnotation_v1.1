@@ -17,7 +17,7 @@ module.exports = {
         } else {
           try {
             aws.config.setPromisesDependency();
-            const resp = await s3Controller.getObjectList(user.userName);
+            const resp = await s3Controller.getObjectList(user.id);
             res.json(resp.Contents);
           } catch (e) {
             res.status(404).json({ error: "Object not found" });
