@@ -160,7 +160,6 @@ class Signup extends Component {
                     type: "tel",
                     id: "mobile",
                     name: "mobile",
-                    renderStringAsFlag: "india",
                     required: "required"
                   }}
                   value={this.state.mobile}
