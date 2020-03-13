@@ -28,12 +28,11 @@ module.exports = {
               phone: mobile,
               userName: username,
               password: await bcrypt.hash(password, saltRound).then(hash => {
-                console.log(hash);
                 return hash;
               })
             });
 
-            s3Controller.createFolderS3(username);
+            s3Controller.createFolderS3(userCollection.id);
             res.status(201).json(userCollection);
           }
         })
