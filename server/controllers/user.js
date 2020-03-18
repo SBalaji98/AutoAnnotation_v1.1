@@ -177,14 +177,22 @@ module.exports = {
             });
 
             if (userCollection) {
-              const updatedUser = await User.update(req.body, {
-                where: {
-                  id: user.id,
-                  isDeleted: false
+              let userKeys = Object.keys(req.body);
+
+              const updatedUser = userKeys.map(field => {
+                if (req.body[field] && field in user) {
+                  const data = {};
+                  data[field] = req.body[field];
+                  User.update(data, {
+                    where: {
+                      id: user.id,
+                      isDeleted: false
+                    }
+                  });
                 }
               });
 
-              res.status(201).json({ data: updatedUser });
+              res.status(200).json({ message: user });
             } else {
               res.status(404).send("User Not Found");
             }

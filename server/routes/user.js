@@ -64,6 +64,10 @@ router.get("/reset", (req, res) => {
   passwordController.resetPassword(req, res);
 });
 
+router.put("/update-user", (req, res, next) => {
+  userController.update(req, res, next);
+});
+
 router.put("/forgot-password-update", (req, res) => {
   passwordController.updateForgottenPassword(req, res);
 });
