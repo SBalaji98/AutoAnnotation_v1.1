@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import axios from "axios";
-class App extends Component {
+import ReactImageAnnotate from "react-image-annotate";
+
+class ImageRender extends Component {
   state = {
     src: "",
     imgKey: "",
@@ -121,10 +123,20 @@ class App extends Component {
             onClick={this.nextImage}
           />
         </div>
-        <img src={` ${this.state.src}`} alt="" />
+        <ReactImageAnnotate
+          selectedImage="https://homepages.cae.wisc.edu/~ece533/images/barbara.png"
+          taskDescription="# Draw region around each face\n\nInclude chin and hair."
+          images={[
+            {
+              src: "https://homepages.cae.wisc.edu/~ece533/images/barbara.png",
+              name: "Image 1"
+            }
+          ]}
+          regionClsList={["Man Face", "Woman Face"]}
+        />{" "}
       </div>
     );
   }
 }
 
-export default App;
+export default ImageRender;

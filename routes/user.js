@@ -33,6 +33,7 @@ router.get("/", (req, res, next) => {
 });
 
 router.post("/login", (req, res, next) => {
+  console.log("login");
   userController.userLogin(req, res, next);
 });
 
