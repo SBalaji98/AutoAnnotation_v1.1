@@ -4,7 +4,8 @@ import ReactImageAnnotate from "react-image-annotate";
 
 class ImageRender extends Component {
   state = {
-    src: "",
+    src:
+      "https://cache.desktopnexus.com/cropped-wallpapers/822/822595-1366x768-[DesktopNexus.com].jpg?st=ICqNqTaceNCrJl-SEwNMag&e=1585805768",
     imgKey: "",
     imgListObject: [],
     imgCount: 0,
@@ -113,6 +114,11 @@ class ImageRender extends Component {
     }
   };
 
+  onExitData = data => {
+    console.log(this.state.src);
+    console.log(data);
+  };
+
   render() {
     return (
       <div className="App">
@@ -123,16 +129,18 @@ class ImageRender extends Component {
             onClick={this.nextImage}
           />
         </div>
+        {/* <img src={` ${this.state.src}`} alt="" /> */}
         <ReactImageAnnotate
-          selectedImage="https://homepages.cae.wisc.edu/~ece533/images/barbara.png"
+          selectedImage={`${this.state.src}`}
           taskDescription="# Draw region around each face\n\nInclude chin and hair."
           images={[
             {
-              src: "https://homepages.cae.wisc.edu/~ece533/images/barbara.png",
+              src: this.state.src,
               name: "Image 1"
             }
           ]}
           regionClsList={["Man Face", "Woman Face"]}
+          onExit={this.onExitData}
         />{" "}
       </div>
     );

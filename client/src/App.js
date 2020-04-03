@@ -16,6 +16,12 @@ class App extends Component {
 
     this.updateUser = this.updateUser.bind(this);
   }
+  componentDidMount() {
+    const token = localStorage.getItem("jwt");
+    if (token !== null && token !== ``) {
+      this.setState({ loggedIn: true });
+    }
+  }
 
   updateUser(userObject) {
     this.setState(userObject);

@@ -28,6 +28,9 @@ class Navbar extends Component {
           <div className="col-4">
             {loggedIn ? (
               <section className="navbar-section">
+                <Link to="/" className="btn btn-link text-secondary">
+                  <span className="text-secondary">home</span>
+                </Link>
                 <Link
                   to="#"
                   className="btn btn-link text-secondary"
