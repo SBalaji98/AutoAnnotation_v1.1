@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Route } from "react-router-dom";
+import axios from "axios";
 // components
 import LoginForm from "./components/login-form";
 import Navbar from "./components/navbar";
@@ -17,10 +18,25 @@ class App extends Component {
     this.updateUser = this.updateUser.bind(this);
   }
   componentDidMount() {
-    const token = localStorage.getItem("jwt");
-    if (token !== null && token !== ``) {
-      this.setState({ loggedIn: true });
-    }
+    const accessString = localStorage.getItem("jwt");
+
+    axios
+      .get("/user/", {
+        headers: {
+          Authorization: `bearer ${accessString}`
+        }
+      })
+      .then(response => {
+        if (response.data.user) {
+          this.setState({ loggedIn: true });
+        }
+      })
+      .catch(e => {
+        if (e.response.data.message === "jwt expired") {
+          alert("Token has Expired please LogIn again");
+          return;
+        }
+      });
   }
 
   updateUser(userObject) {

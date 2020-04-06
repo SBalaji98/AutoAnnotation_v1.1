@@ -72,6 +72,7 @@ class ImageRender extends Component {
         alert("No data for this user");
         return;
       }
+
       let accessString = localStorage.getItem("jwt");
 
       await axios
