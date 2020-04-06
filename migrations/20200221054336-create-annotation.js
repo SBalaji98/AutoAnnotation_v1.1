@@ -28,6 +28,13 @@ module.exports = {
       annotatedData: {
         type: Sequelize.JSONB
       },
+      isDLAnnotated: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      dlModelData: {
+        type: Sequelize.JSONB
+      },
       isDeleted: {
         type: Sequelize.BOOLEAN,
         defaultValue: false

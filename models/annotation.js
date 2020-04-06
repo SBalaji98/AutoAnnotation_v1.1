@@ -7,6 +7,8 @@ module.exports = (sequelize, DataTypes) => {
       fileName: DataTypes.STRING,
       isAnnotated: DataTypes.BOOLEAN,
       annotatedData: DataTypes.JSONB,
+      isDLAnnotated: DataTypes.BOOLEAN,
+      dlModelData: DataTypes.JSONB,
       isDeleted: DataTypes.BOOLEAN
     },
     {}
