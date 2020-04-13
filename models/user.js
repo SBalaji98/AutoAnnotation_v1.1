@@ -15,6 +15,8 @@ module.exports = (sequelize, DataTypes) => {
       userName: { type: DataTypes.STRING, allowNull: false, unique: true },
       phone: { type: DataTypes.DOUBLE, allowNull: false },
       password: { type: DataTypes.STRING, allowNull: false, unique: true },
+      isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
+      isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
       isDeleted: { type: DataTypes.BOOLEAN, defaultValue: false },
       resetPasswordToken: { type: DataTypes.STRING },
       resetPasswordTokenExpires: { type: DataTypes.DATE }

@@ -157,5 +157,37 @@ module.exports = {
     } catch (e) {
       res.json(e);
     }
+  },
+  createBulkAnnotationByDLModel(req, res) {
+    const annotationList = req.body;
+    let imageDataToInsert = new Array();
+    const uploadedImageList = new Array();
+    let errList = new Array();
+
+    annotationList.map(data => {
+      let dataMap = {
+        userId: data.uuid,
+        fileName: data.frame_cloud,
+        isDLAnnotated: true,
+        dlAnnotatedData: data.annotations
+      };
+
+      imageDataToInsert.push(dataMap);
+    });
+
+    Annotations.bulkCreate(imageDataToInsert, {
+      returning: ["fileName"],
+      ndividualHooks: true
+    })
+      .then(result => {
+        res.json({
+          msg: `${result.length} files has been uploaded`,
+          files: result
+        });
+      })
+      .catch(e => {
+        console.log(e);
+        res.json(e);
+      });
   }
 };

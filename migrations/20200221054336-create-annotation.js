@@ -1,4 +1,4 @@
-"use strict";
+("use strict");
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable("Annotations", {
@@ -28,11 +28,25 @@ module.exports = {
       annotatedData: {
         type: Sequelize.JSONB
       },
+      dlAnnotatedData: {
+        type: Sequelize.JSONB
+      },
       isDLAnnotated: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
-      dlModelData: {
+      isObjectDetected: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      isSegmented: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      bucketName: {
+        type: Sequelize.STRING
+      },
+      metadata: {
         type: Sequelize.JSONB
       },
       isDeleted: {

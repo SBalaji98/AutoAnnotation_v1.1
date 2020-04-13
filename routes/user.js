@@ -73,4 +73,8 @@ router.put("/forgot-password-update", (req, res) => {
   passwordController.updateForgottenPassword(req, res);
 });
 
+router.get("/all-users", (req, res) => {
+  userController.getAllUsers(req, res);
+});
+
 module.exports = router;

@@ -36,6 +36,14 @@ module.exports = {
       resetPasswordTokenExpires: {
         type: Sequelize.DATE
       },
+      isAdmin: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      isActive: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

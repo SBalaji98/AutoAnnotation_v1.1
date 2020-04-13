@@ -8,7 +8,11 @@ module.exports = (sequelize, DataTypes) => {
       isAnnotated: DataTypes.BOOLEAN,
       annotatedData: DataTypes.JSONB,
       isDLAnnotated: DataTypes.BOOLEAN,
-      dlModelData: DataTypes.JSONB,
+      dlAnnotatedData: DataTypes.JSONB,
+      isObjectDetected: DataTypes.BOOLEAN,
+      isSegmented: DataTypes.BOOLEAN,
+      bucketName: DataTypes.STRING,
+      metadata: DataTypes.JSONB,
       isDeleted: DataTypes.BOOLEAN
     },
     {}

@@ -128,33 +128,34 @@ module.exports = {
     )(req, res, next);
   },
   // get all the availble users from DB
-  getAllUsers(req, res, next) {
-    passport.authenticate(
-      "jwt",
-      { session: false },
-      async (err, user, info) => {
-        if (err) {
-          console.log(err);
-          return res.json({ error: err });
+  async getAllUsers(req, res) {
+    // passport.authenticate(
+    //   "jwt",
+    //   { session: false },
+    //   async (err, user, info) => {
+    //     if (err) {
+    //       console.log(err);
+    //       return res.json({ error: err });
+    //     }
+    //     if (info !== undefined) {
+    //       console.log(info.message);
+    //       res.status(401).json({ message: info.message });
+    //     } else {
+    try {
+      const userCollection = await User.findAll({
+        attributes: ["id", "firstName", "lastName", "email", "phone"],
+        where: {
+          isDeleted: false
         }
-        if (info !== undefined) {
-          console.log(info.message);
-          res.status(401).json({ message: info.message });
-        } else {
-          try {
-            const userCollection = await User.findAll({
-              where: {
-                isDeleted: false
-              }
-            });
-            res.json({ users: userCollection });
-          } catch (e) {
-            console.log(e);
-            res.status(500).send(e);
-          }
-        }
-      }
-    );
+      });
+      res.json(userCollection);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send(e);
+    }
+    //     }
+    //   }
+    // );
   },
 
   //Update users
