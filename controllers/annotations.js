@@ -166,7 +166,7 @@ module.exports = {
 
     annotationList.map(data => {
       let dataMap = {
-        userId: data.uuid,
+        userId: data.UUID,
         fileName: data.frame_cloud,
         isDLAnnotated: true,
         dlAnnotatedData: data.annotations
