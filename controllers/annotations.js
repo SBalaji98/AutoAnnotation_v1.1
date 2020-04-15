@@ -3,6 +3,7 @@ const passport = require("passport");
 const { Parser } = require("json2csv");
 const jsonxml = require("jsontoxml");
 const constants = require("../lib/constants");
+const model = require("../models");
 
 module.exports = {
   //get all data from annotation table
@@ -166,7 +167,7 @@ module.exports = {
 
     annotationList.map(data => {
       let dataMap = {
-        userId: data.uuid,
+        userId: data.UUID,
         fileName: data.frame_cloud,
         isDLAnnotated: true,
         dlAnnotatedData: data.annotations
@@ -188,6 +189,28 @@ module.exports = {
       .catch(e => {
         console.log(e);
         res.json(e);
+      });
+  },
+  /*
+  The stored procedure gives all the images belongs to the user as per the mode selected by the user
+  
+  1. takes two parameters.
+  -- user_id: uuid of the user
+  -- annotation_mode: The mode of annotation what user has selected either object-detection or segmetation
+  2. Check for the userId and selected mode into data base if matches then 
+  3. Select fileName, metadat(if exists) and dl-annotated-data(if exists)
+  */
+
+  getImageDataByUser(req, res) {
+    model.sequelize
+      .query("SELECT * FROM get_all_annotations(:user_id, :annotation_mode)", {
+        replacements: {
+          user_id: req.query.user_id,
+          annotation_mode: req.query.mode
+        }
+      })
+      .then(data => {
+        res.send(data);
       });
   }
 };

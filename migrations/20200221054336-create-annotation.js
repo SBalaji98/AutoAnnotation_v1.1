@@ -28,6 +28,12 @@ module.exports = {
       annotatedData: {
         type: Sequelize.JSONB
       },
+      objectDetectionData: {
+        type: Sequelize.JSONB
+      },
+      segmentationData: {
+        type: Sequelize.JSONB
+      },
       dlAnnotatedData: {
         type: Sequelize.JSONB
       },
@@ -49,7 +55,7 @@ module.exports = {
       metadata: {
         type: Sequelize.JSONB
       },
-      isDeleted: {
+      isMoved: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },

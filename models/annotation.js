@@ -6,14 +6,15 @@ module.exports = (sequelize, DataTypes) => {
       userId: DataTypes.UUID,
       fileName: DataTypes.STRING,
       isAnnotated: DataTypes.BOOLEAN,
-      annotatedData: DataTypes.JSONB,
+      objectDetectionData: DataTypes.JSONB,
+      segmentationData: DataTypes.JSONB,
       isDLAnnotated: DataTypes.BOOLEAN,
       dlAnnotatedData: DataTypes.JSONB,
       isObjectDetected: DataTypes.BOOLEAN,
       isSegmented: DataTypes.BOOLEAN,
       bucketName: DataTypes.STRING,
       metadata: DataTypes.JSONB,
-      isDeleted: DataTypes.BOOLEAN
+      isMoved: DataTypes.BOOLEAN
     },
     {}
   );

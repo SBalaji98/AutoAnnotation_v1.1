@@ -72,10 +72,10 @@ module.exports = {
               }
             }).then(user => {
               const token = jwt.sign(
-                { sub: user.id, username: user.userName },
+                { sub: user.id, username: user.userName, isad: user.isAdmin },
                 process.env.JWT_SECRET,
                 {
-                  expiresIn: 60 * 60
+                  expiresIn: 60 * 60 * 24
                 }
               );
               res.status(200).send({

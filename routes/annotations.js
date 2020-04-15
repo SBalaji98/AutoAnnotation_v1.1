@@ -10,6 +10,9 @@ router.get("/", (req, res) => {
   annotationController.getAnnotationsByUsers(req, res);
 });
 
+router.get("/get-image-data-by-user", (req, res) => {
+  annotationController.getImageDataByUser(req, res);
+});
 router.get("/admin/all-annotations", (req, res, next) => {
   annotationController.getAllAnnotations(req, res, next);
 });

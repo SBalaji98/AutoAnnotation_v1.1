@@ -5,6 +5,7 @@ node_modules/
 
 # testing
 /coverage
+/.helpers
 
 # production
 /build
@@ -22,4 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 helper.scripts.js
 package-lock.json
+
 
