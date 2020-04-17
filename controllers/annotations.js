@@ -6,6 +6,7 @@ const constants = require("../lib/constants");
 const model = require("../models");
 const redis = require("redis");
 const client = redis.createClient();
+const s3Controller = require("../S3-bucket/s3.controller");
 
 module.exports = {
   //get all data from annotation table
@@ -216,79 +217,54 @@ module.exports = {
           console.log(info.message);
           return res.status(401).json({ message: info.message });
         } else {
-          try {
-            if (req.query.index == 0) {
-              model.sequelize
-                .query(
-                  "SELECT * FROM get_all_annotations(:user_id, :annotation_mode)",
-                  {
-                    replacements: {
-                      user_id: user.id,
-                      annotation_mode: req.query.mode
+          if (req.query.index == 0) {
+            model.sequelize
+              .query(
+                "SELECT * FROM get_all_annotations(:user_id, :annotation_mode)",
+                {
+                  replacements: {
+                    user_id: user.id,
+                    annotation_mode: req.query.annotate_mode
+                  }
+                }
+              )
+              .then(data => {
+                let fileNameArray = new Array();
+                data[0].map(row => {
+                  fileNameArray.push(row.filename);
+                  let rowStr = JSON.stringify(row);
+                  client.hmset(user.id, row.filename, rowStr, function(
+                    err,
+                    resp
+                  ) {
+                    if (err) {
+                      console.log(err);
+                      return res.send(err);
+                    }
+                  });
+                });
+                client.hmset(
+                  user.id,
+                  "fileNameArray",
+                  JSON.stringify(fileNameArray),
+                  (err, result) => {
+                    if (err) {
+                      return res.error(err);
                     }
                   }
-                )
-                .then(data => {
-                  let fileNameArray = new Array();
-                  data[0].map(row => {
-                    fileNameArray.push(row.filename);
-                    let rowStr = JSON.stringify(row);
-                    client.hmset(user.id, row.filename, rowStr, function(
-                      err,
-                      resp
-                    ) {
-                      if (err) {
-                        console.log(err);
-                        return res.send(err);
-                      }
-                    });
-                  });
-                  client.hmset(
-                    user.id,
-                    "fileNameArray",
-                    JSON.stringify(fileNameArray),
-                    (err, result) => {
-                      if (err) {
-                        return res.error(err);
-                      }
-                    }
-                  );
-                  client.hmset(user.id, "index", 0, (err, result) => {
-                    if (err) {
-                      return res.error(err);
-                    }
-                  });
-                })
-                .catch(e => {
-                  console.log(e);
-                  return res.json({ error: e });
+                );
+                client.hmset(user.id, "index", 0, (err, result) => {
+                  if (err) {
+                    return res.error(err);
+                  }
                 });
-            }
-
-            client.hgetall(user.id, (err, result) => {
-              if (err) {
-                return res.error(err);
-              } else {
-                let index = Number(result.index);
-                if (req.query.index == index) {
-                  let fileName = JSON.parse(result.fileNameArray)[index];
-                  let fileData = JSON.parse(result[`${fileName}`]);
-                  let newIndex = index + 1;
-                  client.hmset(user.id, "index", newIndex, (err, re) => {
-                    if (err) {
-                      return res.error(err);
-                    }
-                  });
-                  res.json(fileData);
-                } else {
-                  return res.json({ error: "index did not match" });
-                }
-              }
-            });
-          } catch (e) {
-            console.log(e);
-            res.status(400).send(e);
+              })
+              .catch(e => {
+                console.log(e);
+                return res.json({ error: e });
+              });
           }
+          s3Controller.getListedObject(req, res, user);
         }
       }
     )(req, res, next);
