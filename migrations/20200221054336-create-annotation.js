@@ -23,10 +23,7 @@ module.exports = {
       },
       isAnnotated: {
         type: Sequelize.BOOLEAN,
-        defaultValue: null
-      },
-      annotatedData: {
-        type: Sequelize.JSONB
+        defaultValue: false
       },
       objectDetectionData: {
         type: Sequelize.JSONB

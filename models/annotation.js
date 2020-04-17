@@ -3,18 +3,18 @@ module.exports = (sequelize, DataTypes) => {
   const Annotation = sequelize.define(
     "Annotation",
     {
-      userId: DataTypes.UUID,
+      userId: { type: DataTypes.UUID, allowNull: false },
       fileName: DataTypes.STRING,
-      isAnnotated: DataTypes.BOOLEAN,
+      isAnnotated: { type: DataTypes.BOOLEAN, defaultValue: false },
       objectDetectionData: DataTypes.JSONB,
       segmentationData: DataTypes.JSONB,
-      isDLAnnotated: DataTypes.BOOLEAN,
+      isDLAnnotated: { type: DataTypes.BOOLEAN, defaultValue: false },
       dlAnnotatedData: DataTypes.JSONB,
-      isObjectDetected: DataTypes.BOOLEAN,
-      isSegmented: DataTypes.BOOLEAN,
+      isObjectDetected: { type: DataTypes.BOOLEAN, defaultValue: false },
+      isSegmented: { type: DataTypes.BOOLEAN, defaultValue: false },
       bucketName: DataTypes.STRING,
       metadata: DataTypes.JSONB,
-      isMoved: DataTypes.BOOLEAN
+      isMoved: { type: DataTypes.BOOLEAN, defaultValue: false }
     },
     {}
   );

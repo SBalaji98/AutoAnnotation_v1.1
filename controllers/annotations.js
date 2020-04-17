@@ -4,6 +4,8 @@ const { Parser } = require("json2csv");
 const jsonxml = require("jsontoxml");
 const constants = require("../lib/constants");
 const model = require("../models");
+const redis = require("redis");
+const client = redis.createClient();
 
 module.exports = {
   //get all data from annotation table
@@ -193,7 +195,7 @@ module.exports = {
   },
   /*
   The stored procedure gives all the images belongs to the user as per the mode selected by the user
-  
+
   1. takes two parameters.
   -- user_id: uuid of the user
   -- annotation_mode: The mode of annotation what user has selected either object-detection or segmetation
@@ -201,16 +203,94 @@ module.exports = {
   3. Select fileName, metadat(if exists) and dl-annotated-data(if exists)
   */
 
-  getImageDataByUser(req, res) {
-    model.sequelize
-      .query("SELECT * FROM get_all_annotations(:user_id, :annotation_mode)", {
-        replacements: {
-          user_id: req.query.user_id,
-          annotation_mode: req.query.mode
+  getImageDataByUser(req, res, next) {
+    passport.authenticate(
+      "jwt",
+      { session: false },
+      async (err, user, info) => {
+        if (err) {
+          console.log(err);
+          return res.json({ error: err });
         }
-      })
-      .then(data => {
-        res.send(data);
-      });
+        if (info !== undefined) {
+          console.log(info.message);
+          return res.status(401).json({ message: info.message });
+        } else {
+          try {
+            if (req.query.index == 0) {
+              model.sequelize
+                .query(
+                  "SELECT * FROM get_all_annotations(:user_id, :annotation_mode)",
+                  {
+                    replacements: {
+                      user_id: user.id,
+                      annotation_mode: req.query.mode
+                    }
+                  }
+                )
+                .then(data => {
+                  let fileNameArray = new Array();
+                  data[0].map(row => {
+                    fileNameArray.push(row.filename);
+                    let rowStr = JSON.stringify(row);
+                    client.hmset(user.id, row.filename, rowStr, function(
+                      err,
+                      resp
+                    ) {
+                      if (err) {
+                        console.log(err);
+                        return res.send(err);
+                      }
+                    });
+                  });
+                  client.hmset(
+                    user.id,
+                    "fileNameArray",
+                    JSON.stringify(fileNameArray),
+                    (err, result) => {
+                      if (err) {
+                        return res.error(err);
+                      }
+                    }
+                  );
+                  client.hmset(user.id, "index", 0, (err, result) => {
+                    if (err) {
+                      return res.error(err);
+                    }
+                  });
+                })
+                .catch(e => {
+                  console.log(e);
+                  return res.json({ error: e });
+                });
+            }
+
+            client.hgetall(user.id, (err, result) => {
+              if (err) {
+                return res.error(err);
+              } else {
+                let index = Number(result.index);
+                if (req.query.index == index) {
+                  let fileName = JSON.parse(result.fileNameArray)[index];
+                  let fileData = JSON.parse(result[`${fileName}`]);
+                  let newIndex = index + 1;
+                  client.hmset(user.id, "index", newIndex, (err, re) => {
+                    if (err) {
+                      return res.error(err);
+                    }
+                  });
+                  res.json(fileData);
+                } else {
+                  return res.json({ error: "index did not match" });
+                }
+              }
+            });
+          } catch (e) {
+            console.log(e);
+            res.status(400).send(e);
+          }
+        }
+      }
+    )(req, res, next);
   }
 };
