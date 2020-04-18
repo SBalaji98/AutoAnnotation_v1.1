@@ -32,10 +32,21 @@ module.exports = {
           return res.error(err);
         } else {
           let index = Number(result.index);
-          if (req.query.curr_image_index != index) {
+          let fileName = JSON.parse(result.fileNameArray)[index];
+
+          if (req.query.call_type === "previous") {
+            index = index - 1;
+            fileName = JSON.parse(result.fileNameArray)[index - 1];
+          }
+
+          if (
+            (req.query.call_type === "next" &&
+              req.query.curr_image_index != index) ||
+            (req.query.call_type === "previous" &&
+              req.query.curr_image_index != index)
+          ) {
             return res.json({ error: "index did not match" });
           } else {
-            let fileName = JSON.parse(result.fileNameArray)[index];
             let getParams = {
               Bucket: process.env.BUCKET,
               Key: fileName
@@ -54,7 +65,7 @@ module.exports = {
                     return res.error(err);
                   }
                 });
-                res.json({ image: data.Body, imageData: fileData });
+                return res.json({ image: data.Body, imageData: fileData });
               }
             });
           }

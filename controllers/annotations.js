@@ -217,7 +217,10 @@ module.exports = {
           console.log(info.message);
           return res.status(401).json({ message: info.message });
         } else {
-          if (req.query.index == 0) {
+          if (
+            req.query.call_type === "first" &&
+            req.query.curr_image_index == 0
+          ) {
             model.sequelize
               .query(
                 "SELECT * FROM get_all_annotations(:user_id, :annotation_mode)",
@@ -253,18 +256,16 @@ module.exports = {
                     }
                   }
                 );
-                client.hmset(user.id, "index", 0, (err, result) => {
-                  if (err) {
-                    return res.error(err);
-                  }
-                });
+                client.hmset(user.id, { index: 0 });
+                s3Controller.getListedObject(req, res, user);
               })
               .catch(e => {
                 console.log(e);
                 return res.json({ error: e });
               });
+          } else {
+            s3Controller.getListedObject(req, res, user);
           }
-          s3Controller.getListedObject(req, res, user);
         }
       }
     )(req, res, next);
