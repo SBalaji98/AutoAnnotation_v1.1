@@ -71,8 +71,8 @@ module.exports = {
     )(req, res);
   },
 
-  //adding images for annotations in the table
-  create(req, res, next) {
+  //update annotation data for images by user
+  updateImageData(req, res, next) {
     passport.authenticate(
       "jwt",
       { session: false },
@@ -86,24 +86,42 @@ module.exports = {
           res.status(401).json({ message: info.message });
         } else {
           try {
-            let annotation = await Annotations.findOne({
-              where: {
-                userId: user.id,
-                fileName: req.body.fileName,
-                isMoved: false
-              }
-            });
-            if (annotation) {
-              res.status(200).json({ message: "File is already exist" });
+            const { annotate_mode } = req.query;
+            const { annotations, image_key } = req.body;
+            let updateValue = {};
+            if (annotate_mode === "segmentation") {
+              updateValue = {
+                segmentationData: annotations,
+                isSegmented: true
+              };
             } else {
-              const addAnnotation = await Annotations.create({
-                userId: user.id,
-                fileName: req.body.fileName,
-                isAnnotated: req.body.isAnnotated,
-                annotatedData: req.body.annotatedData
-              });
-              res.status(201).send(addAnnotation);
+              updateValue = {
+                objectDetectionData: annotations,
+                isObjectDetected: true
+              };
             }
+            Annotations.update(updateValue, {
+              where: { fileName: image_key }
+            })
+              .then(() => {
+                Annotations.findAll({
+                  where: {
+                    fileName: image_key,
+                    isSegmented: true,
+                    isObjectDetected: true
+                  }
+                }).then(() => {
+                  Annotations.update(
+                    { isAnnotated: true },
+                    { where: { fileName: image_key } }
+                  );
+                });
+                this.getImageData(req, res, user);
+              })
+              .catch(e => {
+                console.log(e);
+                res.send(e);
+              });
           } catch (e) {
             console.log(e);
             res.status(400).send(e);
@@ -203,6 +221,52 @@ module.exports = {
   2. Check for the userId and selected mode into data base if matches then 
   3. Select fileName, metadat(if exists) and dl-annotated-data(if exists)
   */
+  getImageData(req, res, user) {
+    const { call_type, curr_image_index, annotate_mode } = req.query;
+    if (call_type === "first" && curr_image_index == 0) {
+      model.sequelize
+        .query(
+          "SELECT * FROM get_all_annotations(:user_id, :annotation_mode)",
+          {
+            replacements: {
+              user_id: user.id,
+              annotation_mode: annotate_mode
+            }
+          }
+        )
+        .then(data => {
+          let fileNameArray = new Array();
+          data[0].map(row => {
+            fileNameArray.push(row.filename);
+            let rowStr = JSON.stringify(row);
+            client.hmset(user.id, row.filename, rowStr, function(err, resp) {
+              if (err) {
+                console.log(err);
+                return res.send(err);
+              }
+            });
+          });
+          client.hmset(
+            user.id,
+            "fileNameArray",
+            JSON.stringify(fileNameArray),
+            (err, result) => {
+              if (err) {
+                return res.error(err);
+              }
+            }
+          );
+          client.hmset(user.id, { index: 0 });
+          s3Controller.getListedObject(req, res, user);
+        })
+        .catch(e => {
+          console.log(e);
+          return res.json({ error: e });
+        });
+    } else {
+      s3Controller.getListedObject(req, res, user);
+    }
+  },
 
   getImageDataByUser(req, res, next) {
     passport.authenticate(
@@ -217,55 +281,7 @@ module.exports = {
           console.log(info.message);
           return res.status(401).json({ message: info.message });
         } else {
-          if (
-            req.query.call_type === "first" &&
-            req.query.curr_image_index == 0
-          ) {
-            model.sequelize
-              .query(
-                "SELECT * FROM get_all_annotations(:user_id, :annotation_mode)",
-                {
-                  replacements: {
-                    user_id: user.id,
-                    annotation_mode: req.query.annotate_mode
-                  }
-                }
-              )
-              .then(data => {
-                let fileNameArray = new Array();
-                data[0].map(row => {
-                  fileNameArray.push(row.filename);
-                  let rowStr = JSON.stringify(row);
-                  client.hmset(user.id, row.filename, rowStr, function(
-                    err,
-                    resp
-                  ) {
-                    if (err) {
-                      console.log(err);
-                      return res.send(err);
-                    }
-                  });
-                });
-                client.hmset(
-                  user.id,
-                  "fileNameArray",
-                  JSON.stringify(fileNameArray),
-                  (err, result) => {
-                    if (err) {
-                      return res.error(err);
-                    }
-                  }
-                );
-                client.hmset(user.id, { index: 0 });
-                s3Controller.getListedObject(req, res, user);
-              })
-              .catch(e => {
-                console.log(e);
-                return res.json({ error: e });
-              });
-          } else {
-            s3Controller.getListedObject(req, res, user);
-          }
+          this.getImageData(req, res, user);
         }
       }
     )(req, res, next);

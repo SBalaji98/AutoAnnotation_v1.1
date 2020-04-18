@@ -27,16 +27,16 @@ module.exports = {
   //get image bffer with data related to image
   async getListedObject(req, res, user) {
     try {
+      const { call_type, curr_image_index } = req.query;
       client.hgetall(user.id, async (err, result) => {
         if (err) {
           return res.error(err);
         } else {
           let index = Number(result.index);
-          console.log(index);
           let fileName = JSON.parse(result.fileNameArray)[index];
           let fileData = JSON.parse(result[`${fileName}`]);
 
-          if (req.query.call_type === "previous") {
+          if (call_type === "previous") {
             index = index - 1;
             fileName = JSON.parse(result.fileNameArray)[index - 1];
             let fileDataResponse = await Annotations.findOne({
@@ -57,10 +57,8 @@ module.exports = {
           }
 
           if (
-            (req.query.call_type === "next" &&
-              req.query.curr_image_index != index) ||
-            (req.query.call_type === "previous" &&
-              req.query.curr_image_index != index)
+            (call_type === "next" && curr_image_index != index) ||
+            (call_type === "previous" && curr_image_index != index)
           ) {
             return res.json({ error: "index did not match" });
           } else {
