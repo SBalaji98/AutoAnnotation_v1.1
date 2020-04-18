@@ -27,7 +27,7 @@ module.exports = {
   //get image bffer with data related to image
   async getListedObject(req, res, user) {
     try {
-      const { call_type, curr_image_index } = req.query;
+      const { call_type, curr_image_index, annotate_mode } = req.query;
       client.hgetall(user.id, async (err, result) => {
         if (err) {
           return res.error(err);
@@ -79,7 +79,31 @@ module.exports = {
                     return res.error(err);
                   }
                 });
-                return res.json({ image: data.Body, imageData: fileData });
+                const {
+                  filename,
+                  metadata,
+                  dlannotateddata,
+                  objectdetectiondata,
+                  segmentationdata
+                } = fileData;
+                let annotations = dlannotateddata;
+                if (
+                  call_type === "previous" &&
+                  annotate_mode === "segmentation"
+                ) {
+                  annotations = segmentationdata;
+                } else if (
+                  call_type === "previous" &&
+                  annotate_mode === "object_detection"
+                ) {
+                  annotations = objectdetectiondata;
+                }
+                return res.json({
+                  image: data.Body,
+                  image_key: filename,
+                  metadata: metadata,
+                  annotations: annotations
+                });
               }
             });
           }
