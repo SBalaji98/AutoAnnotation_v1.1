@@ -79,7 +79,7 @@ module.exports = {
                     return res.error(err);
                   }
                 });
-                return res.json({ imageData: fileData });
+                return res.json({ image: data.Body, imageData: fileData });
               }
             });
           }
