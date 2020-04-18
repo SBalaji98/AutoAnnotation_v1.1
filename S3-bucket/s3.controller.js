@@ -2,7 +2,7 @@ const aws = require("aws-sdk");
 const fs = require("fs");
 const redis = require("redis");
 const client = redis.createClient();
-
+const Annotations = require("../models").Annotation;
 require("dotenv").config();
 
 const s3 = new aws.S3({
@@ -32,11 +32,28 @@ module.exports = {
           return res.error(err);
         } else {
           let index = Number(result.index);
+          console.log(index);
           let fileName = JSON.parse(result.fileNameArray)[index];
+          let fileData = JSON.parse(result[`${fileName}`]);
 
           if (req.query.call_type === "previous") {
             index = index - 1;
             fileName = JSON.parse(result.fileNameArray)[index - 1];
+            let fileDataResponse = await Annotations.findOne({
+              attributes: [
+                ["fileName", "filename"],
+                ["objectDetectionData", "objectdetectiondata"],
+                ["segmentationData", "segmentationdata"],
+                ["dlAnnotatedData", "dlannotateddata"],
+                "metadata"
+              ],
+              where: {
+                userId: user.id,
+                fileName: fileName,
+                isMoved: false
+              }
+            });
+            fileData = fileDataResponse;
           }
 
           if (
@@ -58,14 +75,13 @@ module.exports = {
                 console.log(err);
                 return res.error(err);
               } else {
-                let fileData = JSON.parse(result[`${fileName}`]);
                 let newIndex = index + 1;
                 client.hmset(user.id, "index", newIndex, (err, re) => {
                   if (err) {
                     return res.error(err);
                   }
                 });
-                return res.json({ image: data.Body, imageData: fileData });
+                return res.json({ imageData: fileData });
               }
             });
           }

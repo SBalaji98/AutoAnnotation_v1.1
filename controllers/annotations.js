@@ -26,7 +26,7 @@ module.exports = {
           try {
             const annotatedData = await Annotations.findAll({
               where: {
-                isDeleted: false
+                isMoved: false
               }
             });
             res.status(200).json({ data: annotatedData });
@@ -58,7 +58,7 @@ module.exports = {
             const annotatedData = await Annotations.findAll({
               where: {
                 userId: user.id,
-                isDeleted: false
+                isMoved: false
               }
             });
             res.status(200).json({ data: annotatedData });
@@ -90,7 +90,7 @@ module.exports = {
               where: {
                 userId: user.id,
                 fileName: req.body.fileName,
-                isDeleted: false
+                isMoved: false
               }
             });
             if (annotation) {
@@ -136,7 +136,7 @@ module.exports = {
       const dbData = await Annotations.findOne({
         where: {
           isAnnotated: true,
-          isDeleted: false,
+          isMoved: false,
           fileName: fileName,
           userId: userId
         }
