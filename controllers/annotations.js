@@ -86,42 +86,45 @@ module.exports = {
           res.status(401).json({ message: info.message });
         } else {
           try {
-            const { annotate_mode } = req.query;
+            const { annotate_mode, call_type } = req.query;
             const { annotations, image_key } = req.body;
-            let updateValue = {};
-            if (annotate_mode === "segmentation") {
-              updateValue = {
-                segmentationData: annotations,
-                isSegmented: true
-              };
-            } else {
-              updateValue = {
-                objectDetectionData: annotations,
-                isObjectDetected: true
-              };
-            }
-            Annotations.update(updateValue, {
-              where: { fileName: image_key }
-            })
-              .then(() => {
-                Annotations.findAll({
-                  where: {
-                    fileName: image_key,
-                    isSegmented: true,
-                    isObjectDetected: true
-                  }
-                }).then(() => {
-                  Annotations.update(
-                    { isAnnotated: true },
-                    { where: { fileName: image_key } }
-                  );
-                });
-                this.getImageData(req, res, user);
+            if (call_type === "next") {
+              let updateValue = {};
+              if (annotate_mode === "segmentation") {
+                updateValue = {
+                  segmentationData: annotations,
+                  isSegmented: true
+                };
+              } else {
+                updateValue = {
+                  objectDetectionData: annotations,
+                  isObjectDetected: true
+                };
+              }
+              Annotations.update(updateValue, {
+                where: { fileName: image_key }
               })
-              .catch(e => {
-                console.log(e);
-                res.send(e);
-              });
+                .then(() => {
+                  Annotations.findAll({
+                    where: {
+                      fileName: image_key,
+                      isSegmented: true,
+                      isObjectDetected: true
+                    }
+                  }).then(() => {
+                    Annotations.update(
+                      { isAnnotated: true },
+                      { where: { fileName: image_key } }
+                    );
+                  });
+                  this.getImageData(req, res, user);
+                })
+                .catch(e => {
+                  console.log(e);
+                  res.send(e);
+                });
+            }
+            this.getImageData(req, res, user);
           } catch (e) {
             console.log(e);
             res.status(400).send(e);
@@ -131,7 +134,7 @@ module.exports = {
     )(req, res, next);
   },
 
-  async changeFormatToCSVXML(req, res, next) {
+  async changeFormatToCSVXML(req, res) {
     const fields = [
       constants.ID,
       constants.FILENAME,
