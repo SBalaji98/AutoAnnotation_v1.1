@@ -6,8 +6,8 @@ router.get("/", (req, res) => {
   annotationController.getAnnotationsByUsers(req, res);
 });
 
-router.post("/update-get-image-data-by-user", (req, res, next) => {
-  annotationController.updateImageData(req, res, next);
+router.post("/update-get-image-data-by-user", async (req, res, next) => {
+  await annotationController.updateImageData(req, res, next);
 });
 
 router.get("/get-image-data-by-user", (req, res) => {
