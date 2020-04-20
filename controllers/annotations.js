@@ -26,8 +26,8 @@ module.exports = {
           try {
             const annotatedData = await Annotations.findAll({
               where: {
-                isMoved: false
-              }
+                isMoved: false,
+              },
             });
             res.status(200).json({ data: annotatedData });
           } catch (e) {
@@ -58,8 +58,8 @@ module.exports = {
             const annotatedData = await Annotations.findAll({
               where: {
                 userId: user.id,
-                isMoved: false
-              }
+                isMoved: false,
+              },
             });
             res.status(200).json({ data: annotatedData });
           } catch (e) {
@@ -93,24 +93,24 @@ module.exports = {
               if (annotate_mode === "segmentation") {
                 updateValue = {
                   segmentationData: annotations,
-                  isSegmented: true
+                  isSegmented: true,
                 };
               } else {
                 updateValue = {
                   objectDetectionData: annotations,
-                  isObjectDetected: true
+                  isObjectDetected: true,
                 };
               }
               Annotations.update(updateValue, {
-                where: { fileName: image_key }
+                where: { fileName: image_key },
               })
                 .then(() => {
                   Annotations.findAll({
                     where: {
                       fileName: image_key,
                       isSegmented: true,
-                      isObjectDetected: true
-                    }
+                      isObjectDetected: true,
+                    },
                   }).then(() => {
                     Annotations.update(
                       { isAnnotated: true },
@@ -119,12 +119,13 @@ module.exports = {
                   });
                   this.getImageData(req, res, user);
                 })
-                .catch(e => {
+                .catch((e) => {
                   console.log(e);
                   res.send(e);
                 });
+            } else {
+              this.getImageData(req, res, user);
             }
-            this.getImageData(req, res, user);
           } catch (e) {
             console.log(e);
             res.status(400).send(e);
@@ -142,11 +143,11 @@ module.exports = {
       constants.SIZE,
       constants.FILE_ATTRIBUTES,
       constants.SHAPE_ATTRIBUTES,
-      constants.REGION_ATTRIBUTES
+      constants.REGION_ATTRIBUTES,
     ];
     const opts = {
       fields,
-      unwind: [constants.REGIONS]
+      unwind: [constants.REGIONS],
     };
 
     let exportType = req.query.exportType;
@@ -159,8 +160,8 @@ module.exports = {
           isAnnotated: true,
           isMoved: false,
           fileName: fileName,
-          userId: userId
-        }
+          userId: userId,
+        },
       });
       let toBeFormatedData = {
         id: dbData.id,
@@ -168,7 +169,7 @@ module.exports = {
         userId: dbData.userId,
         size: dbData.annotatedData.size,
         regions: dbData.annotatedData.regions,
-        file_attributes: dbData.annotatedData.file_attributes
+        file_attributes: dbData.annotatedData.file_attributes,
       };
 
       if (exportType === constants.CSV) {
@@ -189,12 +190,12 @@ module.exports = {
     const uploadedImageList = new Array();
     let errList = new Array();
 
-    annotationList.map(data => {
+    annotationList.map((data) => {
       let dataMap = {
         userId: data.UUID,
         fileName: data.frame_cloud,
         isDLAnnotated: true,
-        dlAnnotatedData: data.annotations
+        dlAnnotatedData: data.annotations,
       };
 
       imageDataToInsert.push(dataMap);
@@ -202,15 +203,15 @@ module.exports = {
 
     Annotations.bulkCreate(imageDataToInsert, {
       returning: ["fileName"],
-      ndividualHooks: true
+      ndividualHooks: true,
     })
-      .then(result => {
+      .then((result) => {
         res.json({
           msg: `${result.length} files has been uploaded`,
-          files: result
+          files: result,
         });
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
         res.json(e);
       });
@@ -233,16 +234,16 @@ module.exports = {
           {
             replacements: {
               user_id: user.id,
-              annotation_mode: annotate_mode
-            }
+              annotation_mode: annotate_mode,
+            },
           }
         )
-        .then(data => {
+        .then((data) => {
           let fileNameArray = new Array();
-          data[0].map(row => {
+          data[0].map((row) => {
             fileNameArray.push(row.filename);
             let rowStr = JSON.stringify(row);
-            client.hmset(user.id, row.filename, rowStr, function(err, resp) {
+            client.hmset(user.id, row.filename, rowStr, function (err, resp) {
               if (err) {
                 console.log(err);
                 return res.send(err);
@@ -262,7 +263,7 @@ module.exports = {
           client.hmset(user.id, { index: 0 });
           s3Controller.getListedObject(req, res, user);
         })
-        .catch(e => {
+        .catch((e) => {
           console.log(e);
           return res.json({ error: e });
         });
@@ -288,5 +289,5 @@ module.exports = {
         }
       }
     )(req, res, next);
-  }
+  },
 };
