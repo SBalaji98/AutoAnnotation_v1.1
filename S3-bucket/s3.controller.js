@@ -7,7 +7,7 @@ require("dotenv").config();
 
 const s3 = new aws.S3({
   accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey: process.env.SECRET_ACCESS_KEY
+  secretAccessKey: process.env.SECRET_ACCESS_KEY,
 });
 
 module.exports = {
@@ -39,21 +39,27 @@ module.exports = {
           if (call_type === "previous") {
             index = index - 1;
             fileName = JSON.parse(result.fileNameArray)[index - 1];
-            let fileDataResponse = await Annotations.findOne({
+            Annotations.findOne({
               attributes: [
                 ["fileName", "filename"],
                 ["objectDetectionData", "objectdetectiondata"],
                 ["segmentationData", "segmentationdata"],
                 ["dlAnnotatedData", "dlannotateddata"],
-                "metadata"
+                "metadata",
               ],
               where: {
                 userId: user.id,
                 fileName: fileName,
-                isMoved: false
-              }
-            });
-            fileData = fileDataResponse;
+                isMoved: false,
+              },
+            })
+              .then((resp) => {
+                resp = JSON.stringify(resp);
+                fileData = JSON.parse(resp);
+              })
+              .catch((e) => {
+                res.json({ error: e });
+              });
           }
 
           if (
@@ -64,11 +70,11 @@ module.exports = {
           } else {
             let getParams = {
               Bucket: process.env.BUCKET,
-              Key: fileName
+              Key: fileName,
             };
 
             //Fetch or read data from aws s3
-            await s3.getObject(getParams, function(err, data) {
+            await s3.getObject(getParams, function (err, data) {
               if (err) {
                 console.log(err);
                 return res.error(err);
@@ -84,7 +90,7 @@ module.exports = {
                   metadata,
                   dlannotateddata,
                   objectdetectiondata,
-                  segmentationdata
+                  segmentationdata,
                 } = fileData;
                 let annotations = dlannotateddata;
                 if (
@@ -102,7 +108,7 @@ module.exports = {
                   image: data.Body,
                   image_key: filename,
                   metadata: metadata,
-                  annotations: annotations
+                  annotations: annotations,
                 });
               }
             });
@@ -120,10 +126,10 @@ module.exports = {
       Bucket: process.env.BUCKET,
       Key: `${folderName}/`,
       ACL: "public-read",
-      Body: ""
+      Body: "",
     };
 
-    s3.upload(params, function(err) {
+    s3.upload(params, function (err) {
       if (err) {
         console.log("Error creating the folder: ", err);
       } else {
@@ -141,17 +147,17 @@ module.exports = {
       }
       let res = await this.getObjectList();
       let listIndex = 0;
-      files.forEach(function(file) {
+      files.forEach(function (file) {
         s3.putObject({
           Bucket: process.env.BUCKET,
           Body: fs.readFileSync(`${directoryPath}/${file}`),
-          Key: `${res.Contents[listIndex].Key}${file}`
+          Key: `${res.Contents[listIndex].Key}${file}`,
         })
           .promise()
-          .then(response => {
+          .then((response) => {
             console.log(`done! - `, response);
           })
-          .catch(err => {
+          .catch((err) => {
             console.log("failed:", err);
           });
 
@@ -161,5 +167,5 @@ module.exports = {
         }
       });
     });
-  }
+  },
 };
