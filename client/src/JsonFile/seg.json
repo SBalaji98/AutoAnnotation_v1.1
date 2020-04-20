@@ -1,0 +1,13 @@
+{
+    "class": [
+        "NA",
+        "Person",
+        "Bicycle",
+        "Car",
+        "Motor cycle",
+        "Bus",
+        "Train",
+        "Truck"
+       
+    ]
+}

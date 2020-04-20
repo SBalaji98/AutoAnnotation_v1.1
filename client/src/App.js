@@ -2,9 +2,9 @@ import React, { Component } from "react";
 import { Route } from "react-router-dom";
 import axios from "axios";
 // components
-import LoginForm from "./components/login-form";
-import Navbar from "./components/navbar";
-import Home from "./components/home";
+import LoginForm from "./components/Authentication/login-form";
+import Navbar from "./components/MainPage/navbar";
+import Home from "./components/MainPage/home";
 import Routes from "./Routes";
 
 class App extends Component {
@@ -48,7 +48,7 @@ class App extends Component {
       <div className="App">
         <Navbar updateUser={this.updateUser} loggedIn={this.state.loggedIn} />
         {/* greet user if logged in: */}
-        {this.state.loggedIn && <p>Join the party, {this.state.username}!</p>}
+        {/* {this.state.loggedIn && <p>Join the party, {this.state.username}!</p>} */}
         {/* Routes to different components */}
         <Route
           exact

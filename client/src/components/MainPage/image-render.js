@@ -1,19 +1,27 @@
 import React, { Component } from "react";
 import axios from "axios";
-import ReactImageAnnotate from "react-image-annotate";
-
+import ReactImageAnnotate from "../Annotator/ind";
+import data  from "../../JsonFile/class.json";
 class ImageRender extends Component {
   state = {
     src:
       "https://cache.desktopnexus.com/cropped-wallpapers/822/822595-1366x768-[DesktopNexus.com].jpg?st=ICqNqTaceNCrJl-SEwNMag&e=1585805768",
     imgKey: "",
     imgListObject: [],
-    imgCount: 0,
-    buttonVal: "Start",
+    imgCount: 1,
+    annotatemode: "Object Detection",
     isAnnotated: null,
     annotatedData: {}
   };
-
+  async toArrayBuffer(myBuf) {
+    var myBuffer = new ArrayBuffer(myBuf.length);
+    var res = new Uint8Array(myBuffer);
+    for (var i = 0; i < myBuf.length; ++i) {
+        res[i] = myBuf[i];
+    }
+    console.log(myBuffer)
+    return myBuffer;
+}
   async componentDidMount() {
     try {
       let accessString = localStorage.getItem("jwt");
@@ -24,19 +32,19 @@ class ImageRender extends Component {
             Authorization: `bearer ${accessString}`
           }
         },
-        () => {}
+        () => { }
       );
       if (objList.data.length > 0) {
         this.setState({
           imgListObject: objList,
-          imgKey: objList.data[0].Key
+          imgKey: objList.data[this.state.imgCount].Key
         });
       }
     } catch (e) {
       console.log(e.response);
     }
   }
-
+  // 13.233.125.241
   saveImageData = async () => {
     console.log("annotations");
     let accessString = localStorage.getItem("jwt");
@@ -66,30 +74,45 @@ class ImageRender extends Component {
     try {
       let { imgCount, imgKey, imgListObject } = this.state;
       let objLen;
+      console.log(this.state.imgListObject)
       if (imgListObject.data !== undefined) {
         objLen = imgListObject.data.length;
       } else {
         alert("No data for this user");
         return;
       }
-
       let accessString = localStorage.getItem("jwt");
-
+      console.log("this is called ")
       await axios
         .get(`/user/image?key=${imgKey}`, {
-          responseType: "arraybuffer",
-
+          // responseType: "arraybuffer",
           headers: {
             Authorization: `bearer ${accessString}`
           }
-        })
-        .then(result => {
-          const imgFile = new Blob([result.data], {
-            type: "image/jpeg"
-          });
-          const imgUrl = URL.createObjectURL(imgFile);
-          this.setState({ src: imgUrl });
-        })
+        }).then((res)=>{
+          console.log("[response]",res)
+          this.toArrayBuffer(res.data.image.data)
+                        .then((t) => {
+                            const imgFile = new Blob([t], {
+                                type: "image/jpeg"
+                            });
+                            const imgUrl = URL.createObjectURL(imgFile);
+                            this.setState({
+                                // call_type: 'next',
+                                // curr_image_index: this.state.curr_image_index + 1,
+                                src: imgUrl,
+                                regions: res.data.annotations.obj_dect,
+                                // metadata: res.data.metadata,
+                                // image_key: res.data.image_key
+                            })
+                        })
+          // const imgFile = new Blob([res.data], {
+          //   type: "image/jpeg"
+          // });
+          // const imgUrl = URL.createObjectURL(imgFile);
+          // this.setState({ src: imgUrl })
+        }
+        )
         .catch(e => {
           console.log(e);
           console.log(e.response.data);
@@ -97,7 +120,7 @@ class ImageRender extends Component {
 
       if (imgCount >= objLen) {
         this.setState({
-          imgCount: 0
+          imgCount: 1
         });
         return;
       }
@@ -105,11 +128,8 @@ class ImageRender extends Component {
       this.setState({
         imgCount: imgCount + 1,
         imgKey: imgListObject.data[imgCount].Key,
-        buttonVal: "Next",
         isAnnotated: false
       });
-
-      // this.saveImageData();
     } catch (e) {
       console.log(e.response);
     }
@@ -120,30 +140,38 @@ class ImageRender extends Component {
     console.log(data);
   };
 
+ changeAnnotateMode=(mode)=>{
+   this.setState({annotatemode:mode})
+ }
+
+
+
+
   render() {
     return (
-      <div className="App">
-        <div>
-          <input
-            type="button"
-            value={this.state.buttonVal}
-            onClick={this.nextImage}
-          />
-        </div>
-        {/* <img src={` ${this.state.src}`} alt="" /> */}
         <ReactImageAnnotate
-          selectedImage={`${this.state.src}`}
-          taskDescription="# Draw region around each face\n\nInclude chin and hair."
+          changeImageSet={this.nextImage}
+          changeAnnotateMode = {this.changeAnnotateMode}
+          annotatemode = {this.state.annotatemode}
+          allowedArea={{
+            x:0,
+            y:0,
+            w:1,
+            h:1
+          }
+          }
+          taskDescription="Annotate the imaes by selecting the mode for object detection or segmentationl"
           images={[
             {
               src: this.state.src,
-              name: "Image 1"
+              name: this.state.name,
+              regions: this.state.region
             }
           ]}
-          regionClsList={["Man Face", "Woman Face"]}
-          onExit={this.onExitData}
-        />{" "}
-      </div>
+          regionClsList={data.class}
+          regionTagList={["Road", "Highway", "LeaseRoad", "MainRoad"]}
+          onExit={(data)=>{console.log(data)}}
+        />
     );
   }
 }
