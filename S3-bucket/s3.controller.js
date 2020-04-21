@@ -51,14 +51,16 @@ module.exports = {
           let index = Number(result.index);
           let fileName = JSON.parse(result.fileNameArray)[index];
           let fileData = JSON.parse(result[`${fileName}`]);
-
+          console.log(index);
           //check for the call type previous to show last indexed image data
-          if (call_type === "previous") {
+          if (call_type === "previous" && index > 1) {
             index = index - 1;
-            client.hmset(user.id, "index", index - 1, (err, re) => {
+            console.log(index);
+            client.hmset(user.id, "index", index, (err, re) => {
               if (err) {
                 return res.error(err);
               }
+              console.log("response", re);
             });
 
             fileName = JSON.parse(result.fileNameArray)[index - 1];
@@ -104,12 +106,15 @@ module.exports = {
                 console.log(err);
                 return res.error(err);
               } else {
-                let newIndex = index + 1;
-                client.hmset(user.id, "index", newIndex, (err, re) => {
-                  if (err) {
-                    return res.error(err);
-                  }
-                });
+                if (call_type !== "previous") {
+                  let newIndex = index + 1;
+                  client.hmset(user.id, "index", newIndex, (err, re) => {
+                    if (err) {
+                      return res.error(err);
+                    }
+                  });
+                }
+
                 const {
                   filename,
                   metadata,
