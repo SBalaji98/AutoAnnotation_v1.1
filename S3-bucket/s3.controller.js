@@ -5,12 +5,20 @@ const client = redis.createClient();
 const Annotations = require("../models").Annotation;
 require("dotenv").config();
 
+/**
+ * @desc Create new s3 object with the secret Key
+ */
 const s3 = new aws.S3({
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_ACCESS_KEY,
 });
 
 module.exports = {
+  /**
+   * @desc To get a list of all the objects in s3 bucket in a folder
+   * @param string prefix - the folder key for s3 bucket in our case the uuid of user
+   * @return list - the list of all the object keys from the s3 buckets folder
+   */
   getObjectList(prefix) {
     aws.config.setPromisesDependency();
     let params = {};
@@ -24,10 +32,18 @@ module.exports = {
     return res;
   },
 
-  //get image bffer with data related to image
+  /**
+   * @desc To send Image data stored in redis and Image from s3 bucket as per the user and the image it is asking for.
+   * @param {*} req - request from the client containing body and params
+   * @param {*} res - response to the request from user
+   * @param {*} user - contains user's information
+   * @returns Json object - containing required information of the image and image in the form of buffer and send as a response
+   */
   async getListedObject(req, res, user) {
     try {
       const { call_type, curr_image_index, annotate_mode } = req.query;
+
+      //get all the data stored in redis for the user
       client.hgetall(user.id, async (err, result) => {
         if (err) {
           return res.error(err);
@@ -36,8 +52,15 @@ module.exports = {
           let fileName = JSON.parse(result.fileNameArray)[index];
           let fileData = JSON.parse(result[`${fileName}`]);
 
+          //check for the call type previous to show last indexed image data
           if (call_type === "previous") {
             index = index - 1;
+            client.hmset(user.id, "index", index - 1, (err, re) => {
+              if (err) {
+                return res.error(err);
+              }
+            });
+
             fileName = JSON.parse(result.fileNameArray)[index - 1];
             Annotations.findOne({
               attributes: [
@@ -73,7 +96,9 @@ module.exports = {
               Key: fileName,
             };
 
-            //Fetch or read data from aws s3
+            /**
+             * @desc fetch the image form S3 bucket and concat with the annotation data of the image and send as response
+             */
             await s3.getObject(getParams, function (err, data) {
               if (err) {
                 console.log(err);
@@ -121,6 +146,9 @@ module.exports = {
     }
   },
 
+  /**
+   * @param {*} folderName  string - The name of the folder to be created in s3 bucket
+   */
   createFolderS3(folderName) {
     var params = {
       Bucket: process.env.BUCKET,
@@ -138,6 +166,9 @@ module.exports = {
     });
   },
 
+  /**
+   * @desc Upload images to s3 bucket from the local computer one by one in each folder
+   */
   uploadImagesToUsers() {
     const directoryPath = "/home/abdul_rehan/Documents/Flux Data/images";
 

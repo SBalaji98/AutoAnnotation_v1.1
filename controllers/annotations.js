@@ -9,7 +9,13 @@ const client = redis.createClient();
 const s3Controller = require("../S3-bucket/s3.controller");
 
 module.exports = {
-  //get all data from annotation table
+  /**
+   * @description authenticate the user and get all the annotaion data from the database
+   * @param {*} req
+   * @param {*} res
+   * @param {*} next
+   * @returns object - json object of the all data in the db
+   */
   async getAllAnnotations(req, res, next) {
     passport.authenticate(
       "jwt",
@@ -39,7 +45,12 @@ module.exports = {
     )(req, res, next);
   },
 
-  //get all the data of annotations by user
+  /**
+   * @description Authenticate the user and get all the authorized data from the db for that user
+   * @param {*} req
+   * @param {*} res
+   * @returns object - json object of the data for the particular user from annotations
+   */
   getAnnotationsByUsers(req, res) {
     passport.authenticate(
       "jwt",
@@ -71,7 +82,12 @@ module.exports = {
     )(req, res);
   },
 
-  //update annotation data for images by user
+  /**
+   * @description Update data into db for the user for a particular image and call the function for the next image
+   * @param {*} req
+   * @param {*} res
+   * @param {*} next
+   */
   updateImageData(req, res, next) {
     passport.authenticate(
       "jwt",
@@ -135,6 +151,11 @@ module.exports = {
     )(req, res, next);
   },
 
+  /**
+   * @description
+   * @param {*} req
+   * @param {*} res
+   */
   async changeFormatToCSVXML(req, res) {
     const fields = [
       constants.ID,
@@ -216,18 +237,16 @@ module.exports = {
         res.json(e);
       });
   },
-  /*
-  The stored procedure gives all the images belongs to the user as per the mode selected by the user
 
-  1. takes two parameters.
-  -- user_id: uuid of the user
-  -- annotation_mode: The mode of annotation what user has selected either object-detection or segmetation
-  2. Check for the userId and selected mode into data base if matches then 
-  3. Select fileName, metadat(if exists) and dl-annotated-data(if exists)
-  */
   getImageData(req, res, user) {
     const { call_type, curr_image_index, annotate_mode } = req.query;
     if (call_type === "first" && curr_image_index == 0) {
+      /**
+       * @description The stored procedure gives all the images belongs to the user as per the mode selected by the user
+       * @param user_id - uuid of the user
+       * @param annotation_mode - string, The mode of annotation what user has selected either object-detection or segmetation
+       * @return object - which contains image_key, metadata, annotaitions(dl annotated data)
+       */
       model.sequelize
         .query(
           "SELECT * FROM get_all_annotations(:user_id, :annotation_mode)",
