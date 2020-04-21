@@ -111,7 +111,7 @@ module.exports = {
                   segmentationData: annotations,
                   isSegmented: true,
                 };
-              } else {
+              } else if (annotate_mode === "object_detection") {
                 updateValue = {
                   objectDetectionData: annotations,
                   isObjectDetected: true,
@@ -121,18 +121,27 @@ module.exports = {
                 where: { fileName: image_key },
               })
                 .then(() => {
-                  Annotations.findAll({
+                  Annotations.findOne({
                     where: {
                       fileName: image_key,
                       isSegmented: true,
                       isObjectDetected: true,
                     },
-                  }).then(() => {
-                    Annotations.update(
-                      { isAnnotated: true },
-                      { where: { fileName: image_key } }
-                    );
-                  });
+                  })
+                    .then((resp) => {
+                      console.log(resp);
+                      if (resp !== null || resp !== undefined) {
+                        Annotations.update(
+                          { isAnnotated: true },
+                          { where: { fileName: image_key } }
+                        );
+                      }
+                    })
+                    .catch((e) => {
+                      return res.json({
+                        error: "Database error unable to update annotations",
+                      });
+                    });
                   this.getImageData(req, res, user);
                 })
                 .catch((e) => {

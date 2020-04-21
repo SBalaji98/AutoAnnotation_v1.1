@@ -51,16 +51,16 @@ module.exports = {
           let index = Number(result.index);
           let fileName = JSON.parse(result.fileNameArray)[index];
           let fileData = JSON.parse(result[`${fileName}`]);
-          console.log(index);
+
           //check for the call type previous to show last indexed image data
           if (call_type === "previous" && index > 1) {
             index = index - 1;
-            console.log(index);
             client.hmset(user.id, "index", index, (err, re) => {
               if (err) {
-                return res.error(err);
+                return res.json({
+                  error: "error in setting index for previous call",
+                });
               }
-              console.log("response", re);
             });
 
             fileName = JSON.parse(result.fileNameArray)[index - 1];
@@ -87,6 +87,10 @@ module.exports = {
               });
           }
 
+          /**
+           * @description check for the indexes with call type if it matches with the index in redis
+           * @return string, error string(if error)
+           */
           if (
             (call_type === "next" && curr_image_index != index) ||
             (call_type === "previous" && curr_image_index != index)
@@ -106,6 +110,7 @@ module.exports = {
                 console.log(err);
                 return res.error(err);
               } else {
+                //setting index only for next image
                 if (call_type !== "previous") {
                   let newIndex = index + 1;
                   client.hmset(user.id, "index", newIndex, (err, re) => {
@@ -152,6 +157,7 @@ module.exports = {
   },
 
   /**
+   * @description To add folder in s3 bucket
    * @param {*} folderName  string - The name of the folder to be created in s3 bucket
    */
   createFolderS3(folderName) {
