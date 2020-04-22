@@ -11,9 +11,8 @@ const s3Controller = require("../S3-bucket/s3.controller");
 module.exports = {
   /**
    * @description authenticate the user and get all the annotaion data from the database
-   * @param {*} req
-   * @param {*} res
-   * @param {*} next
+   * @param {*} req Request from client
+   * @param {*} res Response to the request
    * @returns object - json object of the all data in the db
    */
   async getAllAnnotations(req, res, next) {
@@ -23,11 +22,11 @@ module.exports = {
       async (err, user, info) => {
         if (err) {
           console.log(err);
-          res.json({ error: err });
+          return res.json({ error: err });
         }
         if (info !== undefined) {
           console.log(info.message);
-          res.status(401).json({ message: info.message });
+          return res.json({ error: info.message });
         } else if (user) {
           try {
             const annotatedData = await Annotations.findAll({
@@ -35,10 +34,10 @@ module.exports = {
                 isMoved: false,
               },
             });
-            res.status(200).json({ data: annotatedData });
+            return res.json({ data: annotatedData });
           } catch (e) {
             console.log(e);
-            res.status(500).send(e);
+            res.status(500).json({ error: e });
           }
         }
       }
@@ -47,8 +46,8 @@ module.exports = {
 
   /**
    * @description Authenticate the user and get all the authorized data from the db for that user
-   * @param {*} req
-   * @param {*} res
+   * @param {*} req Request from client
+   * @param {*} res Response to the request
    * @returns object - json object of the data for the particular user from annotations
    */
   getAnnotationsByUsers(req, res) {
@@ -58,11 +57,11 @@ module.exports = {
       async (err, user, info) => {
         if (err) {
           console.log(err);
-          res.json({ error: err });
+          return res.json({ error: err });
         }
         if (info !== undefined) {
           console.log(info.message);
-          res.status(401).json({ message: info.message });
+          return res.json({ error: info.message });
         } else {
           console.log(user);
           try {
@@ -72,10 +71,12 @@ module.exports = {
                 isMoved: false,
               },
             });
-            res.status(200).json({ data: annotatedData });
+            return res.json({ data: annotatedData });
           } catch (e) {
             console.log(e);
-            res.status(500).send(e);
+            return res.status(500).json({
+              error: "Database error in find all annotations by user",
+            });
           }
         }
       }
@@ -83,7 +84,7 @@ module.exports = {
   },
 
   /**
-   * @description To change the data format from json to ea
+   * @description To change the data format from json to csv or xml
    * @param {query} req needed data in query parameter (userId, exportType, fileName)
    * @param {*} res response to the request
    * @return xml - return xml formatted data of json for exportType xml for an image
@@ -135,7 +136,8 @@ module.exports = {
         res.send(xml);
       }
     } catch (e) {
-      res.json(e);
+      console.log(e);
+      return res.json({ error: "error while parsing to csv and xml" });
     }
   },
 
@@ -165,17 +167,25 @@ module.exports = {
       ndividualHooks: true,
     })
       .then((result) => {
-        res.json({
+        return res.json({
           msg: `${result.length} files has been uploaded`,
           files: result,
         });
       })
       .catch((e) => {
         console.log(e);
-        res.json(e);
+        return res.json({
+          error: "Database error in bulk uploading annotations",
+        });
       });
   },
 
+  /**
+   * @description Verify the user and call the function for getting image data
+   * @param {*} req Request from client contains header body and params data for user
+   * @param {*} res response to the requested client
+   * @return object - error object if any
+   */
   getImageDataByUser(req, res, next) {
     passport.authenticate(
       "jwt",
@@ -187,7 +197,7 @@ module.exports = {
         }
         if (info !== undefined) {
           console.log(info.message);
-          return res.status(401).json({ message: info.message });
+          return res.json({ error: info.message });
         } else {
           this.getImageData(req, res, user);
         }
@@ -229,7 +239,9 @@ module.exports = {
             client.hmset(user.id, row.image_key, rowStr, function (err, resp) {
               if (err) {
                 console.log(err);
-                return res.send(err);
+                return res.json({
+                  error: "Redis error while creating data in redis",
+                });
               }
             });
           });
@@ -239,7 +251,10 @@ module.exports = {
             JSON.stringify(fileNameArray),
             (err, result) => {
               if (err) {
-                return res.error(err);
+                console.log(e);
+                return res.json({
+                  error: "Redis error while creating fileName array in redis",
+                });
               }
             }
           );
@@ -268,11 +283,11 @@ module.exports = {
       async (err, user, info) => {
         if (err) {
           console.log(err);
-          res.json({ error: err });
+          return res.json({ error: err });
         }
         if (info !== undefined) {
           console.log(info.message);
-          res.status(401).json({ message: info.message });
+          return res.json({ error: info.message });
         } else {
           try {
             const { annotate_mode, call_type } = req.query;
@@ -318,7 +333,6 @@ module.exports = {
                     },
                   })
                     .then((resp) => {
-                      console.log(resp);
                       if (resp !== null || resp !== undefined) {
                         Annotations.update(
                           { isAnnotated: true },

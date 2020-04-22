@@ -14,14 +14,13 @@ require("./passport/passport.js");
 app.use(morgan("dev"));
 app.use(
   bodyParser.urlencoded({
-    extended: false
+    extended: false,
   })
 );
 app.use(bodyParser.json());
 
 // Passport
 app.use(passport.initialize());
-// app.use(passport.session()); // calls the deserializeUser
 
 // Routes
 app.use("/user", user);
