@@ -48,13 +48,20 @@ module.exports = {
         if (err) {
           return res.error(err);
         } else {
+          let fileNameArray = JSON.parse(result.fileNameArray);
           let index = Number(result.index);
-          let fileName = JSON.parse(result.fileNameArray)[index];
+          let fileName = fileNameArray[index];
           let fileData = JSON.parse(result[`${fileName}`]);
+
+          //check if index of images, it should not be greater than total number of images
+          if (index == fileNameArray.length) {
+            return res.json({ message: "No more images to annotate" });
+          }
 
           //check for the call type previous to show last indexed image data
           if (call_type === "previous" && index > 1) {
             index = index - 1;
+            fileName = fileNameArray[index - 1];
             client.hmset(user.id, "index", index, (err, re) => {
               if (err) {
                 return res.json({
@@ -62,29 +69,6 @@ module.exports = {
                 });
               }
             });
-
-            fileName = JSON.parse(result.fileNameArray)[index - 1];
-            Annotations.findOne({
-              attributes: [
-                ["fileName", "filename"],
-                ["objectDetectionData", "objectdetectiondata"],
-                ["segmentationData", "segmentationdata"],
-                ["dlAnnotatedData", "dlannotateddata"],
-                "metadata",
-              ],
-              where: {
-                userId: user.id,
-                fileName: fileName,
-                isMoved: false,
-              },
-            })
-              .then((resp) => {
-                resp = JSON.stringify(resp);
-                fileData = JSON.parse(resp);
-              })
-              .catch((e) => {
-                res.json({ error: e });
-              });
           }
 
           /**

@@ -83,87 +83,11 @@ module.exports = {
   },
 
   /**
-   * @description Update data into db for the user for a particular image and call the function for the next image
-   * @param {*} req
-   * @param {*} res
-   * @param {*} next
-   */
-  updateImageData(req, res, next) {
-    passport.authenticate(
-      "jwt",
-      { session: false },
-      async (err, user, info) => {
-        if (err) {
-          console.log(err);
-          res.json({ error: err });
-        }
-        if (info !== undefined) {
-          console.log(info.message);
-          res.status(401).json({ message: info.message });
-        } else {
-          try {
-            const { annotate_mode, call_type } = req.query;
-            const { annotations, image_key } = req.body;
-            if (call_type === "next") {
-              let updateValue = {};
-              if (annotate_mode === "segmentation") {
-                updateValue = {
-                  segmentationData: annotations,
-                  isSegmented: true,
-                };
-              } else if (annotate_mode === "object_detection") {
-                updateValue = {
-                  objectDetectionData: annotations,
-                  isObjectDetected: true,
-                };
-              }
-              Annotations.update(updateValue, {
-                where: { fileName: image_key },
-              })
-                .then(() => {
-                  Annotations.findOne({
-                    where: {
-                      fileName: image_key,
-                      isSegmented: true,
-                      isObjectDetected: true,
-                    },
-                  })
-                    .then((resp) => {
-                      console.log(resp);
-                      if (resp !== null || resp !== undefined) {
-                        Annotations.update(
-                          { isAnnotated: true },
-                          { where: { fileName: image_key } }
-                        );
-                      }
-                    })
-                    .catch((e) => {
-                      return res.json({
-                        error: "Database error unable to update annotations",
-                      });
-                    });
-                  this.getImageData(req, res, user);
-                })
-                .catch((e) => {
-                  console.log(e);
-                  res.send(e);
-                });
-            } else {
-              this.getImageData(req, res, user);
-            }
-          } catch (e) {
-            console.log(e);
-            res.status(400).send(e);
-          }
-        }
-      }
-    )(req, res, next);
-  },
-
-  /**
-   * @description
-   * @param {*} req
-   * @param {*} res
+   * @description To change the data format from json to ea
+   * @param {query} req needed data in query parameter (userId, exportType, fileName)
+   * @param {*} res response to the request
+   * @return xml - return xml formatted data of json for exportType xml for an image
+   * @return csv - return csv formatted data of json for exportType csv for an image
    */
   async changeFormatToCSVXML(req, res) {
     const fields = [
@@ -214,11 +138,16 @@ module.exports = {
       res.json(e);
     }
   },
+
+  /**
+   * @description To bulk upload annotation data in annotation table
+   * @param {body} req
+   * @param {*} res
+   * @return json object - object having the count of the images uploaded and all uploaded response from db
+   */
   createBulkAnnotationByDLModel(req, res) {
     const annotationList = req.body;
     let imageDataToInsert = new Array();
-    const uploadedImageList = new Array();
-    let errList = new Array();
 
     annotationList.map((data) => {
       let dataMap = {
@@ -247,6 +176,32 @@ module.exports = {
       });
   },
 
+  getImageDataByUser(req, res, next) {
+    passport.authenticate(
+      "jwt",
+      { session: false },
+      async (err, user, info) => {
+        if (err) {
+          console.log(err);
+          return res.json({ error: err });
+        }
+        if (info !== undefined) {
+          console.log(info.message);
+          return res.status(401).json({ message: info.message });
+        } else {
+          this.getImageData(req, res, user);
+        }
+      }
+    )(req, res, next);
+  },
+
+  /**
+   * @description This function will check for the images alloted to a user and store all the images in redis on the first call 
+                  from client and then call another function for further process
+   * @param {query} req request for the data from client side having a query and body objedct with required information
+   * @param {*} res response to the request
+   * @param {*} user current user information
+   */
   getImageData(req, res, user) {
     const { call_type, curr_image_index, annotate_mode } = req.query;
     if (call_type === "first" && curr_image_index == 0) {
@@ -300,20 +255,100 @@ module.exports = {
     }
   },
 
-  getImageDataByUser(req, res, next) {
+  /**
+   * @description Update data into db for the user for a particular image and call the function for the next image
+   * @param {*} req request from the client having required data as objects in query and body
+   * @param {*} res response to the request from client
+   * @return error object - all the error types as per the error occured
+   */
+  updateImageData(req, res, next) {
     passport.authenticate(
       "jwt",
       { session: false },
       async (err, user, info) => {
         if (err) {
           console.log(err);
-          return res.json({ error: err });
+          res.json({ error: err });
         }
         if (info !== undefined) {
           console.log(info.message);
-          return res.status(401).json({ message: info.message });
+          res.status(401).json({ message: info.message });
         } else {
-          this.getImageData(req, res, user);
+          try {
+            const { annotate_mode, call_type } = req.query;
+            const { annotations, image_key, metadata } = req.body;
+            client.hmset(
+              user.id,
+              image_key,
+              JSON.stringify(req.body),
+              (err, result) => {
+                if (err) {
+                  return res.json({
+                    error:
+                      "failed to load data into redis for previous and next call",
+                  });
+                }
+              }
+            );
+
+            if (call_type === "next") {
+              let updateValue = {};
+              if (annotate_mode === "segmentation") {
+                updateValue = {
+                  segmentationData: annotations,
+                  metadata: metadata,
+                  isSegmented: true,
+                };
+              } else if (annotate_mode === "object_detection") {
+                updateValue = {
+                  objectDetectionData: annotations,
+                  metadata: metadata,
+                  isObjectDetected: true,
+                };
+              }
+              Annotations.update(updateValue, {
+                where: { fileName: image_key },
+              })
+                .then(() => {
+                  Annotations.findOne({
+                    where: {
+                      fileName: image_key,
+                      isSegmented: true,
+                      isObjectDetected: true,
+                    },
+                  })
+                    .then((resp) => {
+                      console.log(resp);
+                      if (resp !== null || resp !== undefined) {
+                        Annotations.update(
+                          { isAnnotated: true },
+                          { where: { fileName: image_key } }
+                        );
+                      }
+                    })
+                    .catch((e) => {
+                      return res.json({
+                        error: "Database error unable to update isAnnotated",
+                      });
+                    });
+                  this.getImageData(req, res, user);
+                })
+                .catch((e) => {
+                  console.log(e);
+                  return res.json({
+                    error: "Database error in update annotation for findOne",
+                  });
+                });
+            } else {
+              this.getImageData(req, res, user);
+            }
+          } catch (e) {
+            console.log(e);
+            return res.json({
+              error:
+                "Database error while update annotations and call for next image",
+            });
+          }
         }
       }
     )(req, res, next);
