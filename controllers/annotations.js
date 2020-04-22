@@ -232,6 +232,10 @@ module.exports = {
           }
         )
         .then((data) => {
+          console.log(data[0].length);
+          if (!data[0].length) {
+            return res.json({ error: "No data for this user" });
+          }
           let fileNameArray = new Array();
           data[0].map((row) => {
             fileNameArray.push(row.image_key);

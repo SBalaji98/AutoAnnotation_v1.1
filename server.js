@@ -5,8 +5,7 @@ const passport = require("passport");
 const app = express();
 const PORT = process.env.PORT || 8080;
 // Route requires
-const user = require("./routes/user");
-const annotation = require("./routes/annotations");
+const routers = require("./routes/routers");
 
 require("./passport/passport.js");
 
@@ -23,8 +22,7 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 
 // Routes
-app.use("/user", user);
-app.use("/annotations", annotation);
+app.use("/", routers);
 
 // Starting Server
 app.listen(PORT, () => {
