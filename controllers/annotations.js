@@ -162,6 +162,7 @@ module.exports = {
       imageDataToInsert.push(dataMap);
     });
 
+    // calling function to create bulk data in annotations table
     Annotations.bulkCreate(imageDataToInsert, {
       returning: ["fileName"],
       ndividualHooks: true,
@@ -232,7 +233,6 @@ module.exports = {
           }
         )
         .then((data) => {
-          console.log(data[0].length);
           if (!data[0].length) {
             return res.json({ error: "No data for this user" });
           }
