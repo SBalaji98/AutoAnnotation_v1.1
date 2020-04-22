@@ -104,30 +104,11 @@ module.exports = {
                   });
                 }
 
-                const {
-                  filename,
-                  metadata,
-                  dlannotateddata,
-                  objectdetectiondata,
-                  segmentationdata,
-                } = fileData;
-                let annotations = dlannotateddata;
-                if (
-                  call_type === "previous" &&
-                  annotate_mode === "segmentation"
-                ) {
-                  annotations = segmentationdata;
-                } else if (
-                  call_type === "previous" &&
-                  annotate_mode === "object_detection"
-                ) {
-                  annotations = objectdetectiondata;
-                }
                 return res.json({
                   image: data.Body,
-                  image_key: filename,
-                  metadata: metadata,
-                  annotations: annotations,
+                  image_key: fileData.image_key,
+                  annotations: fileData.annotations,
+                  metadata: fileData.metadata,
                 });
               }
             });

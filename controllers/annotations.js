@@ -224,9 +224,9 @@ module.exports = {
         .then((data) => {
           let fileNameArray = new Array();
           data[0].map((row) => {
-            fileNameArray.push(row.filename);
+            fileNameArray.push(row.image_key);
             let rowStr = JSON.stringify(row);
-            client.hmset(user.id, row.filename, rowStr, function (err, resp) {
+            client.hmset(user.id, row.image_key, rowStr, function (err, resp) {
               if (err) {
                 console.log(err);
                 return res.send(err);
