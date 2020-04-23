@@ -60,8 +60,8 @@ module.exports = {
 
           //check for the call type previous to show last indexed image data
           if (call_type === "previous" && index > 1) {
-            index = index - 1;
-            fileName = fileNameArray[index - 1];
+            index = index - 2;
+            fileName = fileNameArray[index];
             client.hmset(user.id, "index", index, (err, re) => {
               if (err) {
                 return res.json({
