@@ -296,19 +296,6 @@ module.exports = {
           try {
             const { annotate_mode, call_type } = req.query;
             const { annotations, image_key, metadata } = req.body;
-            client.hmset(
-              user.id,
-              image_key,
-              JSON.stringify(req.body),
-              (err, result) => {
-                if (err) {
-                  return res.json({
-                    error:
-                      "failed to load data into redis for previous and next call",
-                  });
-                }
-              }
-            );
 
             if (call_type === "next") {
               let updateValue = {};

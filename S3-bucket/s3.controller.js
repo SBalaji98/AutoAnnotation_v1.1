@@ -42,6 +42,7 @@ module.exports = {
   async getListedObject(req, res, user) {
     try {
       const { call_type, curr_image_index, annotate_mode } = req.query;
+      const { image_key } = req.body;
 
       //get all the data stored in redis for the user
       client.hgetall(user.id, async (err, result) => {
@@ -50,17 +51,15 @@ module.exports = {
         } else {
           let fileNameArray = JSON.parse(result.fileNameArray);
           let index = Number(result.index);
-          let fileName = fileNameArray[index];
-          let fileData = JSON.parse(result[`${fileName}`]);
 
-          //check if index of images, it should not be greater than total number of images
-          if (index == fileNameArray.length) {
+          //check for index of images, it should not be greater than total number of images
+          if (index == fileNameArray.length - 1) {
             return res.json({ message: "No more images to annotate" });
           }
 
           //check for the call type previous to show last indexed image data
-          if (call_type === "previous" && index > 1) {
-            index = index - 2;
+          if (call_type === "previous" && index > 0) {
+            index = index - 1;
             fileName = fileNameArray[index];
             client.hmset(user.id, "index", index, (err, re) => {
               if (err) {
@@ -69,6 +68,44 @@ module.exports = {
                 });
               }
             });
+
+            client.hmset(
+              user.id,
+              image_key,
+              JSON.stringify(req.body),
+              (err, re) => {
+                if (err) {
+                  return res.json({
+                    error:
+                      "Redis error while setting annotation data in previous call",
+                  });
+                }
+              }
+            );
+          }
+
+          //setting index only for next image
+          if (call_type === "next") {
+            index = index + 1;
+            client.hmset(user.id, "index", index, (err, re) => {
+              if (err) {
+                return res.error(err);
+              }
+            });
+
+            client.hmset(
+              user.id,
+              image_key,
+              JSON.stringify(req.body),
+              (err, re) => {
+                if (err) {
+                  return res.json({
+                    error:
+                      "Redis error while setting annotation data in next call",
+                  });
+                }
+              }
+            );
           }
 
           /**
@@ -81,6 +118,8 @@ module.exports = {
           ) {
             return res.json({ error: "index did not match" });
           } else {
+            let fileName = fileNameArray[index];
+            let fileData = JSON.parse(result[`${fileName}`]);
             let getParams = {
               Bucket: process.env.BUCKET,
               Key: fileName,
@@ -94,16 +133,6 @@ module.exports = {
                 console.log(err);
                 return res.error(err);
               } else {
-                //setting index only for next image
-                if (call_type !== "previous") {
-                  let newIndex = index + 1;
-                  client.hmset(user.id, "index", newIndex, (err, re) => {
-                    if (err) {
-                      return res.error(err);
-                    }
-                  });
-                }
-
                 return res.json({
                   image: data.Body,
                   image_key: fileData.image_key,
