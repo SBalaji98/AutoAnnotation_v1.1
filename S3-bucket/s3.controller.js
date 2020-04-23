@@ -53,12 +53,15 @@ module.exports = {
           let index = Number(result.index);
 
           //check for index of images, it should not be greater than total number of images
-          if (index == fileNameArray.length - 1) {
+          if (curr_image_index == fileNameArray.length) {
             return res.json({ message: "No more images to annotate" });
           }
 
           //check for the call type previous to show last indexed image data
-          if (call_type === "previous" && index > 0) {
+          if (call_type === "previous") {
+            if (index == 0) {
+              return res.json({ error: "No more images to go previous" });
+            }
             index = index - 1;
             fileName = fileNameArray[index];
             client.hmset(user.id, "index", index, (err, re) => {
