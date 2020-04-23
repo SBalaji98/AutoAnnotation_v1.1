@@ -10,6 +10,12 @@ require("dotenv").config();
 
 module.exports = {
   // Register for a new user
+  /**
+   * @description Create a new user and create a folder of that user on its user id
+   * @param {*} req request from client
+   * @param {*} res response to the request
+   * @returns object - object containing information about the user
+   */
   async create(req, res) {
     const { username, password, firstName, lastName, email, mobile } = req.body;
 
@@ -49,6 +55,12 @@ module.exports = {
   },
 
   // Login
+  /**
+   * @description Logging with the credentials of already created users with jwt strategy
+   * @param {*} req request from client
+   * @param {*} res response to the request
+   * @returns object - sending jwt with payload and message
+   */
   async userLogin(req, res, next) {
     try {
       if (!req.body.username || !req.body.password) {
@@ -96,6 +108,12 @@ module.exports = {
     }
   },
 
+  /**
+   * @description Checking for the user authorization with jwt strategy
+   * @param {*} req request from client
+   * @param {*} res response to the request
+   * @returns object - object containing user data
+   */
   IsUserAuthorized(req, res, next) {
     passport.authenticate(
       "jwt",
@@ -130,7 +148,12 @@ module.exports = {
       }
     )(req, res, next);
   },
-  // get all the availble users from DB
+  /**
+   * @description Get all the availble users from DB
+   * @param {*} req request from client
+   * @param {*} res response to the request
+   * @returns object - object containing data of all users
+   */
   async getAllUsers(req, res) {
     // passport.authenticate(
     //   "jwt",
@@ -161,7 +184,12 @@ module.exports = {
     // );
   },
 
-  //Update users
+  /**
+   * @description Update user information
+   * @param {*} req request from client
+   * @param {*} res response to the request
+   * @returns object - object containing updated data of user
+   */
   async update(req, res, next) {
     passport.authenticate(
       "jwt",
@@ -210,7 +238,12 @@ module.exports = {
     )(req, res, next);
   },
 
-  //Logging out
+  /**
+   *@description To logout user and destroying redis data of that user
+   * @param {*} req request from client
+   * @param {*} res response to the request
+   * @returns object - object of informations
+   */
   signOut(req, res, next) {
     passport.authenticate("jwt", { session: false }, (err, user, info) => {
       if (err) {

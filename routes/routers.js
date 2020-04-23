@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const annotationController = require("../controllers/annotations");
 const userController = require("../controllers/user");
-const imageRenderController = require("../controllers/imageRender");
 const { check, validationResult } = require("express-validator");
 const passwordController = require("../controllers/password.controller");
 

@@ -10,6 +10,12 @@ const saltRound = Number(process.env.USER_SALT);
 
 const Op = Sequelize.Op;
 module.exports = {
+  /**
+   * @description Check for the provided email if it matches then send the reset password link to the provided email
+   * @param {*} req request from client
+   * @param {*} res response to the request
+   * @returns object - contains message
+   */
   sendForgotPasswordMail(req, res) {
     let email = req.body.email;
 
@@ -19,9 +25,9 @@ module.exports = {
     } else {
       User.findOne({
         where: {
-          email: email
-        }
-      }).then(user => {
+          email: email,
+        },
+      }).then((user) => {
         if (user == null) {
           console.log("email is not in the db");
           res.status(403).json({ msg: "email not found" });
@@ -29,7 +35,7 @@ module.exports = {
           const token = crypto.randomBytes(20).toString("hex");
           user.update({
             resetPasswordToken: token,
-            resetPasswordTokenExpires: Date.now() + 3600000
+            resetPasswordTokenExpires: Date.now() + 3600000,
           });
 
           const link = `${process.env.RESET_LINK}/${token}`;
@@ -38,8 +44,8 @@ module.exports = {
             service: "gmail",
             auth: {
               user: process.env.SOURCE_EMAIL,
-              pass: process.env.EMAIL_PASSWORD
-            }
+              pass: process.env.EMAIL_PASSWORD,
+            },
           });
 
           const mailOpts = {
@@ -52,7 +58,7 @@ module.exports = {
               
               ${link}
               
-              if you did not request this please ignore this email and your password will remain unchanged`
+              if you did not request this please ignore this email and your password will remain unchanged`,
           };
 
           transporter.sendMail(mailOpts, (err, resp) => {
@@ -69,52 +75,65 @@ module.exports = {
       });
     }
   },
+
+  /**
+   * @description Check for the provided token for reset password and validate it
+   * @param {*} req request from client
+   * @param {*} res response to the request
+   * @returns object - message
+   */
   resetPassword(req, res) {
     User.findOne({
       where: {
         resetPasswordToken: req.query.resetPasswordToken,
         resetPasswordTokenExpires: {
-          [Op.gt]: Date.now()
-        }
-      }
+          [Op.gt]: Date.now(),
+        },
+      },
     })
-      .then(user => {
+      .then((user) => {
         if (user == null) {
           console.error("password reset link is invalid or has expired");
           res.status(403).send("password reset link is invalid or has expired");
         } else {
           res.status(200).send({
             username: user.userName,
-            message: "password reset link a-ok"
+            message: "password reset link a-ok",
           });
         }
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
         res.json(e);
       });
   },
 
+  /**
+   * @description Update password with the validated token
+   * @param {*} req request from client
+   * @param {*} res response to the request
+   * @returns object - message
+   */
   updateForgottenPassword(req, res) {
     User.findOne({
       where: {
         userName: req.body.username,
         resetPasswordToken: req.body.resetPasswordToken,
         resetPasswordTokenExpires: {
-          [Op.gt]: Date.now()
-        }
-      }
-    }).then(user => {
+          [Op.gt]: Date.now(),
+        },
+      },
+    }).then((user) => {
       if (user == null) {
         console.log("password reset link is invalid or has expired");
         res.status(400).json({ message: "Password reset link is invalid" });
       } else {
         console.log("user found in db");
-        bcrypt.hash(req.body.password, saltRound).then(hashPassword => {
+        bcrypt.hash(req.body.password, saltRound).then((hashPassword) => {
           user.update({
             password: hashPassword,
             resetPasswordToken: null,
-            resetPasswordTokenExpires: null
+            resetPasswordTokenExpires: null,
           });
 
           res.status(200).json({ message: "password reset successfully" });
@@ -122,7 +141,12 @@ module.exports = {
       }
     });
   },
-  // yet to be completed some bugs cannot get the proper response
+  /**
+   * @description update user password ========== YET TO BE IMPLEMENT =========
+   * @param {*} req request from client
+   * @param {*} res response to the request
+   * @returns object - message
+   */
   updatePassword(req, res, next) {
     passport.authenticate(
       "jwt",
@@ -133,7 +157,7 @@ module.exports = {
         if (err) {
           console.log(err);
           res.status(400).json({
-            message: err
+            message: err,
           });
         }
         if (info !== undefined) {
@@ -145,12 +169,12 @@ module.exports = {
               userName: user.userName,
               password: await bcrypt
                 .hash(req.body.password, saltRound)
-                .then(hashPassword => hashPassword),
-              isDeleted: false
-            }
-          }).then(user => console.log(user));
+                .then((hashPassword) => hashPassword),
+              isDeleted: false,
+            },
+          }).then((user) => console.log(user));
         }
       }
     )(req, res, next);
-  }
+  },
 };
