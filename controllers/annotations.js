@@ -267,7 +267,7 @@ module.exports = {
         })
         .catch((e) => {
           console.log(e);
-          return res.json({ error: e });
+          return res.json({ error: "Database error" });
         });
     } else {
       s3Controller.getListedObject(req, res, user);

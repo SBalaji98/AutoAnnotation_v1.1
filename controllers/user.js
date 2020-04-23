@@ -3,6 +3,8 @@ const User = require("../models").User;
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const s3Controller = require("../S3-bucket/s3.controller");
+const redis = require("redis");
+const client = redis.createClient();
 const saltRound = Number(process.env.USER_SALT);
 require("dotenv").config();
 
@@ -13,12 +15,13 @@ module.exports = {
 
     try {
       await User.findOne({
-        where: { userName: username, isDeleted: false }
+        where: { userName: username, isDeleted: false },
       })
-        .then(async user => {
+        .then(async (user) => {
           if (user) {
             res.json({
-              error: "User is already exist please choose a different user name"
+              error:
+                "User is already exist please choose a different user name",
             });
           } else {
             const userCollection = await User.create({
@@ -27,16 +30,16 @@ module.exports = {
               lastName: lastName,
               phone: mobile,
               userName: username,
-              password: await bcrypt.hash(password, saltRound).then(hash => {
+              password: await bcrypt.hash(password, saltRound).then((hash) => {
                 return hash;
-              })
+              }),
             });
 
             s3Controller.createFolderS3(userCollection.id);
             res.status(201).json(userCollection);
           }
         })
-        .catch(e => {
+        .catch((e) => {
           throw e;
         });
     } catch (e) {
@@ -50,7 +53,7 @@ module.exports = {
     try {
       if (!req.body.username || !req.body.password) {
         return res.status(400).json({
-          message: "Something is not right with your input"
+          message: "Something is not right with your input",
         });
       }
       passport.authenticate("login", (err, users, info) => {
@@ -68,21 +71,21 @@ module.exports = {
           req.logIn(users, () => {
             User.findOne({
               where: {
-                userName: req.body.username
-              }
-            }).then(user => {
+                userName: req.body.username,
+              },
+            }).then((user) => {
               const token = jwt.sign(
                 { sub: user.id, username: user.userName, isad: user.isAdmin },
                 process.env.JWT_SECRET,
                 {
-                  expiresIn: 60 * 60 * 24
+                  expiresIn: 60 * 60 * 24,
                 }
               );
               res.status(200).send({
                 auth: true,
                 username: user.userName,
                 token,
-                message: "user found & logged in"
+                message: "user found & logged in",
               });
             });
           });
@@ -113,7 +116,7 @@ module.exports = {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
-                userName: user.userName
+                userName: user.userName,
               };
               res.json({ user: data });
             } else {
@@ -145,8 +148,8 @@ module.exports = {
       const userCollection = await User.findAll({
         attributes: ["id", "firstName", "lastName", "email", "phone"],
         where: {
-          isDeleted: false
-        }
+          isDeleted: false,
+        },
       });
       res.json(userCollection);
     } catch (e) {
@@ -174,21 +177,21 @@ module.exports = {
         } else {
           try {
             const userCollection = await User.findOne({
-              where: { id: user.id, isDeleted: false }
+              where: { id: user.id, isDeleted: false },
             });
 
             if (userCollection) {
               let userKeys = Object.keys(req.body);
 
-              const updatedUser = userKeys.map(field => {
+              const updatedUser = userKeys.map((field) => {
                 if (req.body[field] && field in user) {
                   const data = {};
                   data[field] = req.body[field];
                   User.update(data, {
                     where: {
                       id: user.id,
-                      isDeleted: false
-                    }
+                      isDeleted: false,
+                    },
                   });
                 }
               });
@@ -221,6 +224,7 @@ module.exports = {
         try {
           if (user) {
             req.logout();
+            client.del(user.id);
             res.status(200).send({ msg: "logging out" });
           } else {
             res.send({ msg: "no user to log out" });
@@ -230,5 +234,5 @@ module.exports = {
         }
       }
     })(req, res, next);
-  }
+  },
 };
