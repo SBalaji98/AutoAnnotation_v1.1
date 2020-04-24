@@ -315,7 +315,8 @@ module.exports = {
               Annotations.update(updateValue, {
                 where: { fileName: image_key },
               })
-                .then(() => {
+                .then((a) => {
+                  console.log(a);
                   Annotations.findOne({
                     where: {
                       fileName: image_key,
@@ -324,7 +325,8 @@ module.exports = {
                     },
                   })
                     .then((resp) => {
-                      if (resp !== null || resp !== undefined) {
+                      console.log(resp);
+                      if (resp !== null) {
                         Annotations.update(
                           { isAnnotated: true },
                           { where: { fileName: image_key } }

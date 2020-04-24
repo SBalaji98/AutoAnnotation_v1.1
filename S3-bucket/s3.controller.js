@@ -134,7 +134,7 @@ module.exports = {
             await s3.getObject(getParams, function (err, data) {
               if (err) {
                 console.log(err);
-                return res.error(err);
+                return res.json({ error: err.message });
               } else {
                 return res.json({
                   image: data.Body,
