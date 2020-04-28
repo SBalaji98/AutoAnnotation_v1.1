@@ -6,7 +6,7 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       userId: {
         type: Sequelize.UUID,
@@ -15,58 +15,67 @@ module.exports = {
         references: {
           model: "Users",
           key: "id",
-          as: "userId"
-        }
+          as: "userId",
+        },
       },
       fileName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       isAnnotated: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       objectDetectionData: {
-        type: Sequelize.JSONB
+        type: Sequelize.JSONB,
       },
       segmentationData: {
-        type: Sequelize.JSONB
+        type: Sequelize.JSONB,
       },
       dlAnnotatedData: {
-        type: Sequelize.JSONB
+        type: Sequelize.JSONB,
       },
       isDLAnnotated: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       isObjectDetected: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       isSegmented: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       bucketName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       metadata: {
-        type: Sequelize.JSONB
+        type: Sequelize.JSONB,
       },
       isMoved: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
+      },
+      projectId: {
+        type: Sequelize.INTEGER,
+        onDelete: "CASCADE",
+        references: {
+          model: "Projects",
+          key: "id",
+          as: "projectId",
+        },
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   down: (queryInterface, Sequelize) => {
     return queryInterface.dropTable("Annotations");
-  }
+  },
 };

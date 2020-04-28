@@ -14,15 +14,22 @@ module.exports = (sequelize, DataTypes) => {
       isSegmented: { type: DataTypes.BOOLEAN, defaultValue: false },
       bucketName: DataTypes.STRING,
       metadata: DataTypes.JSONB,
-      isMoved: { type: DataTypes.BOOLEAN, defaultValue: false }
+      isMoved: { type: DataTypes.BOOLEAN, defaultValue: false },
+      projectId: { type: DataTypes.INTEGER },
     },
     {}
   );
-  Annotation.associate = function(models) {
+  Annotation.associate = function (models) {
     Annotation.belongsTo(models.User, {
       as: "user",
       foreignkey: "userId",
-      onDelete: "CASCADE"
+      onDelete: "CASCADE",
+    });
+
+    Annotation.belongsTo(models.Projects, {
+      as: "projects",
+      foreignkey: "projectId",
+      onDelete: "CASCADE",
     });
   };
   return Annotation;

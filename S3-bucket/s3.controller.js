@@ -58,7 +58,7 @@ module.exports = {
           }
 
           //check for the call type previous to show last indexed image data
-          if (call_type === "previous") {
+          if (call_type === "previous" && curr_image_index == index - 1) {
             if (index == 0) {
               return res.json({ error: "No more images to go previous" });
             }
@@ -88,7 +88,7 @@ module.exports = {
           }
 
           //setting index only for next image
-          if (call_type === "next") {
+          else if (call_type === "next" && curr_image_index == index + 1) {
             index = index + 1;
             client.hmset(user.id, "index", index, (err, re) => {
               if (err) {

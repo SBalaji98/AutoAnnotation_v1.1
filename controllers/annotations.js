@@ -157,6 +157,7 @@ module.exports = {
         fileName: data.frame_cloud,
         isDLAnnotated: true,
         dlAnnotatedData: data.annotations,
+        projectId: data.project_id,
       };
 
       imageDataToInsert.push(dataMap);
@@ -325,7 +326,6 @@ module.exports = {
                     },
                   })
                     .then((resp) => {
-                      console.log(resp);
                       if (resp !== null) {
                         Annotations.update(
                           { isAnnotated: true },
