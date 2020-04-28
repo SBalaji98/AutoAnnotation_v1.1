@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       id: {
         primaryKey: true,
         type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4
+        defaultValue: DataTypes.UUIDV4,
       },
       firstName: { type: DataTypes.STRING, allowNull: false },
       lastName: { type: DataTypes.STRING },
@@ -19,14 +19,21 @@ module.exports = (sequelize, DataTypes) => {
       isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
       isDeleted: { type: DataTypes.BOOLEAN, defaultValue: false },
       resetPasswordToken: { type: DataTypes.STRING },
-      resetPasswordTokenExpires: { type: DataTypes.DATE }
+      resetPasswordTokenExpires: { type: DataTypes.DATE },
+      roleId: { type: DataTypes.INTEGER },
     },
     {}
   );
-  User.associate = models => {
+  User.associate = (models) => {
     User.hasMany(models.Annotation, {
       as: "Annotations",
-      foreignKey: "userId"
+      foreignKey: "userId",
+    });
+
+    User.belongsTo(models.Roles, {
+      as: "roles",
+      foreignkey: "roleId",
+      onDelete: "CASCADE",
     });
   };
   return User;

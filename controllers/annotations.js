@@ -143,8 +143,8 @@ module.exports = {
 
   /**
    * @description To bulk upload annotation data in annotation table
-   * @param {body} req
-   * @param {*} res
+   * @param {object} req
+   * @param {object} res
    * @return json object - object having the count of the images uploaded and all uploaded response from db
    */
   createBulkAnnotationByDLModel(req, res) {
