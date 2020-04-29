@@ -216,7 +216,10 @@ module.exports = {
    */
   getImageData(req, res, user) {
     const { call_type, curr_image_index, annotate_mode } = req.query;
-    if (call_type === "first" && curr_image_index == 0) {
+    if (call_type === "first") {
+      if (curr_image_index != 0) {
+        return res.json({ error: "current index should be 0 for first call" });
+      }
       /**
        * @description The stored procedure gives all the images belongs to the user as per the mode selected by the user
        * @param user_id - uuid of the user

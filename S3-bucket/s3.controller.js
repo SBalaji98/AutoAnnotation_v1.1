@@ -58,7 +58,7 @@ module.exports = {
           }
 
           //check for the call type previous to show last indexed image data
-          if (call_type === "previous" && curr_image_index == index - 1) {
+          if (call_type === "previous") {
             if (index == 0) {
               return res.json({ error: "No more images to go previous" });
             }
@@ -88,7 +88,12 @@ module.exports = {
           }
 
           //setting index only for next image
-          else if (call_type === "next" && curr_image_index == index + 1) {
+          if (call_type === "next") {
+            if (curr_image_index == 0) {
+              return res.json({
+                error: "index should be greater than 0 for next call",
+              });
+            }
             index = index + 1;
             client.hmset(user.id, "index", index, (err, re) => {
               if (err) {
@@ -123,6 +128,27 @@ module.exports = {
           } else {
             let fileName = fileNameArray[index];
             let fileData = JSON.parse(result[`${fileName}`]);
+
+            // To check for a review call_type and get data for image on the basis of object detection and segmentation
+            if (call_type === "review") {
+              fileName = req.query.image_key;
+              let data = await Annotations.findOne({
+                where: { fileName: fileName },
+              });
+              if (data === null) {
+                return res.json({ error: "no data found for review" });
+              }
+              data = JSON.parse(JSON.stringify(data));
+              fileData.image_key = fileName;
+              fileData.metadata = data.metadata;
+              if (annotate_mode === "object_detection") {
+                fileData.annotations = data.objectDetectionData;
+              }
+              if (annotate_mode === "segmentation") {
+                fileData.annotations = data.segmentationData;
+              }
+              return res.json(fileData);
+            }
             let getParams = {
               Bucket: process.env.BUCKET,
               Key: fileName,

@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Annotation.belongsTo(models.Projects, {
-      as: "projects",
+      as: "project",
       foreignkey: "projectId",
       onDelete: "CASCADE",
     });

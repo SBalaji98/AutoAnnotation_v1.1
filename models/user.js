@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     User.belongsTo(models.Roles, {
-      as: "roles",
+      as: "role",
       foreignkey: "roleId",
       onDelete: "CASCADE",
     });
