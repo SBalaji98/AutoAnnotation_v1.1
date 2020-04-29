@@ -147,7 +147,6 @@ module.exports = {
               if (annotate_mode === "segmentation") {
                 fileData.annotations = data.segmentationData;
               }
-              return res.json(fileData);
             }
             let getParams = {
               Bucket: process.env.BUCKET,
