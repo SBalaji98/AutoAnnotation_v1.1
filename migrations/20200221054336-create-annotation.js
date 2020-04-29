@@ -41,10 +41,12 @@ module.exports = {
       isObjectDetected: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
+        allowNull: true,
       },
       isSegmented: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
+        allowNull: true,
       },
       bucketName: {
         type: Sequelize.STRING,
