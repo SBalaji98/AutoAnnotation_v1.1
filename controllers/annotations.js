@@ -7,6 +7,8 @@ const model = require("../models");
 const redis = require("redis");
 const client = redis.createClient();
 const s3Controller = require("../S3-bucket/s3.controller");
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 
 module.exports = {
   /**
@@ -320,16 +322,28 @@ module.exports = {
                 where: { fileName: image_key },
               })
                 .then((a) => {
-                  console.log(a);
                   Annotations.findOne({
                     where: {
                       fileName: image_key,
-                      isSegmented: true,
-                      isObjectDetected: true,
+                      [Op.and]: [
+                        {
+                          [Op.or]: [
+                            { isObjectDetected: true },
+                            { isObjectDetected: null },
+                          ],
+                        },
+                        {
+                          [Op.or]: [
+                            { isSegmented: true },
+                            { isSegmented: null },
+                          ],
+                        },
+                      ],
                     },
                   })
                     .then((resp) => {
                       if (resp !== null) {
+                        console.log(resp);
                         Annotations.update(
                           { isAnnotated: true },
                           { where: { fileName: image_key } }
@@ -337,10 +351,12 @@ module.exports = {
                       }
                     })
                     .catch((e) => {
+                      console.log(e);
                       return res.json({
                         error: "Database error unable to update isAnnotated",
                       });
                     });
+
                   this.getImageData(req, res, user);
                 })
                 .catch((e) => {
