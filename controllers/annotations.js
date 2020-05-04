@@ -17,7 +17,7 @@ module.exports = {
    * @param {*} res Response to the request
    * @returns object - json object of the all data in the db
    */
-  async getAllAnnotations(req, res, next) {
+  async getAnnotations(req, res, next) {
     passport.authenticate(
       "jwt",
       { session: false },
@@ -31,12 +31,96 @@ module.exports = {
           return res.json({ error: info.message });
         } else if (user) {
           try {
-            const annotatedData = await Annotations.findAll({
-              where: {
-                isMoved: false,
-              },
-            });
-            return res.json({ data: annotatedData });
+            const { dataFor, dataForIdName } = req.query;
+            if (dataFor === "project") {
+              model.sequelize
+                .query(
+                  "SELECT * FROM get_annotated_images_per_proj(:proj_id)",
+                  {
+                    replacements: {
+                      proj_id: dataForIdName,
+                    },
+                  }
+                )
+                .then((data) => {
+                  if (!data[0].length) {
+                    return res.json({
+                      error: "No annotated data for this project",
+                    });
+                  }
+                  return res.json(data[0]);
+                })
+                .catch((e) => {
+                  return res.json({
+                    error:
+                      "DB error while searching annotated data for projects",
+                  });
+                });
+            } else if (dataFor === "user") {
+              model.sequelize
+                .query(
+                  "SELECT * FROM get_annotated_images_per_user(:user_id )",
+                  {
+                    replacements: {
+                      user_id: dataForIdName,
+                    },
+                  }
+                )
+                .then((data) => {
+                  if (!data[0].length) {
+                    return res.json({
+                      error: "No annotated data for this user",
+                    });
+                  }
+                  return res.json(data[0]);
+                })
+                .catch((e) => {
+                  return res.json({
+                    error: "DB error while searching annotated data for users ",
+                  });
+                });
+            } else if (dataFor === "file") {
+              model.sequelize
+                .query(
+                  "SELECT * FROM get_annotated_images_details(:filename)",
+                  {
+                    replacements: {
+                      filename: dataForIdName,
+                    },
+                  }
+                )
+                .then((data) => {
+                  if (!data[0].length) {
+                    return res.json({
+                      error: "The file is not been annotated",
+                    });
+                  }
+                  return res.json(data[0]);
+                })
+                .catch((e) => {
+                  console.log(e);
+                  return res.json({
+                    error:
+                      "DB error while searching annotated data for filename",
+                  });
+                });
+            } else {
+              Annotations.findAll({
+                where: {
+                  isAnnotated: true,
+                },
+              })
+                .then((data) => {
+                  return res.json(data);
+                })
+                .catch((e) => {
+                  console.log(e);
+                  return res.json({
+                    error:
+                      "DB error while getting data for all the annotated images",
+                  });
+                });
+            }
           } catch (e) {
             console.log(e);
             res.status(500).json({ error: e });

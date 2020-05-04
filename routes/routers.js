@@ -96,7 +96,7 @@ router.get("/annotations/get-image-data-by-user", (req, res) => {
 
 // to get all the annotations of all the users by admin
 router.get("/annotations/admin/all-annotations", (req, res, next) => {
-  annotationController.getAllAnnotations(req, res, next);
+  annotationController.getAnnotations(req, res, next);
 });
 
 // to get changed fromat data
