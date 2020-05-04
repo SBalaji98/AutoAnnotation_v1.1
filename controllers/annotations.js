@@ -160,6 +160,8 @@ module.exports = {
         isDLAnnotated: true,
         dlAnnotatedData: data.annotations,
         projectId: data.project_id,
+        isObjectDetected: data.isObjectDetected,
+        isSegmented: data.isSegmented,
       };
 
       imageDataToInsert.push(dataMap);
