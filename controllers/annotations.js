@@ -13,7 +13,9 @@ const Op = Sequelize.Op;
 module.exports = {
   /**
    * @description authenticate the user and get all the annotaion data from the database
-   * @param {*} req Request from client
+   * @param {*} req Request from client which conatains the query parameters
+   * @param {query} req dataFor - string can be (user, project file)
+   * @param {query} req dataForIdName - id or name of the (project, file, user)
    * @param {*} res Response to the request
    * @returns object - json object of the all data in the db
    */
