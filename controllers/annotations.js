@@ -105,6 +105,11 @@ module.exports = {
                   });
                 });
             } else {
+              if (dataFor != undefined && dataForIdName != undefined) {
+                return res.json({
+                  error: "data is not available for provided keys",
+                });
+              }
               Annotations.findAll({
                 where: {
                   isAnnotated: true,
