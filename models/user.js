@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       isDeleted: { type: DataTypes.BOOLEAN, defaultValue: false },
       resetPasswordToken: { type: DataTypes.STRING },
       resetPasswordTokenExpires: { type: DataTypes.DATE },
-      roleId: { type: DataTypes.INTEGER },
+      roleId: { type: DataTypes.INTEGER, defaultValue: 4 },
     },
     {}
   );
