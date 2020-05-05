@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react"
 import type { Node } from "react"
 import Grid from "@material-ui/core/Grid"
 import { makeStyles } from "@material-ui/core/styles"
-import Sidebar from "../Sidebar"
+import Sidebar from "../Sidebar/ind"
 import ImageCanvas from "../ImageCanvas"
 import Header from "../Header"
 import IconTools from "../IconTools"
@@ -69,6 +69,7 @@ useKey(() => dispatch({ type: "CANCEL" }), {
 const isAVideoFrame = activeImage && activeImage.frameTime !== undefined
 
 let impliedVideoRegions = useImpliedVideoRegions(state)
+
 
 return (
   <Fullscreen
@@ -153,7 +154,7 @@ return (
                   dragWithPrimary={state.selectedTool === "pan"}
                   zoomWithPrimary={state.selectedTool === "zoom"}
                   showPointDistances={state.showPointDistances}
-                  pointDistancePrecision={state.pointDistancePrecision}
+                
                   videoTime={
                     state.annotationType === "image"
                       ? state.selectedImageFrameTime
@@ -201,6 +202,10 @@ return (
         </div>
         <div className={classes.sidebarContainer}>
           <Sidebar
+            metadata={state.metadata ? state.metadata : null}
+            allowed_metadata={state.allowed_metadata}
+            preview = {state.preview}
+            previewList = {state.previewList}
             debug={window.localStorage.$ANNOTATE_DEBUG_MODE && state}
             taskDescription={state.taskDescription}
             images={state.images}
@@ -212,6 +217,7 @@ return (
             imageTagList={state.imageTagList}
             keyframes={state.keyframes}
             currentVideoTime={state.currentVideoTime}
+            onChangeMetadata={action("CHANGE_METADATA","metadata")}
             onChangeImage={action("CHANGE_IMAGE", "delta")}
             onSelectRegion={action("SELECT_REGION", "region")}
             onDeleteRegion={action("DELETE_REGION", "region")}

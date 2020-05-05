@@ -512,23 +512,31 @@ export default (state: MainLayoutState, action: Action) => {
         }
         //custom function
         case "next image": {
-          state.nextImage()
+
+         // state.nextImage()
           return state
         }
         case "prev image": {
-          state.prevImage()
+          //state.prevImage()
           return state
         }
-        case "changemode": {
+        // case "changemode": {
 
-          if (state.annotatemode === "Object Detection") {
-            console.log("[annotatemode]", state.annotatemode)
-            return setIn(state, ["annotatemode"], "Segmentation")
-          } else {
-            console.log("[annotatemode]", state.annotatemode)
-            return setIn(state, ["annotatemode"], "Object Detection")
-          }
+        //   if (state.annotatemode === "object_detection") {
+        //     console.log("[annotatemode]", state.annotatemode)
+        //     return setIn(state, ["annotatemode"], "segmentation")
+        //   } else {
+        //     console.log("[annotatemode]", state.annotatemode)
+        //     return setIn(state, ["annotatemode"], "object_detection")
+        //   }
 
+        // }
+        case "object detection":{
+          return setIn(state, ["annotatemode"], "object_detection")
+
+        }
+        case "segmentation":{
+          return setIn(state, ["annotatemode"], "segmentation")
         }
       }
       return state
@@ -581,28 +589,38 @@ export default (state: MainLayoutState, action: Action) => {
 
     ////////custom dispach actions
     case "RELOAD": {
-      // return setIn(state, ["images"], action.image)
-      console.log("[images   ]",action.image[0])
-      return setIn(setIn(state, ["images"], action.image),
-        ["selectedImage"], action.image[0])
-  
+      return setIn(state,["images"],action.image)
 
     }
 
     case "ANNOTATION_MODE": {
-      if (state.annotatemode === "Segmentation") {
+      if (state.annotatemode === "segmentation") {
         console.log('[reducer annotatemode]', state.annotatemode)
-        return setIn(state, ["enabledTools"], ["select", "create-point", "create-polygon"])
+        return setIn(state, ["enabledTools"], ["select","create-polygon"])
       } else {
         console.log('[reducer annotatemode]', state.annotatemode)
-        return setIn(state, ["enabledTools"], ["select", "create-point", "create-box"])
+        return setIn(state, ["enabledTools"], ["select",  "create-box"])
       }
     }
 
     case "CLASS_LIST": {
       return setIn(state, ["regionClsList"], action.classlist)
     }
-
+    case "IMAGE_INDEX":{
+      return setIn(state,["curr_image_index"],action.curr_image_index)
+    }
+    case "CHANGE_METADATA":{
+      return setIn(state,["metadata"],action.metadata)
+    }
+    case "PREVIEW_LIST" :{
+      return setIn(state,["previewList"],action.image)
+    }
+    case "LOADER":{
+      return setIn(state,["loader"],action.value)
+    }
+    case "LOADER_MESSAGE":{
+      return setIn(state,["message"],action.value)
+    }
 
   }
   return state

@@ -59,6 +59,9 @@ export type MainLayoutStateBase = {|
   imageClsList?: Array<string>,
   imageTagList?: Array<string>,
   enabledTools: Array<string>,
+  allowed_metadata: Array<string>,
+  metadata:Array<string>,
+  previewList:Array<string>,
   history: Array<{ time: Date, state: MainLayoutState, name: string }>
 |}
 

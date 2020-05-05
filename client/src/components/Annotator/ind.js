@@ -13,7 +13,6 @@ import type {
 import SettingsProvider from "../SettingsProvider"
 import { useSettings } from "../SettingsProvider"
 
-
 import combineReducers from "./reducers/combine-reducers.js"
 import generalReducer from "./reducers/general-reducer.js"
 import imageReducer from "./reducers/image-reducer.js"
@@ -22,6 +21,7 @@ import historyHandler from "./reducers/history-handler.js"
 
 import useEventCallback from "use-event-callback"
 import makeImmutable, { without } from "seamless-immutable"
+import Loader from "../Loader/Loader"
 
 type Props = {
   taskDescription: string,
@@ -42,6 +42,7 @@ type Props = {
   videoSrc?: string,
   keyframes?: Object,
   videoName?: string,
+
 
 }
 
@@ -67,10 +68,17 @@ export const Annotator = ({
   onExit,
   onNextImage,
   onPrevImage,
-  nextImage,
-  prevImage,
+  //nextImage,
+  //prevImage,
+  preview,
+  previewList,
+  curr_image_index,
   changeAnnotateMode,
-  annotatemode
+  annotatemode,
+  allowed_metadata,
+  metadata = {},
+  loading,
+  message
 }: Props) => {
   const settings = useSettings()
   if (!images && !videoSrc)
@@ -85,9 +93,16 @@ export const Annotator = ({
     ),
     makeImmutable(
       {
+        message,
+        loading,
+        metadata,
+        allowed_metadata,
         annotationType,
-        nextImage,
-        prevImage,
+        curr_image_index,
+        // nextImage,
+        // prevImage,
+        preview,
+        previewList,
         changeAnnotateMode,
         annotatemode,
         showTags,
@@ -123,7 +138,8 @@ export const Annotator = ({
 
   const dispatch = useEventCallback((action: Action) => {
     if (action.type === "HEADER_BUTTON_CLICKED") {
-      if (["Exit", "Done", "Save", "Complete"].includes(action.buttonName)) {
+      if (["Exit", "Done", "Save", "Complete", "Review"].includes(action.buttonName)) {
+
         return onExit(without(state, "history"))
       }
       else if (action.buttonName === "next image" && onNextImage) {
@@ -140,7 +156,6 @@ export const Annotator = ({
   }, [selectedImage])
   useEffect(() => {
     dispatchToReducer({ type: "RELOAD", image: images })
-    // dispatchToReducer({ type: "IMAGE_RENDER", image: images[0] })
     dispatchToReducer({ type: "SELECT_IMAGE", image: images[0] })
   }, [images])
 
@@ -149,9 +164,9 @@ export const Annotator = ({
   }, [regionClsList])
 
   useEffect(() => {
-    if (state.annotatemode === "Object Detection") {
+    if (state.annotatemode === "object_detection") {
       dispatchToReducer({ type: "ANNOTATION_MODE" })
-      // dispatchToReducer({ type: "SELECT_TOOL", selectedTool: "create-box" })
+      dispatchToReducer({ type: "SELECT_TOOL", selectedTool: "create-box" })
       state.changeAnnotateMode(state.annotatemode)
 
     } else {
@@ -163,9 +178,26 @@ export const Annotator = ({
 
   }, [state.annotatemode])
 
+  useEffect(() => {
+    dispatchToReducer({ type: "IMAGE_INDEX", curr_image_index: curr_image_index })
+  }, [curr_image_index])
 
+  useEffect(()=>{
+    dispatchToReducer({type:"PREVIEW_LIST",image:previewList})
+  },[previewList])
+
+  useEffect(()=>{
+    dispatchToReducer({type:"CHANGE_METADATA",metadata:metadata})
+  },[metadata])
+
+  useEffect(()=>{
+    dispatchToReducer({type:"LOADER",value:loading})
+  },[loading])
+  useEffect(()=>{
+    dispatchToReducer({type:"LOADER_MESSAGE",value:message})
+  },[message])
   return (
-    <SettingsProvider>
+    loading?(<Loader message={message}/>):(    <SettingsProvider>
       <MainLayout
         RegionEditLabel={RegionEditLabel}
         alwaysShowNextButton={Boolean(onNextImage)}
@@ -174,6 +206,7 @@ export const Annotator = ({
         dispatch={dispatch}
       />
     </SettingsProvider>
+    )
   )
 }
 

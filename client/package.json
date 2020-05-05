@@ -24,6 +24,7 @@
     "react-use-measure": "^2.0.0",
     "seamless-immutable": "^7.1.4",
     "storybook": "^5.3.14",
+    "sweetalert": "^2.1.2",
     "sync": "^0.2.5",
     "transformation-matrix-js": "^2.7.6",
     "use-event-callback": "^0.1.0",

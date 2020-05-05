@@ -2,25 +2,44 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import logo from "../../images/logo.png";
 import "../../App.css";
-
+import ExitIcon from "@material-ui/icons/ExitToApp"
+import { withRouter } from "react-router-dom";
+import Loader from '../Loader/Loader';
+import swal from 'sweetalert'
 class Navbar extends Component {
-  constructor() {
-    super();
-    this.logout = this.logout.bind(this);
-  }
 
-  logout = event => {
+
+  logout = () => {
+    const { history } = this.props;
     console.log("logging out");
-    event.preventDefault();
     localStorage.removeItem("jwt");
     this.props.updateUser({
       loggedIn: false,
       username: null
     });
+    history.push('/')
   };
+
+  confirmLogout = () => {
+    swal({
+      title: "Are you sure to Logout?",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+      .then((willLogout) => {
+        if (willLogout) {
+          this.logout();
+        } else {
+          swal("You are loggedIn !");
+        }
+      });
+  }
+
 
   render() {
     const loggedIn = this.props.loggedIn;
+    // const { history } = this.props;
 
     return (
       <div>
@@ -28,18 +47,24 @@ class Navbar extends Component {
           <div className="w3-bar w3-black">
             <a className="w3-bar-item">
               {/*   <strong><span className="w3-white">FLUX</span>&nbsp;</strong> */}
+              <img src={logo} className="App-logo" alt="logo" />
+
               <strong><span className="w3-text-red">AUTO</span>&nbsp;</strong>
               <strong><span>ANNOTATION</span></strong></a>
-            {/* <img src={logo} className="App-logo" alt="logo" /> */}
-            <Link to="/" className="w3-bar-item w3-button w3-hover-dark-gray">
+            {/* <Link to="/" className="w3-bar-item w3-button w3-hover-dark-gray">
               Home
-            </Link>
+            </Link> */}
             <Link
               to="#"
               className="w3-bar-item w3-button w3-hover-dark-gray  w3-right"
-              onClick={this.logout}
+              onClick={this.confirmLogout}
             >
-              LogOut
+              <ExitIcon />
+
+              <div>
+                LogOut
+              </div>
+
             </Link>
           </div>
         ) : (
@@ -51,9 +76,9 @@ class Navbar extends Component {
                 {/*   <strong><span className="w3-white">FLUX</span>&nbsp;</strong> */}
                 <strong><span className="w3-text-red">AUTO</span>&nbsp;</strong>
                 <strong><span>ANNOTATION</span></strong></a>
-              <Link to="/" className="w3-bar-item w3-button w3-hover-dark-gray ">
+              {/* <Link to="/" className="w3-bar-item w3-button w3-hover-dark-gray ">
                 Home
-              </Link>
+              </Link> */}
               <Link to="/login" className="w3-bar-item w3-button w3-hover-dark-gray w3-right">
                 Login
               </Link>
@@ -66,4 +91,4 @@ class Navbar extends Component {
   }
 }
 
-export default Navbar;
+export default withRouter(Navbar);

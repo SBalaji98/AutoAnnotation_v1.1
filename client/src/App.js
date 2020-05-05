@@ -6,7 +6,7 @@ import LoginForm from "./components/Authentication/login-form";
 import Navbar from "./components/MainPage/navbar";
 import Home from "./components/MainPage/home";
 import Routes from "./Routes";
-
+import SignIn from "./components/Authentication/signin"
 class App extends Component {
   constructor() {
     super();
@@ -21,7 +21,7 @@ class App extends Component {
     const accessString = localStorage.getItem("jwt");
 
     axios
-      .get("/user/", {
+      .get("/user", {
         headers: {
           Authorization: `bearer ${accessString}`
         }
@@ -46,18 +46,19 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Navbar updateUser={this.updateUser} loggedIn={this.state.loggedIn} />
+        {/* <Navbar updateUser={this.updateUser} loggedIn={this.state.loggedIn} /> */}
         {/* greet user if logged in: */}
         {/* {this.state.loggedIn && <p>Join the party, {this.state.username}!</p>} */}
         {/* Routes to different components */}
         <Route
           exact
-          path="/"
-          render={() => <Home loggedIn={this.state.loggedIn} />}
+          path="/user"
+          render={() => <Home updateUser={this.updateUser} loggedIn={this.state.loggedIn} />}
         />
         <Route
-          path="/login"
-          render={() => <LoginForm updateUser={this.updateUser} />}
+        exact
+          path="/"
+          render={() => <SignIn updateUser={this.updateUser} />}
         />
         <Routes />
       </div>

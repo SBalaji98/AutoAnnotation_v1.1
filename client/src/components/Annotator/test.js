@@ -139,7 +139,7 @@ export const Annotator = ({
     }, [selectedImage])
     useEffect(() => {
         dispatchToReducer({ type: "RELOAD", image: images })
-        dispatchToReducer({ type: "SELECT_IMAGE", image: images[0] })
+        // dispatchToReducer({ type: "SELECT_IMAGE", image: images[0] })
     }, [images])
 
     useEffect(() => {

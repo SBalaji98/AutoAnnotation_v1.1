@@ -110,7 +110,7 @@ export const RegionLabel = ({
           {(allowedClasses || []).length > 0 && (
             <div style={{ marginTop: 6 }}>
               <Select
-                // placeholder="Classification"
+                placeholder="Classification"
                 onChange={o =>
                   onChange({
                     ...(region: any),

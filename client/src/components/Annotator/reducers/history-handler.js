@@ -34,7 +34,11 @@ export default reducer => {
           nextState.history.slice(1)
         )
       }
-    } else {
+    } 
+    // else if(action.type === "CLEAR_HISTORY"){
+    //   return setIn(state,[""])
+    // }
+    else {
       if (
         prevState !== nextState &&
         Object.keys(typesToSaveWithHistory).includes(action.type)

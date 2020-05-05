@@ -33,6 +33,7 @@ export const TaskDescriptionSidebarBox = ({ description }) => {
         <Markdown source={description} />
       </MarkdownContainer>
     </SidebarBoxContainer>
+    
   )
 }
 

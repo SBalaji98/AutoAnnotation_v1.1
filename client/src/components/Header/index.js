@@ -16,7 +16,7 @@ import HotkeysIcon from "@material-ui/icons/Keyboard"
 import styles from "./styles"
 import KeyframeTimeline from "../KeyframeTimeline"
 import classnames from "classnames"
-
+import BookmarkIcon from "@material-ui/icons/Bookmark"
 const useStyles = makeStyles(styles)
 
 type Props = {
@@ -59,7 +59,7 @@ export const Header = (
         {title}
       </div>
       <div className={classnames(classes.fileInfo, videoMode && "videoMode")}>
-        {state.annotatemode} Mode
+      Mode: {(state.annotatemode==="object_detection")?("Object Detection"):("Segmentation")} 
       </div>
       {videoMode && (
         <KeyframeTimeline
@@ -94,8 +94,10 @@ export const Header = (
               )}
             </>
           )}
-          <HeaderButton name="changemode" Icon={HotkeysIcon} />
-          {(state.curr_image_index > 1) && (
+          <HeaderButton name={(state.annotatemode==="object_detection")?("SEGMENTATION"):("OBJECT DETECTION")} Icon={HotkeysIcon} />
+          {/* <HeaderButton name="changemode" Icon={HotkeysIcon} /> */}
+
+          {(state.curr_image_index > 0) && (
           <HeaderButton name="prev image" Icon={BackIcon} />
           )}
           <HeaderButton name="next image" Icon={NextIcon} />
@@ -108,7 +110,9 @@ export const Header = (
             <HeaderButton name="Fullscreen" Icon={FullscreenIcon} />
           )}
           {/* <HeaderButton name="Hotkeys" Icon={HotkeysIcon} /> */}
-          <HeaderButton name="Save" Icon={ExitIcon} />
+          {/* <HeaderButton name="Save" Icon={ExitIcon} /> */}
+          <HeaderButton name="Review" Icon={BookmarkIcon} />
+
         </HeaderButtonContext.Provider>
       </div>
     </div>

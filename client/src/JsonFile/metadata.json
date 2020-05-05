@@ -1,0 +1,26 @@
+{
+    "road":[
+        "Lease Road",
+        "Main Road",
+        "Highway",
+        "Flyover",
+        "Tunnel"
+    ],
+    "climate":[
+        "sunny",
+        "cloudy",
+        "rain",
+        "dawn"
+    ],
+    "time_of_day":[
+        "Morning",
+        "Afternoon",
+        "Evening",
+        "Night"
+    ],
+    "area":[
+        "Rural",
+        "Urban"
+    ]
+
+}
