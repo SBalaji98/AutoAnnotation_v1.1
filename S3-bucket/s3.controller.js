@@ -162,7 +162,7 @@ module.exports = {
                 return res.json({ error: err.message });
               } else {
                 return res.json({
-                  // image: data.Body,
+                  image: data.Body,
                   image_key: fileData.image_key,
                   annotations: fileData.annotations,
                   metadata: fileData.metadata,
