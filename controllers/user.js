@@ -115,38 +115,24 @@ module.exports = {
    * @returns object - object containing user data
    */
   IsUserAuthorized(req, res, next) {
-    passport.authenticate(
-      "jwt",
-      { session: false },
-      async (err, user, info) => {
-        if (err) {
-          console.log(err);
-          return res.json({ error: err });
-        }
-        if (info !== undefined) {
-          console.log(info.message);
-          res.status(401).json({ message: info.message });
-        } else {
-          try {
-            if (user) {
-              let data = {
-                id: user.id,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                userName: user.userName,
-              };
-              res.json({ user: data });
-            } else {
-              res.json({ user: null });
-            }
-          } catch (e) {
-            console.log(e);
-            res.json({ error: e });
-          }
-        }
+    try {
+      const { user } = req;
+      if (user) {
+        let data = {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          userName: user.userName,
+        };
+        res.json({ user: data });
+      } else {
+        res.json({ user: null });
       }
-    )(req, res, next);
+    } catch (e) {
+      console.log(e);
+      res.json({ error: e });
+    }
   },
   /**
    * @description Get all the availble users from DB
@@ -155,18 +141,6 @@ module.exports = {
    * @returns object - object containing data of all users
    */
   async getAllUsers(req, res) {
-    // passport.authenticate(
-    //   "jwt",
-    //   { session: false },
-    //   async (err, user, info) => {
-    //     if (err) {
-    //       console.log(err);
-    //       return res.json({ error: err });
-    //     }
-    //     if (info !== undefined) {
-    //       console.log(info.message);
-    //       res.status(401).json({ message: info.message });
-    //     } else {
     try {
       const userCollection = await User.findAll({
         attributes: ["id", "firstName", "lastName", "email", "phone"],
@@ -179,9 +153,6 @@ module.exports = {
       console.log(e);
       res.status(500).send(e);
     }
-    //     }
-    //   }
-    // );
   },
 
   /**
@@ -191,51 +162,37 @@ module.exports = {
    * @returns object - object containing updated data of user
    */
   async update(req, res, next) {
-    passport.authenticate(
-      "jwt",
-      { session: false },
-      async (err, user, info) => {
-        if (err) {
-          console.log(err);
-          return res.json({ error: err });
-        }
-        if (info !== undefined) {
-          console.log(info.message);
-          res.status(401).json({ message: info.message });
-        } else {
-          try {
-            const userCollection = await User.findOne({
-              where: { id: user.id, isDeleted: false },
+    try {
+      const { user } = req;
+      const userCollection = await User.findOne({
+        where: { id: user.id, isDeleted: false },
+      });
+
+      if (userCollection) {
+        let userKeys = Object.keys(req.body);
+
+        const updatedUser = userKeys.map((field) => {
+          if (req.body[field] && field in user) {
+            const data = {};
+            data[field] = req.body[field];
+            User.update(data, {
+              where: {
+                id: user.id,
+                isDeleted: false,
+              },
             });
-
-            if (userCollection) {
-              let userKeys = Object.keys(req.body);
-
-              const updatedUser = userKeys.map((field) => {
-                if (req.body[field] && field in user) {
-                  const data = {};
-                  data[field] = req.body[field];
-                  User.update(data, {
-                    where: {
-                      id: user.id,
-                      isDeleted: false,
-                    },
-                  });
-                }
-              });
-
-              res.status(200).json({ message: user });
-            } else {
-              res.status(404).send("User Not Found");
-            }
-          } catch (e) {
-            console.log(e);
-
-            res.status(500).send(e);
           }
-        }
+        });
+
+        res.status(200).json({ message: user });
+      } else {
+        res.status(404).send("User Not Found");
       }
-    )(req, res, next);
+    } catch (e) {
+      console.log(e);
+
+      res.status(500).send(e);
+    }
   },
 
   /**
@@ -245,27 +202,18 @@ module.exports = {
    * @returns object - object of informations
    */
   signOut(req, res, next) {
-    passport.authenticate("jwt", { session: false }, (err, user, info) => {
-      if (err) {
-        console.log(err);
-        return res.json({ error: err });
-      }
-      if (info !== undefined) {
-        console.log(info.message);
-        res.status(401).json({ message: info.message });
+    try {
+      const { user } = req;
+      if (user) {
+        req.logout();
+        client.del(user.id);
+        res.status(200).send({ msg: "logging out" });
       } else {
-        try {
-          if (user) {
-            req.logout();
-            client.del(user.id);
-            res.status(200).send({ msg: "logging out" });
-          } else {
-            res.send({ msg: "no user to log out" });
-          }
-        } catch (e) {
-          throw e;
-        }
+        console.log(user);
+        res.send({ msg: "no user to log out" });
       }
-    })(req, res, next);
+    } catch (e) {
+      throw e;
+    }
   },
 };

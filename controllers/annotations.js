@@ -20,121 +20,95 @@ module.exports = {
    * @returns object - json object of the all data in the db
    */
   async getAnnotations(req, res, next) {
-    passport.authenticate(
-      "jwt",
-      { session: false },
-      async (err, user, info) => {
-        if (err) {
-          console.log(err);
-          return res.json({ error: err });
-        }
-        if (info !== undefined) {
-          console.log(info.message);
-          return res.json({ error: info.message });
-        } else if (user) {
-          try {
-            const { dataFor, dataForIdName } = req.query;
-            if (dataFor === "project") {
-              model.sequelize
-                .query(
-                  "SELECT * FROM get_annotated_images_per_proj(:proj_id)",
-                  {
-                    replacements: {
-                      proj_id: dataForIdName,
-                    },
-                  }
-                )
-                .then((data) => {
-                  if (!data[0].length) {
-                    return res.json({
-                      error: "No annotated data for this project",
-                    });
-                  }
-                  return res.json(data[0]);
-                })
-                .catch((e) => {
-                  return res.json({
-                    error:
-                      "DB error while searching annotated data for projects",
-                  });
-                });
-            } else if (dataFor === "user") {
-              model.sequelize
-                .query(
-                  "SELECT * FROM get_annotated_images_per_user(:user_id )",
-                  {
-                    replacements: {
-                      user_id: dataForIdName,
-                    },
-                  }
-                )
-                .then((data) => {
-                  if (!data[0].length) {
-                    return res.json({
-                      error: "No annotated data for this user",
-                    });
-                  }
-                  return res.json(data[0]);
-                })
-                .catch((e) => {
-                  return res.json({
-                    error: "DB error while searching annotated data for users ",
-                  });
-                });
-            } else if (dataFor === "file") {
-              model.sequelize
-                .query(
-                  "SELECT * FROM get_annotated_images_details(:filename)",
-                  {
-                    replacements: {
-                      filename: dataForIdName,
-                    },
-                  }
-                )
-                .then((data) => {
-                  if (!data[0].length) {
-                    return res.json({
-                      error: "The file is not been annotated",
-                    });
-                  }
-                  return res.json(data[0]);
-                })
-                .catch((e) => {
-                  console.log(e);
-                  return res.json({
-                    error:
-                      "DB error while searching annotated data for filename",
-                  });
-                });
-            } else {
-              if (dataFor != undefined && dataForIdName != undefined) {
-                return res.json({
-                  error: "data is not available for provided keys",
-                });
-              }
-              Annotations.findAll({
-                where: {
-                  isAnnotated: true,
-                },
-              })
-                .then((data) => {
-                  return res.json(data);
-                })
-                .catch((e) => {
-                  console.log(e);
-                  return res.json({
-                    error:
-                      "DB error while getting data for all the annotated images",
-                  });
-                });
+    try {
+      const { user } = req;
+      const { dataFor, dataForIdName } = req.query;
+      if (dataFor === "project") {
+        model.sequelize
+          .query("SELECT * FROM get_annotated_images_per_proj(:proj_id)", {
+            replacements: {
+              proj_id: dataForIdName,
+            },
+          })
+          .then((data) => {
+            if (!data[0].length) {
+              return res.json({
+                error: "No annotated data for this project",
+              });
             }
-          } catch (e) {
+            return res.json(data[0]);
+          })
+          .catch((e) => {
+            return res.json({
+              error: "DB error while searching annotated data for projects",
+            });
+          });
+      } else if (dataFor === "user") {
+        model.sequelize
+          .query("SELECT * FROM get_annotated_images_per_user(:user_id )", {
+            replacements: {
+              user_id: dataForIdName,
+            },
+          })
+          .then((data) => {
+            if (!data[0].length) {
+              return res.json({
+                error: "No annotated data for this user",
+              });
+            }
+            return res.json(data[0]);
+          })
+          .catch((e) => {
+            return res.json({
+              error: "DB error while searching annotated data for users ",
+            });
+          });
+      } else if (dataFor === "file") {
+        model.sequelize
+          .query("SELECT * FROM get_annotated_images_details(:filename)", {
+            replacements: {
+              filename: dataForIdName,
+            },
+          })
+          .then((data) => {
+            if (!data[0].length) {
+              return res.json({
+                error: "The file is not been annotated",
+              });
+            }
+            return res.json(data[0]);
+          })
+          .catch((e) => {
             console.log(e);
-            res.status(500).json({ error: e });
-          }
+            return res.json({
+              error: "DB error while searching annotated data for filename",
+            });
+          });
+      } else {
+        if (dataFor != undefined && dataForIdName != undefined) {
+          return res.json({
+            error: "data is not available for provided keys",
+          });
         }
+        Annotations.findAll({
+          where: {
+            isAnnotated: true,
+          },
+        })
+          .then((data) => {
+            return res.json(data);
+          })
+          .catch((e) => {
+            console.log(e);
+            return res.json({
+              error: "DB error while getting data for all the annotated images",
+            });
+          });
       }
-    )(req, res, next);
+    } catch (e) {
+      console.log(e);
+      res.status(500).json({ error: e });
+    }
   },
 
   /**
@@ -143,37 +117,22 @@ module.exports = {
    * @param {*} res Response to the request
    * @returns object - json object of the data for the particular user from annotations
    */
-  getAnnotationsByUsers(req, res) {
-    passport.authenticate(
-      "jwt",
-      { session: false },
-      async (err, user, info) => {
-        if (err) {
-          console.log(err);
-          return res.json({ error: err });
-        }
-        if (info !== undefined) {
-          console.log(info.message);
-          return res.json({ error: info.message });
-        } else {
-          console.log(user);
-          try {
-            const annotatedData = await Annotations.findAll({
-              where: {
-                userId: user.id,
-                isMoved: false,
-              },
-            });
-            return res.json({ data: annotatedData });
-          } catch (e) {
-            console.log(e);
-            return res.status(500).json({
-              error: "Database error in find all annotations by user",
-            });
-          }
-        }
-      }
-    )(req, res);
+  async getAnnotationsByUsers(req, res) {
+    try {
+      const { user } = req;
+      const annotatedData = await Annotations.findAll({
+        where: {
+          userId: user.id,
+          isMoved: false,
+        },
+      });
+      return res.json({ data: annotatedData });
+    } catch (e) {
+      console.log(e);
+      return res.status(500).json({
+        error: "Database error in find all annotations by user",
+      });
+    }
   },
 
   /**
@@ -292,22 +251,13 @@ module.exports = {
    * @return object - error object if any
    */
   getImageDataByUser(req, res, next) {
-    passport.authenticate(
-      "jwt",
-      { session: false },
-      async (err, user, info) => {
-        if (err) {
-          console.log(err);
-          return res.json({ error: err });
-        }
-        if (info !== undefined) {
-          console.log(info.message);
-          return res.json({ error: info.message });
-        } else {
-          this.getImageData(req, res, user);
-        }
-      }
-    )(req, res, next);
+    try {
+      const { user } = req;
+      this.getImageData(req, res, user);
+    } catch (e) {
+      console.log("error in getImageDataByUser function", e);
+      return res.json({ error: e });
+    }
   },
 
   /**
@@ -388,96 +338,79 @@ module.exports = {
    * @return error object - all the error types as per the error occured
    */
   updateImageData(req, res, next) {
-    passport.authenticate(
-      "jwt",
-      { session: false },
-      async (err, user, info) => {
-        if (err) {
-          console.log(err);
-          return res.json({ error: err });
+    try {
+      const { user } = req;
+      const { annotate_mode, call_type } = req.query;
+      const { annotations, image_key, metadata } = req.body;
+
+      if (call_type === "next") {
+        let updateValue = {};
+        if (annotate_mode === "segmentation") {
+          updateValue = {
+            segmentationData: annotations,
+            metadata: metadata,
+            isSegmented: true,
+          };
+        } else if (annotate_mode === "object_detection") {
+          updateValue = {
+            objectDetectionData: annotations,
+            metadata: metadata,
+            isObjectDetected: true,
+          };
         }
-        if (info !== undefined) {
-          console.log(info.message);
-          return res.json({ error: info.message });
-        } else {
-          try {
-            const { annotate_mode, call_type } = req.query;
-            const { annotations, image_key, metadata } = req.body;
-
-            if (call_type === "next") {
-              let updateValue = {};
-              if (annotate_mode === "segmentation") {
-                updateValue = {
-                  segmentationData: annotations,
-                  metadata: metadata,
-                  isSegmented: true,
-                };
-              } else if (annotate_mode === "object_detection") {
-                updateValue = {
-                  objectDetectionData: annotations,
-                  metadata: metadata,
-                  isObjectDetected: true,
-                };
-              }
-              Annotations.update(updateValue, {
-                where: { fileName: image_key },
+        Annotations.update(updateValue, {
+          where: { fileName: image_key },
+        })
+          .then((a) => {
+            Annotations.findOne({
+              where: {
+                fileName: image_key,
+                [Op.and]: [
+                  {
+                    [Op.or]: [
+                      { isObjectDetected: true },
+                      { isObjectDetected: null },
+                    ],
+                  },
+                  {
+                    [Op.or]: [{ isSegmented: true }, { isSegmented: null }],
+                  },
+                ],
+              },
+            })
+              .then((resp) => {
+                if (resp !== null) {
+                  console.log(resp);
+                  Annotations.update(
+                    { isAnnotated: true },
+                    { where: { fileName: image_key } }
+                  );
+                }
               })
-                .then((a) => {
-                  Annotations.findOne({
-                    where: {
-                      fileName: image_key,
-                      [Op.and]: [
-                        {
-                          [Op.or]: [
-                            { isObjectDetected: true },
-                            { isObjectDetected: null },
-                          ],
-                        },
-                        {
-                          [Op.or]: [
-                            { isSegmented: true },
-                            { isSegmented: null },
-                          ],
-                        },
-                      ],
-                    },
-                  })
-                    .then((resp) => {
-                      if (resp !== null) {
-                        console.log(resp);
-                        Annotations.update(
-                          { isAnnotated: true },
-                          { where: { fileName: image_key } }
-                        );
-                      }
-                    })
-                    .catch((e) => {
-                      console.log(e);
-                      return res.json({
-                        error: "Database error unable to update isAnnotated",
-                      });
-                    });
-
-                  this.getImageData(req, res, user);
-                })
-                .catch((e) => {
-                  console.log(e);
-                  return res.json({
-                    error: "Database error in update annotation for findOne",
-                  });
+              .catch((e) => {
+                console.log(e);
+                return res.json({
+                  error: "Database error unable to update isAnnotated",
                 });
-            } else {
-              this.getImageData(req, res, user);
-            }
-          } catch (e) {
+              });
+
+            this.getImageData(req, res, user);
+          })
+          .catch((e) => {
             console.log(e);
             return res.json({
-              error:
-                "Database error while update annotations and call for next image",
+              error: "Database error in update annotation for findOne",
             });
-          }
-        }
+          });
+      } else {
+        this.getImageData(req, res, user);
       }
-    )(req, res, next);
+    } catch (e) {
+      console.log(e);
+      return res.json({
+        error:
+          "Database error while update annotations and call for next image",
+      });
+    }
   },
 };
