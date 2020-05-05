@@ -17,6 +17,7 @@ app.use(
   })
 );
 app.use(bodyParser.json());
+app.use(bodyParser.raw({ type: "application/vnd.custom-type" }));
 
 // Passport
 app.use(passport.initialize());

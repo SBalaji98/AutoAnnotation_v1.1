@@ -245,6 +245,14 @@ module.exports = {
     let imageDataToInsert = new Array();
 
     annotationList.map((data) => {
+      if (data.isSegmented === "null") {
+        console.log("null");
+        data.isSegmented = null;
+        console.log(data.isSegmented);
+      }
+      if (data.isObjectDetected === "null") {
+        data.isObjectDetected = null;
+      }
       let dataMap = {
         userId: data.UUID,
         fileName: data.frame_cloud,
