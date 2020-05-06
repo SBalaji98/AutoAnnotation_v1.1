@@ -380,7 +380,6 @@ module.exports = {
             })
               .then((resp) => {
                 if (resp !== null) {
-                  console.log(resp);
                   Annotations.update(
                     { isAnnotated: true },
                     { where: { fileName: image_key } }
