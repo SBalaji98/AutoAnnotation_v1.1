@@ -34,24 +34,47 @@
     "permissions": [
       {
         "resource": "user/",
-        "subRoutes": [
-          "update",
-          "logout",
-          "forgot-password",
-          "reset",
-          "update-user",
-          "forgot-password-update"
-        ],
-        "methods": ["POST", "GET", "PUT"],
+        "methods": ["GET"],
         "action": "allow"
       },
       {
-        "resource": "annotations/",
-        "subRoutes": [
-          "update-get-image-data-by-user",
-          "get-image-data-by-user"
-        ],
-        "methods": ["POST", "GET", "PUT"],
+        "resource": "user/update",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/logout",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/forgot-password",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/reset",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/update-user",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/forgot-password-update",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "annotations/update-get-image-data-by-user",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
+        "resource": "annotations/get-image-data-by-user",
+        "methods": ["GET"],
         "action": "allow"
       }
     ]
