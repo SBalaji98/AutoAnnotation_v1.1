@@ -117,19 +117,19 @@ module.exports = {
   IsUserAuthorized(req, res, next) {
     try {
       const { user } = req;
-      res.json(user);
-      // if (user) {
-      //   let data = {
-      //     id: user.id,
-      //     firstName: user.firstName,
-      //     lastName: user.lastName,
-      //     email: user.email,
-      //     userName: user.userName,
-      //   };
-      //   res.json({ user: data });
-      // } else {
-      //   res.json({ user: null });
-      // }
+
+      if (user) {
+        let data = {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          userName: user.userName,
+        };
+        res.json({ user: data });
+      } else {
+        res.json({ user: null });
+      }
     } catch (e) {
       console.log(e);
       res.json({ error: e });
