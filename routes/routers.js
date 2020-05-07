@@ -145,13 +145,8 @@ router.get(
 );
 
 // upload bulk images data in annotation table
-router.post(
-  "/annotations/admin/upload-dl-model-annotations",
-  jwtAuth.authenticate,
-  acl.authorize,
-  (req, res) => {
-    annotationController.createBulkAnnotationByDLModel(req, res);
-  }
-);
+router.post("/annotations/admin/upload-dl-model-annotations", (req, res) => {
+  annotationController.createBulkAnnotationByDLModel(req, res);
+});
 
 module.exports = router;
