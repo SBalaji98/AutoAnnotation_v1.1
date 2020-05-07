@@ -90,14 +90,9 @@ router.put("/user/forgot-password-update", acl.authorize, (req, res) => {
 });
 
 // to get all users
-router.get(
-  "/user/all-users",
-  jwtAuth.authenticate,
-  acl.authorize,
-  (req, res) => {
-    userController.getAllUsers(req, res);
-  }
-);
+router.get("/user/all-users", (req, res) => {
+  userController.getAllUsers(req, res);
+});
 
 // to get annotations done by one user
 router.get("/annotations", jwtAuth.authenticate, acl.authorize, (req, res) => {
