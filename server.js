@@ -11,12 +11,14 @@ require("./passport/passport.js");
 
 // MIDDLEWARE
 app.use(morgan("dev"));
+
 app.use(
   bodyParser.urlencoded({
+    limit: "50mb",
     extended: false,
   })
 );
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.raw({ type: "application/vnd.custom-type" }));
 
 // Passport
