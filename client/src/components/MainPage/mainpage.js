@@ -20,15 +20,22 @@ class ImageRender extends Component {
         curr_image_index: 0,
         call_type: 'first',
         regions: [],
-        metadata:null,
+        metadata: null
+        // climate:'',
+        // road:'',
+        // time_of_day:'',
+        // area:'',
+        // no_of_classes:'',
+        // no_of_lanes:''
+        ,
         class_list: objclass.class,
         dimension: {
             imgHeight: 0,
             imgWidth: 0
         },
         previewList: [],
-        loading:true,
-        message:'Fetching Image for annotation'
+        loading: true,
+        message: 'Fetching Image for annotation'
     };
 
     async toArrayBuffer(myBuf) {
@@ -50,12 +57,26 @@ class ImageRender extends Component {
         })
     }
 
+    titleHandler = (error) => {
+        switch (error.message) {
+            case "Cannot read property 'map' of undefined":
+                return "No segmentation data "
+            case "Cannot read property 'data' of undefined":
+                return "No more images left for you"
+            default:
+                return error.message
+        }
+
+    }
 
     getRandomId = () => Math.random().toString().split(".")[1]
 
 
     async main_api(type, key) {
         //main api
+        let dim;
+        let imgUrl;
+        let response;
         console.log("Mainapi")
         await axios.get(
             "annotations/get-image-data-by-user",
@@ -72,25 +93,28 @@ class ImageRender extends Component {
             }
         ).then((res) => {
             console.log(`[${type}]`, res)
+            response = res
             if (res.data.error) {
-                this.setState({loading:false})
+                this.setState({ loading: false })
                 swal({
                     title: res.data.error,
                     text: "come back later",
                     icon: "warning",
                     buttons: true,
                     // dangerMode: true,
-                  })
+                })
             }
             else {
                 this.toArrayBuffer(res.data.image.data)
                     .then((t) => {
+
                         const imgFile = new Blob([t], {
                             type: "image/jpeg"
                         });
-                        const imgUrl = URL.createObjectURL(imgFile);
+                        imgUrl = URL.createObjectURL(imgFile);
                         this.getImageSize(imgUrl)
                             .then((dimension) => {
+                                dim = dimension
                                 let regions = []
                                 if (res.data.annotations != null) {
                                     if ((type === 'next' || 'review') && (res.data.annotations.obj_detect || res.data.annotations.segmentation)) {
@@ -164,7 +188,7 @@ class ImageRender extends Component {
                                         metadata: res.data.metadata,
                                         image_key: res.data.image_key,
                                         dimension: dimension,
-                                        loading:false
+                                        loading: false
                                     })
                                 }
                                 else {
@@ -176,53 +200,81 @@ class ImageRender extends Component {
                                         metadata: res.data.metadata,
                                         image_key: res.data.image_key,
                                         dimension: dimension,
-                                        loading:false
+                                        loading: false
 
                                     })
                                 }
                             })
                             .catch(error => {
-                                this.setState({loading:false})
-                                swal({
-                                    title: error.message,
-                                    icon: "warning",
-                                    buttons: true,
-                                    // dangerMode: true,
-                                  })
+                                this.setState({
+                                    curr_image_index: this.state.curr_image_index,
+                                    src: imgUrl,
+                                    regions: null,
+                                    metadata: res.data.metadata,
+                                    image_key: res.data.image_key,
+                                    dimension: dim,
+                                    loading: false
+
+                                })
+                                if(error.message!=="Cannot read property 'map' of undefined"){
+                                    swal({
+                                        title: this.titleHandler(error),
+                                        icon: "warning",
+                                        buttons: true,
+                                        // dangerMode: true,
+                                    })
+                                }
                             })
                     })
-                    .catch(error => { 
-                        this.setState({loading:false})
+                    .catch(error => {
+                        this.setState({
+                            curr_image_index: this.state.curr_image_index,
+                            src: imgUrl,
+                            regions: null,
+                            metadata: res.data.metadata,
+                            image_key: res.data.image_key,
+                            dimension: dim,
+                            loading: false
+
+                        })
                         swal({
-                            title: error.message,
+                            title: this.titleHandler(error),
                             icon: "warning",
                             buttons: true,
                             // dangerMode: true,
-                          })
+                        })
                     })
             }
         })
-            .catch(error => { 
-                this.setState({loading:false})
+            .catch(error => {
+                this.setState({
+                    curr_image_index: this.state.curr_image_index,
+                    src: imgUrl,
+                    regions: null,
+                    metadata: response.data.metadata,
+                    image_key: response.data.image_key,
+                    dimension: dim,
+                    loading: false
+
+                })
                 swal({
-                    title: error.message,
-                    icon: "warning",
+                    title: this.titleHandler(error),
                     buttons: true,
                     // dangerMode: true,
-                  })
-             })
+                })
+            })
     }
 
 
     postImage = async (t, type) => {
-        //next api
-        // this.setState({loading:true,message:(type==='review')?('Marking the image for Review')
-        // :
-        // (`Fetching ${type} Image`)})
-        console.log("next")
+        console.log("next",t)
         let updated_regions = []
+        let imgUrl
+        let response
+        let dim
         const { imgWidth, imgHeight } = this.state.dimension
-        if ((t.images[0].regions.length != 0) && (t.metadata != null) ) {
+    if(t.metadata != null){
+        if ((t.images[0].regions !== null)) {
             if (this.state.annotatemode === "object_detection") {
                 t.images[0].regions.map((annotation) => {
                     updated_regions.push({
@@ -243,7 +295,7 @@ class ImageRender extends Component {
                 t.images[0].regions.map((annotation) => {
                     let points = []
                     annotation.points.map((seg, i) => {
-                        points.push([seg[0] * imgWidth, [seg[1] * imgHeight]])
+                        points.push([seg[0] * imgWidth, seg[1] * imgHeight])
                     })
                     updated_regions.push({
                         cls: annotation.cls,
@@ -269,6 +321,7 @@ class ImageRender extends Component {
                     localStorage.setItem('checkList', JSON.stringify([this.state.image_key]))
                 }
             }
+
             axios.post('/annotations/update-get-image-data-by-user',
                 {
                     image_key: this.state.image_key,
@@ -286,24 +339,26 @@ class ImageRender extends Component {
                     }
                 })
                 .then((res) => {
+                    response = res
                     console.log("[next api]", res)
                     if (res.data.error) {
-                        this.setState({loading:false})
+                        this.setState({ loading: false })
                         swal({
                             title: res.data.error,
                             icon: "warning",
                             buttons: true,
                             // dangerMode: true,
-                          })
-                    }else {
+                        })
+                    } else {
                         this.toArrayBuffer(res.data.image.data)
                             .then((t) => {
                                 const imgFile = new Blob([t], {
                                     type: "image/jpeg"
                                 });
-                                const imgUrl = URL.createObjectURL(imgFile);
+                                imgUrl = URL.createObjectURL(imgFile);
                                 this.getImageSize(imgUrl)
                                     .then((dimension) => {
+                                        dim = dimension
                                         let regions = []
                                         if ((type === 'next' || 'review') && (res.data.annotations.obj_detect || res.data.annotations.segmentation)) {
                                             (this.state.annotatemode === "object_detection") ?
@@ -377,75 +432,127 @@ class ImageRender extends Component {
                                             image_key: res.data.image_key,
                                             dimension: dimension,
                                             previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
-                                            loading:false
+                                            loading: false
                                         })
                                     })
                                     .catch(error => {
-                                        this.setState({loading:false})
+                                        this.setState({
+                                            curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
+                                            src: imgUrl,
+                                            metadata: res.data.metadata,
+                                            image_key: res.data.image_key,
+                                            dimension: dim,
+                                            regions: null,
+                                            previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
+                                            loading: false
+                                        })
+                                        if(error.message!=="Cannot read property 'map' of undefined"){
+
                                         swal({
-                                            title: error.message,
+                                            title: this.titleHandler(error),
                                             icon: "warning",
                                             buttons: true,
                                             // dangerMode: true,
-                                          }) })
+                                        })
+                                        }
+                                    })
+
                             })
                             .catch(error => {
-                                this.setState({loading:false})
-                                swal({
-                                    title: error.message,
-                                    icon: "warning",
-                                    buttons: true,
-                                    // dangerMode: true,
-                                  }) })
+                                this.setState({
+                                    curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
+                                    src: imgUrl,
+                                    metadata: res.data.metadata,
+                                    image_key: res.data.image_key,
+                                    dimension: dim,
+                                    regions: null,
+
+                                    previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
+                                    loading: false
+                                })
+                                if(error.message!=="Cannot read property 'map' of undefined"){
+                                    swal({
+                                        title: this.titleHandler(error),
+                                        icon: "warning",
+                                        buttons: true,
+                                        // dangerMode: true,
+                                    })
+                                }
+                            })
                     }
                 })
                 .catch(error => {
-                    this.setState({loading:false})
+                    this.setState({
+                        curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
+                        src: imgUrl,
+                        metadata: response.data.metadata,
+                        image_key: response.data.image_key,
+                        dimension: dim,
+                        regions: null,
+                        previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
+                        loading: false
+                    })
+                    if(error.message!=="Cannot read property 'map' of undefined"){
                     swal({
-                        title: (error.message==="Cannot read property 'data' of undefined")?("No more images left for you"):(error.message),
+                        title: this.titleHandler(error),
                         icon: "warning",
                         buttons: true,
                         // dangerMode: true,
-                      }) })
+                    })
+                }
+                })
         }
         else {
-            this.setState({loading:false})
-                swal({
-                    title: "Annotations or metadata cannot be empty",
-                    icon: "warning",
-                    buttons: true,
-                    // dangerMode: true,
-                  })
+            this.setState({ loading: false })
+
+            swal({
+                title: "Annotations  cannot be empty",
+                icon: "warning",
+                buttons: true,
+                // dangerMode: true,
+            })
         }
+    }
+    else{
+        console.log("[image]",t.images[0].regions,"[state]",this.state.regions)
+        this.setState({
+            // region:null,
+        loading: false})
+
+    swal({
+        title: "metadata cannot be empty",
+        icon: "warning",
+        buttons: true,
+        // dangerMode: true,
+    })
+}
     }
 
 
     prevImage = (r) => {
         console.log('previous', r)
         try {
-            this.setState({loading:true,message:'Fetching previous Image ',metadata:null})
+            this.setState({ loading: true, message: 'Fetching previous Image ', metadata: null, regions:r.images[0].regions })
             this.postImage(r, 'previous')
                 .then(res => { console.log("[prev call]", res) })
                 .catch(e => {
-                    console.error(e)
-                    this.props.history.push('/')
+
                 })
 
         } catch (e) {
             alert(e)
         }
     }
-
+/////update region function
 
     nextImage = (r) => {
         console.log('next', r)
         try {
-            this.setState({loading:true,message:'Fetching Next Image',metadata:null})
+            this.setState({ loading: true, message: 'Fetching Next Image', metadata: null })
             this.postImage(r, 'next')
                 .then(res => { console.log("[next call]", res) })
                 .catch(e => {
                     alert(e)
-                    this.props.history.push('/')
                 })
 
         } catch (e) {
@@ -456,7 +563,7 @@ class ImageRender extends Component {
 
     checkImage = (r) => {
         try {
-            this.setState({loading:true,message:'Marking the image for Review'})
+            this.setState({ loading: true, message: 'Marking the image for Review' })
             this.postImage(r, 'review')
                 .then(res => { console.log("[review]", res) })
                 .catch(e => {
@@ -472,7 +579,7 @@ class ImageRender extends Component {
 
     preview = (r) => {
         console.log("[preview image]", r)
-        this.setState({loading:true,message:'Fething Image for Review'})
+        this.setState({ loading: true, message: 'Fething Image for Review' })
         this.main_api('review', r)
 
     }
@@ -481,18 +588,21 @@ class ImageRender extends Component {
     changeAnnotateMode = (mode) => {
         this.setState({ annotatemode: mode })
         if (mode === 'segmentation') {
-            this.setState({ class_list: segclass.class ,loading:true,message:"changing into Segmentation mode"})
+            this.setState({ class_list: segclass.class, loading: true, message: "changing into Segmentation mode" })
             this.main_api('first')
         }
         else {
-            this.setState({ class_list: objclass.class})
+            this.setState({ class_list: objclass.class })
             if (this.state.call_type != 'first') {
-                this.setState({loading:true,message:"changing into Object Detection mode"})
+                this.setState({ loading: true, message: "changing into Object Detection mode" })
                 this.main_api('first')
             }
         }
     }
 
+    // updateRegion=(region)=>{
+    //     this.setState({regions:region})
+    // }
 
 
     async componentDidMount() {
@@ -500,7 +610,7 @@ class ImageRender extends Component {
         // first api
         try {
             if (this.state.call_type === 'first') {
-                this.setState({loading:true,message:'Fetching Image for annotation'})
+                this.setState({ loading: true, message: 'Fetching Image for annotation' })
                 localStorage.removeItem('checkList')
                 this.main_api('first', 'first')
                 this.setState({ call_type: "previous" })
@@ -518,10 +628,11 @@ class ImageRender extends Component {
         // }
         return (
             <ReactImageAnnotate
-                loading = {this.state.loading}
+                loading={this.state.loading}
                 message={this.state.message}
                 metadata={this.state.metadata}
                 allowed_metadata={metainfo}
+                // updateRegion={this.updateRegion}
                 // nextImage={this.nextImage}
                 // prevImage={this.prevImage}
                 preview={this.preview}

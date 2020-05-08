@@ -79,50 +79,76 @@ export default function SignInSide(props) {
   const [loading, setLoading] = useState(false)
   const [username, setusername] = useState('')
   const [password, setpassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [redirectTo, setRed] = useState(null)
-
+  const [firstName, setFname] = useState('')
+  const [lastName, setLname] = useState('')
+  const [mobile, setMobile] = useState('')
+  const [email, setEmail] = useState(null)
   const handleUser = (event) => {
     setusername(event.target.value);
   }
-
+  const handleFname = (event) => {
+    setFname(event.target.value);
+  }
+  const handleLname = (event) => {
+    setLname(event.target.value);
+  }
+  const handleEmail = (event) => {
+    setEmail(event.target.value);
+  }
+  const handleMobile = (event) => {
+    setMobile(event.target.value);
+  }
+  const handleCpass = (event) => {
+    setConfirmPassword(event.target.value);
+  }
   const handlePass = (event) => {
     setpassword(event.target.value);
   }
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit=(event)=> {
     setLoading(true);
-    axios
-      .post("/user/login", {
-        username: username,
-        password: password
-      })
-      .then(response => {
-        if (response.status === 200) {
-          // update App.js state
+
+    console.log("sign-up handleSubmit, username: ");
+    console.log(username);
+    event.preventDefault();
+    if (password !== confirmPassword) {
+      alert("Passwords did not match");
+    } else {
+      //request to server to add a new username/password
+      axios
+        .post("/user/", {
+          username: username,
+          password: password,
+          confirmPassword: confirmPassword,
+          firstName: firstName,
+          lastName: lastName,
+          email: email,
+          mobile:mobile
+        })
+        .then(response => {
+          if (!response.data.error) {
+            setLoading(false)
+            console.log("successful signup");
+            setRed('/')
+          } else {
+            setLoading(false)
+            alert("username already exists");
+          }
+        })
+        .catch(error => {
           setLoading(false)
-          props.updateUser({
-            loggedIn: true,
-            username: response.data.username
-          });
-
-          //update local storage
-          localStorage.setItem("jwt", response.data.token);
-
-          // update the state to redirect to home
-          setRed("/user");
-        }
-      })
-      .catch(error => {
-        setLoading(false)
-        console.log("login error: ");
-        console.log(error);
-      });
+          let errors = error.response.data.errors;
+          alert(errors[0].msg);
+        });
+    }
   }
+
   if (redirectTo) {
     return <Redirect to={{ pathname: redirectTo }} />;
   }
   if (loading) {
-    return <Loader message="logging in please wait" />
+    return <Loader message="signing up please wait" />
   }
   return (
 
@@ -151,6 +177,8 @@ export default function SignInSide(props) {
                   required
                   fullWidth
                   id="firstName"
+                  onChange={handleFname}
+
                   label="First Name"
                   autoFocus
                 />
@@ -163,6 +191,8 @@ export default function SignInSide(props) {
                   id="lastName"
                   label="Last Name"
                   name="lastName"
+                  onChange={handleLname}
+
                   autoComplete="lname"
                 />
               </Grid>
@@ -171,7 +201,7 @@ export default function SignInSide(props) {
             <TextField
               autoComplete="uname"
               margin="normal"
-
+              onChange={handleUser}
               name="username"
               variant="outlined"
               required
@@ -188,7 +218,7 @@ export default function SignInSide(props) {
               label="Email Address"
               name="email"
               autoComplete="email"
-              onChange={handleUser}
+              onChange={handleEmail}
               autoFocus
               required
             />
@@ -200,7 +230,7 @@ export default function SignInSide(props) {
               label="Phone"
               name="mobile"
               autoComplete="mobile"
-              onChange={handleUser}
+              onChange={handleMobile}
               autoFocus
               required
             />
@@ -230,7 +260,7 @@ export default function SignInSide(props) {
               label="Confirm Password"
               type="password"
               id="password"
-              onChange={handlePass}
+              onChange={handleCpass}
               autoComplete="current-password"
               required
             />
@@ -244,7 +274,7 @@ export default function SignInSide(props) {
               color="primary"
               className={classes.submit}
             >
-              Sign In
+              Sign Up
                                 </Button>
             <Grid container>
               <Grid item>

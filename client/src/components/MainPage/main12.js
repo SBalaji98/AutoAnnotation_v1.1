@@ -12,6 +12,7 @@ import metainfo from "../../JsonFile/metadata.json"
 class ImageRender extends Component {
 
 
+  
     state = {
         src: "",
         //"https://cache.desktopnexus.com/cropped-wallpapers/822/822595-1366x768-[DesktopNexus.com].jpg?st=ICqNqTaceNCrJl-SEwNMag&e=1585805768",
@@ -20,12 +21,22 @@ class ImageRender extends Component {
         curr_image_index: 0,
         call_type: 'first',
         regions: [],
-        metadata: [],
+        metadata: null
+        // climate:'',
+        // road:'',
+        // time_of_day:'',
+        // area:'',
+        // no_of_classes:'',
+        // no_of_lanes:''
+        ,
         class_list: objclass.class,
         dimension: {
             imgHeight: 0,
             imgWidth: 0
-        }
+        },
+        previewList: [],
+        loading: true,
+        message: 'Fetching Image for annotation'
     };
 
     async toArrayBuffer(myBuf) {
@@ -305,34 +316,68 @@ class ImageRender extends Component {
     render() {
         return (
             <ReactImageAnnotate
-                metadata={this.state.metadata}
-                allowed_metadata={metainfo}
-                nextImage={this.nextImage}
-                prevImage={this.prevImage}
-                curr_image_index={this.state.curr_image_index}
-                changeAnnotateMode={this.changeAnnotateMode}
-                annotatemode={this.state.annotatemode}
-                allowedArea={{
-                    x: 0,
-                    y: 0,
-                    w: 1,
-                    h: 1
-                }
-                }
-                taskDescription="Annotate the imaes by selecting the mode for object detection or segmentationl"
-                images={
-                    [
-                        {
-                            src: this.state.src,
-                            name: this.state.name,
-                            regions: this.state.regions
-                        }
-                    ]}
-                regionClsList={this.state.class_list}
-                // regionTagList={["Road", "Highway", "LeaseRoad", "MainRoad"]}
-                onPrevImage={this.prevImage}
-                onNextImage={this.nextImage}
-            />
+            loading={this.state.loading}
+            message={this.state.message}
+            metadata={this.state.metadata}
+            allowed_metadata={metainfo}
+            // nextImage={this.nextImage}
+            // prevImage={this.prevImage}
+            preview={this.preview}
+            previewList={this.state.previewList}
+            curr_image_index={this.state.curr_image_index}
+            changeAnnotateMode={this.changeAnnotateMode}
+            annotatemode={this.state.annotatemode}
+            allowedArea={{
+                x: 0,
+                y: 0,
+                w: 1,
+                h: 1
+            }
+            }
+            taskDescription="Annotate the imaes by selecting the mode for object detection or segmentationl"
+            images={
+                [
+                    {
+                        src: this.state.src,
+                        name: this.state.name,
+                        regions: this.state.regions
+                    }
+                ]}
+            regionClsList={this.state.class_list}
+            // regionTagList={["Road", "Highway", "LeaseRoad", "MainRoad"]}
+            onPrevImage={this.prevImage}
+            onNextImage={this.nextImage}
+            onExit={this.checkImage}
+        />
+            // <ReactImageAnnotate
+            //     metadata={this.state.metadata}
+            //     allowed_metadata={metainfo}
+            //     nextImage={this.nextImage}
+            //     prevImage={this.prevImage}
+            //     curr_image_index={this.state.curr_image_index}
+            //     changeAnnotateMode={this.changeAnnotateMode}
+            //     annotatemode={this.state.annotatemode}
+            //     allowedArea={{
+            //         x: 0,
+            //         y: 0,
+            //         w: 1,
+            //         h: 1
+            //     }
+            //     }
+            //     taskDescription="Annotate the imaes by selecting the mode for object detection or segmentationl"
+            //     images={
+            //         [
+            //             {
+            //                 src: this.state.src,
+            //                 name: this.state.name,
+            //                 regions: this.state.regions
+            //             }
+            //         ]}
+            //     regionClsList={this.state.class_list}
+            //     // regionTagList={["Road", "Highway", "LeaseRoad", "MainRoad"]}
+            //     onPrevImage={this.prevImage}
+            //     onNextImage={this.nextImage}
+            // />
         );
     }
 }

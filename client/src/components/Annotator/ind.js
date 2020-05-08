@@ -78,7 +78,8 @@ export const Annotator = ({
   allowed_metadata,
   metadata = {},
   loading,
-  message
+  message,
+  updateRegion
 }: Props) => {
   const settings = useSettings()
   if (!images && !videoSrc)
@@ -94,6 +95,7 @@ export const Annotator = ({
     makeImmutable(
       {
         message,
+        updateRegion,
         loading,
         metadata,
         allowed_metadata,
@@ -143,8 +145,11 @@ export const Annotator = ({
         return onExit(without(state, "history"))
       }
       else if (action.buttonName === "next image" && onNextImage) {
+        dispatchToReducer({ type: "CHANGE_METADATA", metadata: null })
         return onNextImage(without(state, "history"))
       } else if (action.buttonName === "prev image" && onPrevImage) {
+        dispatchToReducer({ type: "CHANGE_METADATA", metadata: null })
+
         return onPrevImage(without(state, "history"))
       }
     }
@@ -178,26 +183,32 @@ export const Annotator = ({
 
   }, [state.annotatemode])
 
+  // useEffect(()=>{
+  //   updateRegion(state.images[0].regions)
+  // },[images[0].regions])
+
+
+
   useEffect(() => {
     dispatchToReducer({ type: "IMAGE_INDEX", curr_image_index: curr_image_index })
   }, [curr_image_index])
 
-  useEffect(()=>{
-    dispatchToReducer({type:"PREVIEW_LIST",image:previewList})
-  },[previewList])
+  useEffect(() => {
+    dispatchToReducer({ type: "PREVIEW_LIST", image: previewList })
+  }, [previewList])
 
-  useEffect(()=>{
-    dispatchToReducer({type:"CHANGE_METADATA",metadata:metadata})
-  },[metadata])
+  useEffect(() => {
+    dispatchToReducer({ type: "CHANGE_METADATA", metadata: metadata })
+  }, [metadata])
 
-  useEffect(()=>{
-    dispatchToReducer({type:"LOADER",value:loading})
-  },[loading])
-  useEffect(()=>{
-    dispatchToReducer({type:"LOADER_MESSAGE",value:message})
-  },[message])
+  useEffect(() => {
+    dispatchToReducer({ type: "LOADER", value: loading })
+  }, [loading])
+  useEffect(() => {
+    dispatchToReducer({ type: "LOADER_MESSAGE", value: message })
+  }, [message])
   return (
-    loading?(<Loader message={message}/>):(    <SettingsProvider>
+    loading ? (<Loader message={message} />) : (<SettingsProvider>
       <MainLayout
         RegionEditLabel={RegionEditLabel}
         alwaysShowNextButton={Boolean(onNextImage)}

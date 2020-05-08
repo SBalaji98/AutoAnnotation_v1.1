@@ -82,9 +82,11 @@ export default function SignInSide(props) {
     const [password, setpassword] = useState('')
     const [redirectTo, setRed] = useState(null)
 
+
     const handleUser = (event) => {
         setusername(event.target.value);
     }
+
 
     const handlePass = (event) => {
         setpassword(event.target.value);
@@ -119,6 +121,30 @@ export default function SignInSide(props) {
                 console.log(error);
             });
     }
+if(localStorage.getItem("jwt")){
+    axios.get('/user',
+    {
+        headers: {
+          Authorization: `bearer ${localStorage.getItem("jwt")}`
+        }
+      }
+    )
+    .then(response => {
+        if (response.status === 200) {
+            // update App.js state
+            props.updateUser({
+                loggedIn: true,
+                username: response.data.username
+            });
+            setRed("/user");
+        }
+    })
+    .catch(error => {
+        console.log("login in again session expired");
+        console.log(error);
+    });
+}
+
     if (redirectTo) {
         return <Redirect to={{ pathname: redirectTo }} />;
     }
@@ -148,7 +174,7 @@ export default function SignInSide(props) {
                             margin="normal"
                             fullWidth
                             id="email"
-                            label="Email Address"
+                            label="User Name"
                             name="email"
                             autoComplete="email"
                             onChange={handleUser}

@@ -202,7 +202,7 @@ return (
         </div>
         <div className={classes.sidebarContainer}>
           <Sidebar
-            metadata={state.metadata ? state.metadata : null}
+            metadata={state.metadata}
             allowed_metadata={state.allowed_metadata}
             preview = {state.preview}
             previewList = {state.previewList}

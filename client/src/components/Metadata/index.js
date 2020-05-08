@@ -29,7 +29,7 @@ export const MetaData = ({ allowed_metadata, metadata, onChange }: props) => {
                     
                 }
                 // value={
-                //     { label:"sunny", value: "sunny" }
+                //     // { label:"sunny", value: "sunny" }
                 //     // metadata.climate ? { label: metadata.climate, value: metadata.climate } : null
                 //   }
                 
