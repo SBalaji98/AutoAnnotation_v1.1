@@ -3,10 +3,11 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const passport = require("passport");
 const app = express();
+let { mongoose } = require('./mongodb/mongoose')
 const PORT = process.env.PORT || 8080;
 // Route requires
 const routers = require("./routes/routers");
-
+const mongo_routers=require("./routes/mongo_router")
 require("./passport/passport.js");
 
 // MIDDLEWARE
@@ -26,6 +27,7 @@ app.use(passport.initialize());
 
 // Routes
 app.use("/", routers);
+app.use("/",mongo_routers)
 
 // Starting Server
 app.listen(PORT, () => {
