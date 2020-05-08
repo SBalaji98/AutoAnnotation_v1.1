@@ -5,7 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 
 import ImageRender from "../src/components/MainPage/mainpage"
-
+import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary"
 // import * as serviceWorker from "./serviceWorker";
 // import "spectre.css/dist/spectre.min.css";
 // import "spectre.css/dist/spectre-icons.css";
@@ -13,7 +13,10 @@ import "./index.css";
 
 ReactDOM.render(
   <BrowserRouter>
-    <App />
+    {/* <ErrorBoundary> */}
+      <App />
+    {/* </ErrorBoundary> */}
+
   </BrowserRouter>
   ,
   document.getElementById("root")

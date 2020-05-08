@@ -4,6 +4,7 @@ import ImageRender from "./mainpage"
 import Navbar from "./navbar";
 import swal from "sweetalert";
 import {withRouter, Redirect} from "react-router-dom"
+import ErrorBoundary from '../ErrorBoundary/ErrorBoundary'
 class Home extends Component {
 
 redirect = ()=>{
@@ -35,8 +36,14 @@ redirect = ()=>{
     if(loggedIn){
       return (
         <div>
-          <Navbar updateUser={updateUser} loggedIn={loggedIn} /> 
+           <ErrorBoundary>
+           <Navbar updateUser={updateUser} loggedIn={loggedIn} /> 
+           </ErrorBoundary>
+         
+          <ErrorBoundary>
             <ImageRender />
+          </ErrorBoundary>
+          
         </div>
       );
     }
