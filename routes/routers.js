@@ -70,12 +70,12 @@ router.post(
 );
 
 // Forgot password route
-router.post("/user/forgot-password", acl.authorize, (req, res) => {
+router.post("/user/forgot-password", (req, res) => {
   passwordController.sendForgotPasswordMail(req, res);
 });
 
 // route to send reset forgotten password link
-router.get("/user/reset", acl.authorize, (req, res) => {
+router.get("/user/reset", (req, res) => {
   passwordController.resetPassword(req, res);
 });
 
@@ -85,7 +85,7 @@ router.put("/user/update-user", acl.authorize, (req, res, next) => {
 });
 
 // to update forgotton password
-router.put("/user/forgot-password-update", acl.authorize, (req, res) => {
+router.put("/user/forgot-password-update", (req, res) => {
   passwordController.updateForgottenPassword(req, res);
 });
 
