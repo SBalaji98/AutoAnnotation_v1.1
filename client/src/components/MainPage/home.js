@@ -40,9 +40,9 @@ redirect = ()=>{
            <Navbar updateUser={updateUser} loggedIn={loggedIn} /> 
            </ErrorBoundary>
          
-          <ErrorBoundary>
+          {/* <ErrorBoundary> */}
             <ImageRender />
-          </ErrorBoundary>
+          {/* </ErrorBoundary> */}
           
         </div>
       );

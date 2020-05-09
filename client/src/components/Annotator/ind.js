@@ -200,7 +200,9 @@ export const Annotator = ({
   useEffect(() => {
     dispatchToReducer({ type: "CHANGE_METADATA", metadata: metadata })
   }, [metadata])
-
+  useEffect(() => {
+    dispatchToReducer({ type: "CHANGE_METALIST", metadata: allowed_metadata })
+  }, [allowed_metadata])
   useEffect(() => {
     dispatchToReducer({ type: "LOADER", value: loading })
   }, [loading])

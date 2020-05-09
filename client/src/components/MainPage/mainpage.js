@@ -1,10 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
 import ReactImageAnnotate from "../Annotator/ind";
-import objclass from "../../JsonFile/class.json";
-import segclass from "../../JsonFile/seg.json";
-import metainfo from "../../JsonFile/metadata.json"
-import Loader from '../Loader/Loader';
 import swal from "sweetalert";
 
 
@@ -13,7 +9,7 @@ class ImageRender extends Component {
 
 
     state = {
-        src: "",
+        src: null,
         //"https://cache.desktopnexus.com/cropped-wallpapers/822/822595-1366x768-[DesktopNexus.com].jpg?st=ICqNqTaceNCrJl-SEwNMag&e=1585805768",
         image_key: "",
         annotatemode: "object_detection",
@@ -21,7 +17,10 @@ class ImageRender extends Component {
         call_type: 'first',
         regions: [],
         metadata: null,
-        class_list: objclass.class,
+        class_list: '',
+        seg_class: [],
+        obj_class: [],
+        allowed_metadata: {},
         dimension: {
             imgHeight: 0,
             imgWidth: 0
@@ -56,6 +55,8 @@ class ImageRender extends Component {
                 return "No segmentation data "
             case "Cannot read property 'data' of undefined":
                 return "No more images left for you"
+            case "Cannot read property '0' of undefined":
+                return "Image not valid"
             default:
                 return error.message
         }
@@ -185,7 +186,17 @@ class ImageRender extends Component {
                                     })
                                 }
                                 else {
-                                    alert("no annotation data ")
+                                    this.setState({
+                                        // region:null,
+                                        loading: false
+                                    })
+
+                                    swal({
+                                        title: "NO Annotations",
+                                        icon: "warning",
+                                        buttons: true,
+                                        // dangerMode: true,
+                                    })
                                     this.setState({
                                         curr_image_index: this.state.curr_image_index,
                                         src: imgUrl,
@@ -335,7 +346,7 @@ class ImageRender extends Component {
                         response = res
                         console.log("[next api]", res)
                         if (res.data.error) {
-                            this.setState({ loading: false })
+                            this.setState({ loading: false, src: null })
                             swal({
                                 title: res.data.error,
                                 icon: "warning",
@@ -496,6 +507,7 @@ class ImageRender extends Component {
                     })
             }
             else {
+                console.log("exit if")
                 this.setState({ loading: false })
 
                 swal({
@@ -523,34 +535,89 @@ class ImageRender extends Component {
     }
 
 
-    prevImage = (r) => {
+    prevImage = async (r) => {
         console.log('previous', r)
         try {
             this.setState({ loading: true, message: 'Fetching previous Image ', metadata: null, regions: r.images[0].regions })
-            this.postImage(r, 'previous')
+
+            await this.postImage(r, 'previous')
                 .then(res => { console.log("[prev call]", res) })
                 .catch(e => {
+                    this.setState({
+                        // region:null,
+                        loading: false
+                    })
 
+                    swal({
+                        title: this.titleHandler(e),
+                        icon: "warning",
+                        buttons: true,
+                        // dangerMode: true,
+                    })
                 })
 
         } catch (e) {
-            alert(e)
+            this.setState({
+                // region:null,
+                loading: false
+            })
+
+            swal({
+                title: this.titleHandler(e),
+                icon: "warning",
+                buttons: true,
+                // dangerMode: true,
+            })
         }
     }
     /////update region function
 
-    nextImage = (r) => {
-        console.log('next', r)
+    nextImage = async (r) => {
         try {
             this.setState({ loading: true, message: 'Fetching Next Image', metadata: null })
-            this.postImage(r, 'next')
-                .then(res => { console.log("[next call]", res) })
-                .catch(e => {
-                    alert(e)
+            if (this.state.src !== null) {
+                console.log("ended")
+                await this.postImage(r, 'next')
+                    .then(res => { console.log("[next call]", res) })
+                    .catch(e => {
+                        this.setState({
+                            // region:null,
+                            loading: false
+                        })
+
+                        swal({
+                            title: this.titleHandler(e),
+                            icon: "warning",
+                            buttons: true,
+                            // dangerMode: true,
+                        })
+                    })
+            }
+            else {
+                this.setState({
+                    loading: false
                 })
+                swal({
+                    title: "No more images",
+                    text:"Try reload or come back later",
+                    icon: "warning",
+                    buttons: true,
+                    // dangerMode: true,
+                })
+            }
 
         } catch (e) {
-            alert(e)
+            this.setState({
+                // region:null,
+                loading: false
+            })
+
+            swal({
+                title: this.titleHandler(e),
+                icon: "warning",
+                buttons: true,
+                // dangerMode: true,
+            })
         }
     }
 
@@ -561,12 +628,31 @@ class ImageRender extends Component {
             this.postImage(r, 'review')
                 .then(res => { console.log("[review]", res) })
                 .catch(e => {
-                    alert(e)
-                    this.props.history.push('/')
+                    this.setState({
+                        // region:null,
+                        loading: false
+                    })
+                    swal({
+                        title: this.titleHandler(e),
+                        icon: "warning",
+                        buttons: true,
+                        // dangerMode: true,
+                    })
+                  
                 })
 
         } catch (e) {
-            alert(e)
+            this.setState({
+                // region:null,
+                loading: false
+            })
+
+            swal({
+                title: this.titleHandler(e),
+                icon: "warning",
+                buttons: true,
+                // dangerMode: true,
+            })
         }
     }
 
@@ -582,11 +668,11 @@ class ImageRender extends Component {
     changeAnnotateMode = (mode) => {
         this.setState({ annotatemode: mode })
         if (mode === 'segmentation') {
-            this.setState({ class_list: segclass.class, curr_image_index: 0, loading: true, message: "changing into Segmentation mode" })
+            this.setState({ class_list: this.state.seg_class, curr_image_index: 0, loading: true, message: "changing into Segmentation mode" })
             this.main_api('first')
         }
         else {
-            this.setState({ class_list: objclass.class })
+            this.setState({ class_list: this.state.obj_class })
             if (this.state.call_type != 'first') {
                 this.setState({ loading: true, curr_image_index: 0, message: "changing into Object Detection mode" })
                 this.main_api('first')
@@ -597,12 +683,44 @@ class ImageRender extends Component {
     // updateRegion=(region)=>{
     //     this.setState({regions:region})
     // }
+    get_class = async (project_val) => {
+        await axios.get(
+            "/get_class",
+            {
+                params: {
+                    project: project_val,
+                }
+            }
+        )
+            .then((res) => {
+                console.log(res)
+                this.setState({
+                    obj_class: res.data.classes.obj_class,
+                    seg_class: res.data.classes.seg_class,
+                    class_list: res.data.classes.obj_class,
+                    allowed_metadata: res.data.classes.meta_data
+                })
+            }).catch((e) => {
+                this.setState({
+                    // region:null,
+                    loading: false
+                })
 
+                swal({
+                    title: this.titleHandler(e),
+                    icon: "warning",
+                    buttons: true,
+                    // dangerMode: true,
+                })
+            })
+    }
 
     async componentDidMount() {
         console.log("did mount")
+        await this.get_class('global')
         // first api
         try {
+
             if (this.state.call_type === 'first') {
                 this.setState({ loading: true, message: 'Fetching Image for annotation' })
                 localStorage.removeItem('checkList')
@@ -617,23 +735,23 @@ class ImageRender extends Component {
 
 
     render() {
-        // if (this.state.loading) {
-        //     return <Loader message={this.state.message} />
-        // }
+
+        const { loading, message, metadata, allowed_metadata, previewList, curr_image_index, annotatemode, class_list, src, regions } = this.state
+
         return (
             <ReactImageAnnotate
-                loading={this.state.loading}
-                message={this.state.message}
-                metadata={this.state.metadata}
-                allowed_metadata={metainfo}
+                loading={loading}
+                message={message}
+                metadata={metadata}
+                allowed_metadata={allowed_metadata}
                 // updateRegion={this.updateRegion}
                 // nextImage={this.nextImage}
                 // prevImage={this.prevImage}
                 preview={this.preview}
-                previewList={this.state.previewList}
-                curr_image_index={this.state.curr_image_index}
+                previewList={previewList}
+                curr_image_index={curr_image_index}
                 changeAnnotateMode={this.changeAnnotateMode}
-                annotatemode={this.state.annotatemode}
+                annotatemode={annotatemode}
                 allowedArea={{
                     x: 0,
                     y: 0,
@@ -645,12 +763,12 @@ class ImageRender extends Component {
                 images={
                     [
                         {
-                            src: this.state.src,
+                            src: src,
                             name: "Task:Enter the Metadata First then Annotate",
-                            regions: this.state.regions
+                            regions: regions
                         }
                     ]}
-                regionClsList={this.state.class_list}
+                regionClsList={class_list}
                 // regionTagList={["Road", "Highway", "LeaseRoad", "MainRoad"]}
                 onPrevImage={this.prevImage}
                 onNextImage={this.nextImage}

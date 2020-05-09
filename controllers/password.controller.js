@@ -18,7 +18,7 @@ module.exports = {
    */
   sendForgotPasswordMail(req, res) {
     let email = req.body.email;
-
+    console.log(email)
     if (email === "" || email == undefined) {
       console.log("email is required");
       res.json({ msg: "Email is required" });

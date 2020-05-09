@@ -21,7 +21,6 @@ export class forgotPassword extends Component {
 
   handleSubmit(event) {
     event.preventDefault();
-
     axios
       .post("/user/forgot-password", {
         email: this.state.email

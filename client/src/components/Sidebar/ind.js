@@ -11,7 +11,7 @@ import TagsSidebarBox from "../TagsSidebarBox"
 import KeyframesSelector from "../KeyframesSelectorSidebarBox"
 import type { Region } from "../ImageCanvas/region-tools.js"
 import Shortcuts from "../Shortcuts"
-import { MetaData } from "../Metadata"
+import { MetaData } from "../Metadata/index"
 import PreventScrollToParents from "../PreventScrollToParents"
 import { Preview } from "../Preview"
 

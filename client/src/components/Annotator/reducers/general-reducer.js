@@ -612,6 +612,9 @@ export default (state: MainLayoutState, action: Action) => {
     case "CHANGE_METADATA":{
       return setIn(state,["metadata"],action.metadata)
     }
+    case "CHANGE_METALIST":{
+      return setIn(state,["allowed_metadata"],action.metadata)
+    }
     case "PREVIEW_LIST" :{
       return setIn(state,["previewList"],action.image)
     }
