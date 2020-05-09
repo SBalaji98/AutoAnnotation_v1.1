@@ -16,7 +16,7 @@ class ImageRender extends Component {
         curr_image_index: 0,
         call_type: 'first',
         regions: [],
-        metadata: null,
+        metadata: '',
         class_list: '',
         seg_class: [],
         obj_class: [],
@@ -599,7 +599,7 @@ class ImageRender extends Component {
                 })
                 swal({
                     title: "No more images",
-                    text:"Try reload or come back later",
+                    text: "Try reload or come back later",
                     icon: "warning",
                     buttons: true,
                     // dangerMode: true,
@@ -638,7 +638,7 @@ class ImageRender extends Component {
                         buttons: true,
                         // dangerMode: true,
                     })
-                  
+
                 })
 
         } catch (e) {

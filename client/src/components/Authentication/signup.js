@@ -18,6 +18,7 @@ import car from '../../images/carback.jpg'
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 import Loader from '../Loader/Loader';
+import swal from 'sweetalert';
 
 
 
@@ -107,14 +108,17 @@ export default function SignInSide(props) {
     setpassword(event.target.value);
   }
   const handleSubmit=(event)=> {
-    setLoading(true);
+    
 
     console.log("sign-up handleSubmit, username: ");
     console.log(username);
     event.preventDefault();
+    if(username && password && confirmPassword && mobile && email && firstName && lastName !== null){
+
     if (password !== confirmPassword) {
       alert("Passwords did not match");
     } else {
+      setLoading(true);
       //request to server to add a new username/password
       axios
         .post("/user/", {
@@ -133,15 +137,35 @@ export default function SignInSide(props) {
             setRed('/')
           } else {
             setLoading(false)
-            alert("username already exists");
-          }
+            swal({
+              title: "username already exists",
+              icon: "warning",
+              buttons: true,
+              // dangerMode: true,
+          })
+                     }
         })
         .catch(error => {
           setLoading(false)
           let errors = error.response.data.errors;
-          alert(errors[0].msg);
+          swal({
+            title: errors[0].msg,
+            icon: "warning",
+            buttons: true,
+            // dangerMode: true,
+        })
+       
         });
     }
+  }
+  else{
+    swal({
+      title: "All fields are Mandatory",
+      icon: "warning",
+      buttons: true,
+      // dangerMode: true,
+  })
+  }
   }
 
   if (redirectTo) {

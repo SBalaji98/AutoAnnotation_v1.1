@@ -11,10 +11,10 @@ import TagsSidebarBox from "../TagsSidebarBox"
 import KeyframesSelector from "../KeyframesSelectorSidebarBox"
 import type { Region } from "../ImageCanvas/region-tools.js"
 import Shortcuts from "../Shortcuts"
-import { MetaData } from "../Metadata/index"
 import PreventScrollToParents from "../PreventScrollToParents"
 import { Preview } from "../Preview"
-
+import { MetaData } from "../Metadata/index"
+import {Meta_Data} from "../Metadata/metadata-tools"
 const useStyles = makeStyles({})
 
 type Image = {
@@ -37,7 +37,7 @@ type Props = {
   currentImage?: Image,
   imageClsList?: Array<string>,
   imageTagList?: Array<string>,
-
+  metadata?:Meta_Data,
   onChangeImage: Image => any,
   onSelectRegion: Region => any,
   onSelectImage: Image => any,
@@ -77,13 +77,27 @@ export const Sidebar = ({
   onShortcutActionDispatched
 }: Props) => {
   const classes = useStyles()
+  let defaultMeta ={
+    climate:'None',
+    road:'None',
+    time_of_day:"None",
+    area:"None",
+    no_of_classes:0,
+    no_of_lanes:0
+
+  }
+  // if(metadata!=null){
+  //   defaultMeta={...defaultMeta,
+  //   metadata
+  //   }
+  // }
 
   if (!regions) regions = emptyArr
 
   return (
     <div>
       <MetaData allowed_metadata={allowed_metadata}
-        metadata={metadata}
+        metadata={(metadata===null)?defaultMeta:metadata}
         onChange={onChangeMetadata}
       />
       <Preview

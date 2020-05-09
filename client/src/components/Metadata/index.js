@@ -8,8 +8,15 @@ import { grey } from "@material-ui/core/colors"
 import Markdown from "react-markdown"
 import Select from "react-select"
 import { asMutable } from "seamless-immutable"
+import{Meta_Data} from "./metadata-tools"
 
-export const MetaData = ({ allowed_metadata, metadata, onChange }: props) => {
+
+type Props = {
+    metadata:Meta_Data
+  }
+
+export const MetaData = ({ allowed_metadata, metadata, onChange }: Props) => {
+   
     return (
         <SidebarBoxContainer
             title="Meta Data"
@@ -28,11 +35,9 @@ export const MetaData = ({ allowed_metadata, metadata, onChange }: props) => {
                     })
                     
                 }
-                // value={
-                //     // { label:"sunny", value: "sunny" }
-                //     // metadata.climate ? { label: metadata.climate, value: metadata.climate } : null
-                //   }
-                
+                value={
+                    metadata.climate ? { label: metadata.climate, value: metadata.climate } : null
+                  }
                 options={asMutable(
                     allowed_metadata.climate.map(c => ({ value: c, label: c }))
                 )}
@@ -50,9 +55,9 @@ export const MetaData = ({ allowed_metadata, metadata, onChange }: props) => {
                         road: o.value
                     })
                 }
-                // value={
-                //   metadata.road ? { label: metadata.road, value: metadata.road } : null
-                // }
+                value={
+                  metadata.road ? { label: metadata.road, value: metadata.road } : null
+                }
                 options={asMutable(
                     allowed_metadata.road.map(c => ({ value: c, label: c }))
                 )}
@@ -69,9 +74,9 @@ export const MetaData = ({ allowed_metadata, metadata, onChange }: props) => {
                         time_of_day: o.value
                     })
                 }
-                // value={
-                //     metadata.time_of_day ? { label: metadata.time_of_day, value: metadata.time_of_day } : null
-                //   }
+                value={
+                    metadata.time_of_day ? { label: metadata.time_of_day, value: metadata.time_of_day } : null
+                  }
                 options={asMutable(
                     allowed_metadata.time_of_day.map(c => ({ value: c, label: c }))
                 )}
@@ -88,9 +93,9 @@ export const MetaData = ({ allowed_metadata, metadata, onChange }: props) => {
                         area: o.value
                     })
                 }
-                // value={
-                //     metadata.area ? { label: metadata.area, value: metadata.area } : null
-                //   }
+                value={
+                    metadata.area ? { label: metadata.area, value: metadata.area } : null
+                  }
                 options={asMutable(
                     allowed_metadata.area.map(c => ({ value: c, label: c }))
                 )}

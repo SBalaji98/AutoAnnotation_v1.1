@@ -19,6 +19,7 @@ import car from '../../images/carback.jpg'
 import axios from "axios";
 import { Redirect } from "react-router-dom";
 import Loader from '../Loader/Loader';
+import swal from 'sweetalert';
 
 
 
@@ -74,56 +75,58 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default function SignInSide(props) {
+export default function ForgotPassword(props) {
 
     const classes = useStyles();
     const [loading, setLoading] = useState(false)
-    const [username, setusername] = useState('')
-    const [password, setpassword] = useState('')
-    const [redirectTo, setRed] = useState(null)
+    const [email, setEmail] = useState(null)
+ 
 
-    const handleUser = (event) => {
-        setusername(event.target.value);
+    const handleEmail = (event) => {
+        setEmail(event.target.value);
     }
 
-    const handlePass = (event) => {
-        setpassword(event.target.value);
-    }
     const handleSubmit = (event) => {
         event.preventDefault();
+        if(email!=null){
         setLoading(true);
         axios
-            .post("/user/login", {
-                username: username,
-                password: password
+        .post("/user/forgot-password", {
+          email: email
+        })
+        .then(res => {
+          if ((res.data.message = "recovery mail sent")) {
+              setLoading(false)
+            swal({
+                title: "Recovery mail sent check yor mail",
+                icon: "success",
+                buttons: true,
+                // dangerMode: true,
             })
-            .then(response => {
-                if (response.status === 200) {
-                    // update App.js state
-                    setLoading(false)
-                    props.updateUser({
-                        loggedIn: true,
-                        username: response.data.username
-                    });
-
-                    //update local storage
-                    localStorage.setItem("jwt", response.data.token);
-
-                    // update the state to redirect to home
-                    setRed("/user");
-                }
+          }
+        })
+        .catch(e => {
+            setLoading(false)
+            swal({
+                title: e.message,
+                icon: "warning",
+                buttons: true,
+                // dangerMode: true,
             })
-            .catch(error => {
-                setLoading(false)
-                console.log("login error: ");
-                console.log(error);
-            });
+        });
     }
-    if (redirectTo) {
-        return <Redirect to={{ pathname: redirectTo }} />;
+    else{
+        swal({
+            title: "All fields are Mandatory",
+            icon: "warning",
+            buttons: true,
+            // dangerMode: true,
+        })
     }
+    }
+
     if (loading) {
-        return <Loader message="logging in please wait" />
+        return <Loader message="sending reset link to the email address" />
     }
     return (
 
@@ -140,7 +143,7 @@ export default function SignInSide(props) {
                     {/* <img src={logo} height='100px' width='100px'></img> */}
 
                     <Typography component="h1" variant="h5">
-                        Sign in
+                        FORGOT PASSWORD
           </Typography>
                     <form className={classes.form} >
                         <TextField
@@ -151,26 +154,11 @@ export default function SignInSide(props) {
                             label="Email Address"
                             name="email"
                             autoComplete="email"
-                            onChange={handleUser}
+                            onChange={handleEmail}
                             autoFocus
                             required
                         />
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            fullWidth
-                            name="password"
-                            label="Password"
-                            type="password"
-                            id="password"
-                            onChange={handlePass}
-                            autoComplete="current-password"
-                            required
-                        />
-                        {/* <FormControlLabel
-                                control={<Checkbox value="remember" color="primary" />}
-                                label="Remember me"
-                            /> */}
+                       
                         <Button
                             type="submit"
                             fullWidth
@@ -179,20 +167,9 @@ export default function SignInSide(props) {
                             color="primary"
                             className={classes.submit}
                         >
-                            Sign In
+                            submit
                                 </Button>
-                        <Grid container>
-                            <Grid item xs>
-                                <Link href="/forgot-password" variant="body2">
-                                    Forgot password?
-                                    </Link>
-                            </Grid>
-                            <Grid item>
-                                <Link href="/signup" variant="body2">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
-                            </Grid>
-                        </Grid>
+                        
                         <Box mt={5}>
                             <Copyright />
                         </Box>

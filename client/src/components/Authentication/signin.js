@@ -17,8 +17,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import logo from '../../images/logo.png'
 import car from '../../images/carback.jpg'
 import axios from "axios";
-import { Redirect } from "react-router-dom";
+import { withRouter,Redirect } from "react-router-dom";
 import Loader from '../Loader/Loader';
+import swal from 'sweetalert';
 
 
 
@@ -74,12 +75,12 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default function SignInSide(props) {
+ function SignInSide(props) {
 
     const classes = useStyles();
     const [loading, setLoading] = useState(false)
-    const [username, setusername] = useState('')
-    const [password, setpassword] = useState('')
+    const [username, setusername] = useState(null)
+    const [password, setpassword] = useState(null)
     const [redirectTo, setRed] = useState(null)
 
 
@@ -87,12 +88,23 @@ export default function SignInSide(props) {
         setusername(event.target.value);
     }
 
+const  titleHandler = (error) => {
+    switch (error.message) {
+        case "Request failed with status code 401":
+            return "Incorect Username or Password"
+       
+        default:
+            return error.message
+    }
 
+}
     const handlePass = (event) => {
         setpassword(event.target.value);
     }
     const handleSubmit = (event) => {
         event.preventDefault();
+        const { history } = props;
+        if(username && password !== null){
         setLoading(true);
         axios
             .post("/user/login", {
@@ -117,9 +129,23 @@ export default function SignInSide(props) {
             })
             .catch(error => {
                 setLoading(false)
-                console.log("login error: ");
-                console.log(error);
+                swal({
+                    title: titleHandler(error),
+                    icon: "warning",
+                    buttons: true,
+                    // dangerMode: true,
+                })
+                history.push('/')
             });
+        }
+        else{
+            swal({
+                title: "All fields are Mandatory",
+                icon: "warning",
+                buttons: true,
+                // dangerMode: true,
+            })
+        }
     }
 if(localStorage.getItem("jwt")){
     axios.get('/user',
@@ -140,8 +166,8 @@ if(localStorage.getItem("jwt")){
         }
     })
     .catch(error => {
-        console.log("login in again session expired");
-        console.log(error);
+        setLoading(false)
+        alert("login in again session expired");
     });
 }
 
@@ -229,3 +255,4 @@ if(localStorage.getItem("jwt")){
 
     );
 }
+export default withRouter(SignInSide)

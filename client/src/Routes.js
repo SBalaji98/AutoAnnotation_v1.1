@@ -1,7 +1,7 @@
 import React from "react";
 import { Switch, Route } from "react-router-dom";
 // import Signup from "./components/Authentication/sign-up";
-import ForgotPassword from "./components/Authentication/forgotPassword";
+import ForgotPassword from "./components/Authentication/forgot-password";
 import ResetPassword from "./components/Authentication/ResetPassword";
 import Signup from "./components/Authentication/signup"
 

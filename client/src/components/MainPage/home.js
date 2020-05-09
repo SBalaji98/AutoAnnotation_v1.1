@@ -7,29 +7,7 @@ import {withRouter, Redirect} from "react-router-dom"
 import ErrorBoundary from '../ErrorBoundary/ErrorBoundary'
 class Home extends Component {
 
-redirect = ()=>{
-  const { history } = this.props;
-  console.log("[Home]",history.location.pathname)
-  setTimeout(() => {
-    if(history.location.pathname!='/'){
-      swal({
-        title: "You are not allowed to access this page",
-        text:"try logging in",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true,
-      })
-      .then(()=>{
-        
-        history.push('/')
-    
-      })
-    }
-  }, 1000);
- 
-    
 
-}
   render() {
     const loggedIn = this.props.loggedIn;
     const updateUser = this.props.updateUser
@@ -40,9 +18,9 @@ redirect = ()=>{
            <Navbar updateUser={updateUser} loggedIn={loggedIn} /> 
            </ErrorBoundary>
          
-          {/* <ErrorBoundary> */}
+          <ErrorBoundary>
             <ImageRender />
-          {/* </ErrorBoundary> */}
+          </ErrorBoundary>
           
         </div>
       );

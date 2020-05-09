@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import {withRouter} from "react-router-dom"
 import PropTypes from "prop-types";
 
 const loading = {
@@ -79,9 +80,12 @@ class ResetPassword extends Component {
       console.log(response.data);
       if (response.data.message === "password reset successfully") {
         this.setState({
+
           updated: true,
           error: false
         });
+        const {history}=this.props
+        history.push('/')
       } else {
         this.setState({
           updated: false,
@@ -178,4 +182,4 @@ ResetPassword.propTypes = {
     })
   })
 };
-export default ResetPassword;
+export default withRouter(ResetPassword);
