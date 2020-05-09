@@ -99,6 +99,7 @@ class ImageRender extends Component {
                 })
             }
             else {
+                localStorage.setItem('metadata', JSON.stringify(res.data.metadata));
                 this.toArrayBuffer(res.data.image.data)
                     .then((t) => {
 
@@ -344,6 +345,7 @@ class ImageRender extends Component {
                     })
                     .then((res) => {
                         response = res
+                        localStorage.setItem('metadata', JSON.stringify(res.data.metadata));
                         console.log("[next api]", res)
                         if (res.data.error) {
                             this.setState({ loading: false, src: null })
@@ -508,7 +510,7 @@ class ImageRender extends Component {
             }
             else {
                 console.log("exit if")
-                this.setState({ loading: false })
+                this.setState({ loading: false,metadata: (JSON.parse(localStorage.getItem("metadata"))) ? JSON.parse(localStorage.getItem("metadata")) : null })
 
                 swal({
                     title: "Annotations  cannot be empty",
