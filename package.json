@@ -32,13 +32,17 @@
   "scripts": {
     "api": "nodemon ./server/server.js",
     "prod": "node dist/api.bundle.js",
-    "start": "node server.js",
+    "start": "nodemon --exec babel-node server.js",
     "server": "nodemon server.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/node": "^7.8.7",
+    "@babel/preset-env": "^7.9.6",
     "concurrently": "^3.5.1",
-    "nodemon": "^1.17.5"
+    "nodemon": "^1.19.4"
   }
 }
