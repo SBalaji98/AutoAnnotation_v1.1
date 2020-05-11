@@ -34,7 +34,7 @@
     "api": "nodemon ./server/server.js",
     "build": "babel server.js --out-file server.compiled.js",
     "prod": "node dist/api.bundle.js",
-    "start": "npm install && nodemon --exec babel-node server.js",
+    "start": "npm install && node --exec babel-node server.js",
     "server": "nodemon server.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\""
