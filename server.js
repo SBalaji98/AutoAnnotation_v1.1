@@ -3,12 +3,17 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const passport = require("passport");
 const app = express();
-let { mongoose } = require('./mongodb/mongoose')
+let { mongoose } = require("./mongodb/mongoose");
 const PORT = process.env.PORT || 8080;
 // Route requires
 const routers = require("./routes/routers");
-const mongo_routers=require("./routes/mongo_router")
+const mongo_routers = require("./routes/mongo_router");
 require("./passport/passport.js");
+const path = require("path");
+
+//Static
+
+app.use(express.static(path.join(__dirname, "client", "build")));
 
 // MIDDLEWARE
 app.use(morgan("dev"));
@@ -27,7 +32,7 @@ app.use(passport.initialize());
 
 // Routes
 app.use("/", routers);
-app.use("/",mongo_routers)
+app.use("/", mongo_routers);
 
 // Starting Server
 app.listen(PORT, () => {
