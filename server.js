@@ -14,9 +14,6 @@ const path = require("path");
 //Static
 
 app.use(express.static(path.join(__dirname, "client", "build")));
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-});
 
 // MIDDLEWARE
 app.use(morgan("dev"));
