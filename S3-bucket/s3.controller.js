@@ -63,7 +63,6 @@ module.exports = {
               return res.json({ error: "No more images to go previous" });
             }
             index = index - 1;
-            fileName = fileNameArray[index];
             client.hmset(user.id, "index", index, (err, re) => {
               if (err) {
                 return res.json({
