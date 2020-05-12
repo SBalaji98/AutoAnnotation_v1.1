@@ -1,9 +1,13 @@
 import React, { Component } from "react";
-import { Route } from "react-router-dom";
+// import { Route } from "react-router-dom";
 import axios from "axios";
+import ForgotPassword from "./components/Authentication/forgot-password"
+import ResetPassword from "./components/Authentication/ResetPassword"
+import Signup from "./components/Authentication/signup"
 // components
 import Home from "./components/MainPage/home";
-import Routes from "./Routes";
+import { HashRouter as Router, Route } from "react-router-dom";
+
 import SignIn from "./components/Authentication/signin"
 class App extends Component {
   constructor() {
@@ -44,21 +48,22 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        {/* <Navbar updateUser={this.updateUser} loggedIn={this.state.loggedIn} /> */}
-        {/* greet user if logged in: */}
-        {/* {this.state.loggedIn && <p>Join the party, {this.state.username}!</p>} */}
-        {/* Routes to different components */}
+        <Router>
         <Route
           exact
           path="/user"
           render={() => <Home updateUser={this.updateUser} loggedIn={this.state.loggedIn} />}
         />
         <Route
-        exact
+          exact
           path="/"
           render={() => <SignIn updateUser={this.updateUser} />}
         />
-        <Routes />
+          <Route exact path="/signup" component={Signup} />
+          <Route exact path="/forgot-password" component={ForgotPassword} />
+          <Route exact path="/reset/:token" component={ResetPassword} />
+        </Router>
+
       </div>
     );
   }

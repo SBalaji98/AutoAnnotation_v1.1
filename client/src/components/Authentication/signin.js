@@ -7,7 +7,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import Link from '@material-ui/core/Link';
+// import Link from '@material-ui/core/Link';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import Grid from '@material-ui/core/Grid';
@@ -20,7 +20,7 @@ import axios from "axios";
 import { withRouter,Redirect } from "react-router-dom";
 import Loader from '../Loader/Loader';
 import swal from 'sweetalert';
-
+import {HashRouter as Router,Link} from 'react-router-dom'
 
 
 
@@ -235,12 +235,12 @@ if(localStorage.getItem("jwt")){
                                 </Button>
                         <Grid container>
                             <Grid item xs>
-                                <Link href="/forgot-password" variant="body2">
+                                <Link to="/forgot-password" variant="body2">
                                     Forgot password?
                                     </Link>
                             </Grid>
                             <Grid item>
-                                <Link href="/signup" variant="body2">
+                                <Link to="/signup" variant="body2">
                                     {"Don't have an account? Sign Up"}
                                 </Link>
                             </Grid>
