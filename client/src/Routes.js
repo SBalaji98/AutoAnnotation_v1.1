@@ -6,13 +6,13 @@ import ResetPassword from "./components/Authentication/ResetPassword"
 import Signup from "./components/Authentication/signup"
 
 const Routes = () => (
-  <Router>
-    <div>
+  <div>
+    <Switch>
       <Route exact path="/signup" component={Signup} />
       <Route exact path="/forgot-password" component={ForgotPassword} />
       <Route exact path="/reset/:token" component={ResetPassword} />
-    </div>
-  </Router>
+    </Switch>
+  </div>
 )
 
 export default Routes
