@@ -66,7 +66,7 @@ class ImageRender extends Component {
     getRandomId = () => Math.random().toString().split(".")[1]
 
 
-    async main_api(type, key) {
+    async main_api(type,key,mode) {
         //main api
         let dim;
         let imgUrl;
@@ -79,7 +79,7 @@ class ImageRender extends Component {
                     Authorization: `bearer ${localStorage.getItem("jwt")}`
                 },
                 params: {
-                    annotate_mode: this.state.annotatemode,
+                    annotate_mode: `${mode}`,
                     call_type: type,
                     curr_image_index: (type === 'first') ? 0 : this.state.curr_image_index,
                     image_key: key
@@ -112,7 +112,7 @@ class ImageRender extends Component {
                                 dim = dimension
                                 let regions = []
                                 if (res.data.annotations != null) {
-                                    if ((type === 'next' || 'review') && (res.data.annotations.obj_detect || res.data.annotations.segmentation)) {
+                                    if ((type === 'next' || 'review') && (res.data.annotations.obj_detect || res.data.annotations.segmentation)) { 
                                         (this.state.annotatemode === "object_detection") ?
                                             (res.data.annotations.obj_detect.map((annotation, i) => {
                                                 regions.push({
@@ -662,7 +662,7 @@ class ImageRender extends Component {
     preview = (r) => {
         console.log("[preview image]", r)
         this.setState({ loading: true, message: 'Fething Image for Review' })
-        this.main_api('review', r)
+        this.main_api('review',r,this.state.annotatemode)
 
     }
 
@@ -670,14 +670,15 @@ class ImageRender extends Component {
     changeAnnotateMode = (mode) => {
         this.setState({ annotatemode: mode })
         if (mode === 'segmentation') {
+            console.log(mode)
             this.setState({ class_list: this.state.seg_class, curr_image_index: 0, loading: true, message: "changing into Segmentation mode" })
-            this.main_api('first')
+            this.main_api('first','first', mode)
         }
         else {
             this.setState({ class_list: this.state.obj_class })
             if (this.state.call_type != 'first') {
                 this.setState({ loading: true, curr_image_index: 0, message: "changing into Object Detection mode" })
-                this.main_api('first')
+                this.main_api('first','first',mode)
             }
         }
     }
@@ -726,7 +727,7 @@ class ImageRender extends Component {
             if (this.state.call_type === 'first') {
                 this.setState({ loading: true, message: 'Fetching Image for annotation' })
                 localStorage.removeItem('checkList')
-                this.main_api('first', 'first')
+                this.main_api('first', 'first',this.state.annotatemode)
                 this.setState({ call_type: "previous" })
             }
         } catch (e) {
