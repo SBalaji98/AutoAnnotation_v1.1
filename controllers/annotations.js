@@ -291,7 +291,9 @@ module.exports = {
         )
         .then((data) => {
           if (!data[0].length) {
-            return res.json({ error: "No data for this user" });
+            return res.json({
+              error: `No data for this user for ${annotate_mode}`,
+            });
           }
           let fileNameArray = new Array();
           data[0].map((row) => {

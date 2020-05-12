@@ -7,6 +7,7 @@ let { mongoose } = require("./mongodb/mongoose");
 const PORT = process.env.PORT || 8080;
 // Route requires
 const routers = require("./routes/routers");
+const cors = require("cors");
 const mongo_routers = require("./routes/mongo_router");
 require("./passport/passport.js");
 const path = require("path");
@@ -14,6 +15,15 @@ const path = require("path");
 //Static
 
 app.use(express.static(path.join(__dirname, "client", "build")));
+
+// enables cors
+app.use(
+  cors({
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+  })
+);
 
 // MIDDLEWARE
 app.use(morgan("dev"));
