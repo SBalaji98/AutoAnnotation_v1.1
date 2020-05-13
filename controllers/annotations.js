@@ -343,7 +343,7 @@ module.exports = {
     try {
       const { user } = req;
       const { annotate_mode, call_type } = req.query;
-      const { annotations, image_key, metadata } = req.body;
+      const { annotations, image_key, metadata, projectId } = req.body;
 
       if (call_type === "next") {
         let updateValue = {};
@@ -361,12 +361,13 @@ module.exports = {
           };
         }
         Annotations.update(updateValue, {
-          where: { fileName: image_key },
+          where: { fileName: image_key, projectId: projectId },
         })
           .then((a) => {
             Annotations.findOne({
               where: {
                 fileName: image_key,
+                projectId: projectId,
                 [Op.and]: [
                   {
                     [Op.or]: [
@@ -384,7 +385,7 @@ module.exports = {
                 if (resp !== null) {
                   Annotations.update(
                     { isAnnotated: true },
-                    { where: { fileName: image_key } }
+                    { where: { fileName: image_key, projectId: projectId } }
                   );
                 }
               })
