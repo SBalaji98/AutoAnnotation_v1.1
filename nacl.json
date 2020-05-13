@@ -3,9 +3,69 @@
     "group": "superAdmin",
     "permissions": [
       {
-        "resource": "*",
-        "methods": "*",
+        "resource": "user/",
+        "methods": ["GET"],
         "action": "allow"
+      },
+      {
+        "resource": "user/update",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/logout",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/forgot-password",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/reset",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/update-user",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/forgot-password-update",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "/user/all-users",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "/annotations/admin/upload-dl-model-annotations",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "/annotations/admin/all-annotations-csv",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "/admin/all-annotations",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "annotations/update-get-image-data-by-user",
+        "methods": ["POST"],
+        "action": "deny"
+      },
+      {
+        "resource": "annotations/get-image-data-by-user",
+        "methods": ["GET"],
+        "action": "deny"
       }
     ]
   },
@@ -13,9 +73,69 @@
     "group": "admin",
     "permissions": [
       {
-        "resource": "*",
-        "methods": "*",
+        "resource": "user/",
+        "methods": ["GET"],
         "action": "allow"
+      },
+      {
+        "resource": "user/update",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/logout",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/forgot-password",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/reset",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/update-user",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/forgot-password-update",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "/user/all-users",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "/annotations/admin/upload-dl-model-annotations",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "/annotations/admin/all-annotations-csv",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "/admin/all-annotations",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "annotations/update-get-image-data-by-user",
+        "methods": ["POST"],
+        "action": "deny"
+      },
+      {
+        "resource": "annotations/get-image-data-by-user",
+        "methods": ["GET"],
+        "action": "deny"
       }
     ]
   },
@@ -23,9 +143,49 @@
     "group": "evaluator",
     "permissions": [
       {
-        "resource": "*",
-        "methods": "*",
+        "resource": "user/",
+        "methods": ["GET"],
         "action": "allow"
+      },
+      {
+        "resource": "user/update",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/logout",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/forgot-password",
+        "methods": ["POST"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/reset",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/update-user",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "user/forgot-password-update",
+        "methods": ["PUT"],
+        "action": "allow"
+      },
+      {
+        "resource": "annotations/update-get-image-data-by-user",
+        "methods": ["POST"],
+        "action": "deny"
+      },
+      {
+        "resource": "annotations/get-image-data-by-user",
+        "methods": ["GET"],
+        "action": "deny"
       }
     ]
   },
