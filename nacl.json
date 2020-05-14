@@ -43,12 +43,12 @@
         "action": "allow"
       },
       {
-        "resource": "/annotations/admin/upload-dl-model-annotations",
-        "methods": ["GET"],
+        "resource": "/admin/upload-dl-model-annotations",
+        "methods": ["POST"],
         "action": "allow"
       },
       {
-        "resource": "/annotations/admin/all-annotations-csv",
+        "resource": "/admin/all-annotations-csv",
         "methods": ["GET"],
         "action": "allow"
       },
@@ -113,12 +113,12 @@
         "action": "allow"
       },
       {
-        "resource": "/annotations/admin/upload-dl-model-annotations",
-        "methods": ["GET"],
+        "resource": "admin/upload-dl-model-annotations",
+        "methods": ["POST"],
         "action": "allow"
       },
       {
-        "resource": "/annotations/admin/all-annotations-csv",
+        "resource": "/admin/all-annotations-csv",
         "methods": ["GET"],
         "action": "allow"
       },

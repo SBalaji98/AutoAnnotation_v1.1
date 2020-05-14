@@ -4,7 +4,7 @@ const annotationController = require("../controllers/annotations");
 const userController = require("../controllers/user");
 const { check, validationResult } = require("express-validator");
 const passwordController = require("../controllers/password.controller");
-const jwtAuth = require("../middleware/auth");
+const auth = require("../middleware/auth");
 const acl = require("express-acl");
 
 // ACL config and inclusion
@@ -41,14 +41,14 @@ router.post("/user/login", (req, res, next) => {
 });
 
 // To verify if user is authorized
-router.get("/user", jwtAuth.authenticate, acl.authorize, (req, res, next) => {
+router.get("/user", auth.jwtAuthenticate, acl.authorize, (req, res, next) => {
   userController.IsUserAuthorized(req, res, next);
 });
 
 //Update controller is not proper will have to have a look before using it
 router.put(
   "/user/update",
-  jwtAuth.authenticate,
+  auth.jwtAuthenticate,
   acl.authorize,
   (req, res, next) => {
     userController.update(req, res, next);
@@ -62,7 +62,7 @@ router.put(
 // User log-out
 router.post(
   "/user/logout",
-  jwtAuth.authenticate,
+  auth.jwtAuthenticate,
   acl.authorize,
   (req, res, next) => {
     userController.signOut(req, res, next);
@@ -95,14 +95,14 @@ router.get("/user/all-users", (req, res) => {
 });
 
 // to get annotations done by one user
-router.get("/annotations", jwtAuth.authenticate, acl.authorize, (req, res) => {
+router.get("/annotations", auth.jwtAuthenticate, acl.authorize, (req, res) => {
   annotationController.getAnnotationsByUsers(req, res);
 });
 
 // to update current image annotation and fetch new image
 router.post(
   "/annotations/update-get-image-data-by-user",
-  jwtAuth.authenticate,
+  auth.jwtAuthenticate,
   acl.authorize,
   async (req, res, next) => {
     await annotationController.updateImageData(req, res, next);
@@ -112,7 +112,7 @@ router.post(
 // to get first image on the screen
 router.get(
   "/annotations/get-image-data-by-user",
-  jwtAuth.authenticate,
+  auth.jwtAuthenticate,
   acl.authorize,
   (req, res) => {
     annotationController.getImageDataByUser(req, res);
@@ -122,7 +122,7 @@ router.get(
 // to get all the annotations of all the users by admin
 router.get(
   "/admin/all-annotations",
-  jwtAuth.authenticate,
+  auth.basicAuth,
   acl.authorize,
   (req, res, next) => {
     annotationController.getAnnotations(req, res, next);
@@ -131,8 +131,8 @@ router.get(
 
 // to get changed fromat data
 router.get(
-  "/annotations/admin/all-annotations-csv",
-  jwtAuth.authenticate,
+  "/admin/all-annotations-csv",
+  auth.basicAuth,
   acl.authorize,
   (req, res, next) => {
     annotationController.changeFormatToCSVXML(req, res, next);
@@ -140,7 +140,7 @@ router.get(
 );
 
 // upload bulk images data in annotation table
-router.post("/annotations/admin/upload-dl-model-annotations", (req, res) => {
+router.post("/admin/upload-dl-model-annotations", (req, res) => {
   annotationController.createBulkAnnotationByDLModel(req, res);
 });
 

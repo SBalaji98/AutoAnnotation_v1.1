@@ -16,21 +16,21 @@ passport.use(
     try {
       User.findOne({
         where: {
-          userName: username
-        }
-      }).then(user => {
+          userName: username,
+        },
+      }).then((user) => {
         if (user != null) {
           console.log("username or email already taken");
           return done(null, false, {
-            message: "username or email already taken"
+            message: "username or email already taken",
           });
         }
-        bcrypt.hash(password, saltRound).then(hashedPassword => {
+        bcrypt.hash(password, saltRound).then((hashedPassword) => {
           User.create({
             username,
             password: hashedPassword,
-            email: req.body.email
-          }).then(user => {
+            email: req.body.email,
+          }).then((user) => {
             console.log("user created");
             return done(null, user);
           });
@@ -48,13 +48,13 @@ passport.use(
     try {
       User.findOne({
         where: {
-          userName: username
-        }
-      }).then(user => {
+          userName: username,
+        },
+      }).then((user) => {
         if (user === null) {
           return done(null, false, { message: "bad username" });
         }
-        bcrypt.compare(password, user.password).then(response => {
+        bcrypt.compare(password, user.password).then((response) => {
           if (response !== true) {
             console.log("passwords do not match");
             return done(null, false, { message: "passwords do not match" });
@@ -71,7 +71,7 @@ passport.use(
 
 const opts = {
   jwtFromRequest: ExtractJWT.fromAuthHeaderWithScheme("bearer"),
-  secretOrKey: process.env.JWT_SECRET
+  secretOrKey: process.env.JWT_SECRET,
 };
 
 passport.use(
@@ -80,9 +80,9 @@ passport.use(
     try {
       User.findOne({
         where: {
-          id: jwt_payload.sub
-        }
-      }).then(user => {
+          id: jwt_payload.sub,
+        },
+      }).then((user) => {
         if (user) {
           console.log("user found in db in passport");
           done(null, user);
