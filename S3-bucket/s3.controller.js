@@ -130,7 +130,7 @@ module.exports = {
 
             // To check for a review call_type and get data for image on the basis of object detection and segmentation
             if (call_type === "review") {
-              let projectId = req.query.projectId;
+              let projectId = req.query.projectid;
               fileName = req.query.image_key;
               let data = await Annotations.findOne({
                 where: { fileName: fileName, projectId: projectId },

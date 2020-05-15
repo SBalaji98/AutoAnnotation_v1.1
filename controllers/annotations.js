@@ -367,7 +367,7 @@ module.exports = {
             Annotations.findOne({
               where: {
                 fileName: image_key,
-                projectId: projectId,
+                projectId: projectid,
                 [Op.and]: [
                   {
                     [Op.or]: [
@@ -385,7 +385,7 @@ module.exports = {
                 if (resp !== null) {
                   Annotations.update(
                     { isAnnotated: true },
-                    { where: { fileName: image_key, projectId: projectId } }
+                    { where: { fileName: image_key, projectId: projectid } }
                   );
                 }
               })
