@@ -154,7 +154,7 @@ return (
                   dragWithPrimary={state.selectedTool === "pan"}
                   zoomWithPrimary={state.selectedTool === "zoom"}
                   showPointDistances={state.showPointDistances}
-                
+
                   videoTime={
                     state.annotationType === "image"
                       ? state.selectedImageFrameTime
@@ -204,8 +204,8 @@ return (
           <Sidebar
             metadata={state.metadata}
             allowed_metadata={state.allowed_metadata}
-            preview = {state.preview}
-            previewList = {state.previewList}
+            preview={state.preview}
+            previewList={state.previewList}
             debug={window.localStorage.$ANNOTATE_DEBUG_MODE && state}
             taskDescription={state.taskDescription}
             images={state.images}
@@ -217,7 +217,7 @@ return (
             imageTagList={state.imageTagList}
             keyframes={state.keyframes}
             currentVideoTime={state.currentVideoTime}
-            onChangeMetadata={action("CHANGE_METADATA","metadata")}
+            onChangeMetadata={action("CHANGE_METADATA", "metadata")}
             onChangeImage={action("CHANGE_IMAGE", "delta")}
             onSelectRegion={action("SELECT_REGION", "region")}
             onDeleteRegion={action("DELETE_REGION", "region")}

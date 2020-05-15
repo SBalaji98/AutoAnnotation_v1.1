@@ -19,6 +19,7 @@ import axios from "axios";
 import { Redirect } from "react-router-dom";
 import Loader from '../Loader/Loader';
 import swal from 'sweetalert';
+import { HashRouter as Router,  Link as ReactLink} from 'react-router-dom'
 
 
 
@@ -302,9 +303,9 @@ export default function SignInSide(props) {
                                 </Button>
             <Grid container>
               <Grid item>
-                <Link href="/" variant="body2">
+                <ReactLink href="/" variant="body2">
                   {"Have an account? Sign In"}
-                </Link>
+                </ReactLink>
               </Grid>
             </Grid>
             <Box mt={5}>

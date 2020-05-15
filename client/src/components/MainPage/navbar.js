@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-import { Link, Redirect } from "react-router-dom";
-import logo from "../../images/logo.png";
+import { Redirect } from "react-router-dom";
 import "../../App.css";
 import ExitIcon from "@material-ui/icons/ExitToApp"
 import { withRouter } from "react-router-dom";
-import Loader from '../Loader/Loader';
 import swal from 'sweetalert'
+import Axios from "axios";
 class Navbar extends Component {
 
   state = {
@@ -14,11 +13,21 @@ class Navbar extends Component {
 
   logout = () => {
     console.log("logging out");
-    localStorage.removeItem("jwt");
-    this.props.updateUser({
-      loggedIn: false,
-      username: null
-    });
+    Axios.post('/user/logout', {
+      headers: {
+        Authorization: `bearer ${localStorage.getItem("jwt")}`
+      }
+    }).then(() => {
+      localStorage.removeItem("jwt");
+      this.props.updateUser({
+        loggedIn: false,
+        username: null
+      });
+    })
+    .catch(()=>{
+      alert("cannot logout")
+    })
+
   };
 
   confirmLogout = () => {
@@ -37,13 +46,11 @@ class Navbar extends Component {
       });
   }
 
-
-  componentDidMount(){
-    if(!this.props.loggedIn){
-      this.setState({redirectTo:true})
+  componentDidMount() {
+    if (!this.props.loggedIn) {
+      this.setState({ redirectTo: true })
     }
   }
-
 
   render() {
     const loggedIn = this.props.loggedIn;
@@ -55,23 +62,19 @@ class Navbar extends Component {
     return (
       <div className="w3-bar w3-black">
         <a className="w3-bar-item">
-          {/*   <strong><span className="w3-white">FLUX</span>&nbsp;</strong> */}
-          <img src={logo} className="App-logo" alt="logo" />
-
-          <strong><span className="w3-text-red">AUTO</span>&nbsp;</strong>
-          <strong><span>ANNOTATION</span></strong></a>
+          {/* <img src={logo} className="App-logo" alt="logo" /> */}
+          <strong><span className="w3-text-red ">AUTO</span>&nbsp;</strong>
+          <strong><span >ANNOTATION</span></strong></a>
         <button
-
           className="w3-bar-item w3-button w3-hover-dark-gray  w3-right"
           onClick={this.confirmLogout}
         >
           <ExitIcon />
-
-          <div>
-            LogOut
-              </div>
-
         </button>
+        {/* <button class="w3-button "><AccountCircleIcon /></button> */}
+
+        <strong><span className="w3-bar-item w3-right">
+          Hi {this.props.user}</span></strong>
       </div>
     );
   }
