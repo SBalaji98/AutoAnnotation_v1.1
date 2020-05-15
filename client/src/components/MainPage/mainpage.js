@@ -10,7 +10,6 @@ class ImageRender extends Component {
 
     state = {
         src: null,
-        //"https://cache.desktopnexus.com/cropped-wallpapers/822/822595-1366x768-[DesktopNexus.com].jpg?st=ICqNqTaceNCrJl-SEwNMag&e=1585805768",
         image_key: "",
         annotatemode: "object_detection",
         curr_image_index: 0,
@@ -27,7 +26,8 @@ class ImageRender extends Component {
         },
         previewList: [],
         loading: true,
-        message: 'Fetching Image for annotation'
+        message: 'Fetching Image for annotation',
+        projectId: null
     };
 
     async toArrayBuffer(myBuf) {
@@ -66,7 +66,7 @@ class ImageRender extends Component {
     getRandomId = () => Math.random().toString().split(".")[1]
 
 
-    async main_api(type,key,mode) {
+    async main_api(type, key, mode) {
         //main api
         let dim;
         let imgUrl;
@@ -82,14 +82,15 @@ class ImageRender extends Component {
                     annotate_mode: `${mode}`,
                     call_type: type,
                     curr_image_index: (type === 'first') ? 0 : this.state.curr_image_index,
-                    image_key: key
+                    image_key: (type === 'first') ? key : key[1],
+                    projectId: (type === 'first') ? this.state.projectId : key[0]
                 }
             }
         ).then((res) => {
             console.log(`[${type}]`, res)
             response = res
             if (res.data.error) {
-                this.setState({ loading: false })
+                this.setState({ loading: false, src: null })
                 swal({
                     title: res.data.error,
                     text: "come back later",
@@ -112,8 +113,9 @@ class ImageRender extends Component {
                                 dim = dimension
                                 let regions = []
                                 if (res.data.annotations != null) {
-                                    if ((type === 'next' || 'review') && (res.data.annotations.obj_detect || res.data.annotations.segmentation)) { 
-                                        (this.state.annotatemode === "object_detection") ?
+                                    // if ((type === 'next' || 'review') && (res.data.annotations.obj_detect || res.data.annotations.segmentation)) {
+                                    if (type === 'first') {
+                                        (mode === "object_detection") ?
                                             (res.data.annotations.obj_detect.map((annotation, i) => {
                                                 regions.push({
                                                     cls: annotation.Class_Name,
@@ -144,7 +146,7 @@ class ImageRender extends Component {
                                             )
                                     }
                                     else {
-                                        (this.state.annotatemode === "object_detection") ?
+                                        (mode === "object_detection") ?
                                             (res.data.annotations.map((annotation, i) => {
                                                 regions.push({
                                                     cls: annotation.cls,
@@ -182,6 +184,7 @@ class ImageRender extends Component {
                                         regions: regions,
                                         metadata: res.data.metadata,
                                         image_key: res.data.image_key,
+                                        projectId: res.data.projectId,
                                         dimension: dimension,
                                         loading: false
                                     })
@@ -205,7 +208,8 @@ class ImageRender extends Component {
                                         metadata: res.data.metadata,
                                         image_key: res.data.image_key,
                                         dimension: dimension,
-                                        loading: false
+                                        loading: false,
+                                        projectId: res.data.projectId
 
                                     })
                                 }
@@ -217,6 +221,7 @@ class ImageRender extends Component {
                                     regions: null,
                                     metadata: res.data.metadata,
                                     image_key: res.data.image_key,
+                                    projectId: res.data.projectId,
                                     dimension: dim,
                                     loading: false
 
@@ -239,6 +244,7 @@ class ImageRender extends Component {
                             metadata: res.data.metadata,
                             image_key: res.data.image_key,
                             dimension: dim,
+                            projectId: res.data.projectId,
                             loading: false
 
                         })
@@ -258,6 +264,7 @@ class ImageRender extends Component {
                     regions: null,
                     metadata: response.data.metadata,
                     image_key: response.data.image_key,
+                    projectId: response.data.projectId,
                     dimension: dim,
                     loading: false
 
@@ -319,11 +326,11 @@ class ImageRender extends Component {
                 if (type === 'review') {
                     if (localStorage.getItem("checkList")) {
                         const checkList = JSON.parse(localStorage.getItem("checkList"));
-                        const newCheckList = [...checkList, this.state.image_key]
+                        const newCheckList = [...checkList, [this.state.projectId, this.state.image_key]]
                         localStorage.setItem('checkList', JSON.stringify(newCheckList));
                     }
                     else {
-                        localStorage.setItem('checkList', JSON.stringify([this.state.image_key]))
+                        localStorage.setItem('checkList', JSON.stringify([[this.state.projectId, this.state.image_key]]))
                     }
                 }
 
@@ -331,7 +338,8 @@ class ImageRender extends Component {
                     {
                         image_key: this.state.image_key,
                         metadata: t.metadata,
-                        annotations: updated_regions
+                        annotations: updated_regions,
+                        projectId: this.state.projectId
                     },
                     {
                         headers: {
@@ -438,6 +446,7 @@ class ImageRender extends Component {
                                                 image_key: res.data.image_key,
                                                 dimension: dimension,
                                                 previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
+                                                projectId: res.data.projectId,
                                                 loading: false
                                             })
                                         })
@@ -449,6 +458,8 @@ class ImageRender extends Component {
                                                 image_key: res.data.image_key,
                                                 dimension: dim,
                                                 regions: null,
+                                                projectId: res.data.projectId,
+
                                                 previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
                                                 loading: false
                                             })
@@ -472,7 +483,7 @@ class ImageRender extends Component {
                                         image_key: res.data.image_key,
                                         dimension: dim,
                                         regions: null,
-
+                                        projectId: res.data.projectId,
                                         previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
                                         loading: false
                                     })
@@ -495,6 +506,8 @@ class ImageRender extends Component {
                             image_key: response.data.image_key,
                             dimension: dim,
                             regions: null,
+                            projectId: response.data.projectId,
+
                             previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
                             loading: false
                         })
@@ -510,7 +523,7 @@ class ImageRender extends Component {
             }
             else {
                 console.log("exit if")
-                this.setState({ loading: false,metadata: (JSON.parse(localStorage.getItem("metadata"))) ? JSON.parse(localStorage.getItem("metadata")) : null })
+                this.setState({ loading: false, metadata: (JSON.parse(localStorage.getItem("metadata"))) ? JSON.parse(localStorage.getItem("metadata")) : null })
 
                 swal({
                     title: "Annotations  cannot be empty",
@@ -549,7 +562,6 @@ class ImageRender extends Component {
                         // region:null,
                         loading: false
                     })
-
                     swal({
                         title: this.titleHandler(e),
                         icon: "warning",
@@ -557,13 +569,11 @@ class ImageRender extends Component {
                         // dangerMode: true,
                     })
                 })
-
         } catch (e) {
             this.setState({
                 // region:null,
                 loading: false
             })
-
             swal({
                 title: this.titleHandler(e),
                 icon: "warning",
@@ -586,7 +596,6 @@ class ImageRender extends Component {
                             // region:null,
                             loading: false
                         })
-
                         swal({
                             title: this.titleHandler(e),
                             icon: "warning",
@@ -640,15 +649,12 @@ class ImageRender extends Component {
                         buttons: true,
                         // dangerMode: true,
                     })
-
                 })
-
         } catch (e) {
             this.setState({
                 // region:null,
                 loading: false
             })
-
             swal({
                 title: this.titleHandler(e),
                 icon: "warning",
@@ -662,7 +668,7 @@ class ImageRender extends Component {
     preview = (r) => {
         console.log("[preview image]", r)
         this.setState({ loading: true, message: 'Fething Image for Review' })
-        this.main_api('review',r,this.state.annotatemode)
+        this.main_api('review', r, this.state.annotatemode)
 
     }
 
@@ -672,13 +678,13 @@ class ImageRender extends Component {
         if (mode === 'segmentation') {
             console.log(mode)
             this.setState({ class_list: this.state.seg_class, curr_image_index: 0, loading: true, message: "changing into Segmentation mode" })
-            this.main_api('first','first', mode)
+            this.main_api('first', 'first', mode)
         }
         else {
             this.setState({ class_list: this.state.obj_class })
             if (this.state.call_type != 'first') {
                 this.setState({ loading: true, curr_image_index: 0, message: "changing into Object Detection mode" })
-                this.main_api('first','first',mode)
+                this.main_api('first', 'first', mode)
             }
         }
     }
@@ -727,7 +733,7 @@ class ImageRender extends Component {
             if (this.state.call_type === 'first') {
                 this.setState({ loading: true, message: 'Fetching Image for annotation' })
                 localStorage.removeItem('checkList')
-                this.main_api('first', 'first',this.state.annotatemode)
+                this.main_api('first', 'first', this.state.annotatemode)
                 this.setState({ call_type: "previous" })
             }
         } catch (e) {

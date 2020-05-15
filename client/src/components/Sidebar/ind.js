@@ -81,10 +81,7 @@ export const Sidebar = ({
     climate:'None',
     road:'None',
     time_of_day:"None",
-    area:"None",
-    no_of_classes:0,
-    no_of_lanes:0
-
+    area:"None"
   }
   // if(metadata!=null){
   //   defaultMeta={...defaultMeta,

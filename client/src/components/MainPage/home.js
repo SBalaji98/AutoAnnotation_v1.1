@@ -9,17 +9,17 @@ class Home extends Component {
 
 
   render() {
-    const loggedIn = this.props.loggedIn;
-    const updateUser = this.props.updateUser
+    const {loggedIn,user,updateUser} = this.props;
+  
     if(loggedIn){
       return (
         <div>
            <ErrorBoundary>
-           <Navbar updateUser={updateUser} loggedIn={loggedIn} /> 
+           <Navbar loggedIn={loggedIn} updateUser={updateUser} /> 
            </ErrorBoundary>
          
           <ErrorBoundary>
-            <ImageRender />
+            <ImageRender user={user} />
           </ErrorBoundary>
           
         </div>

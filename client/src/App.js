@@ -10,55 +10,33 @@ import { HashRouter as Router, Route } from "react-router-dom";
 
 import SignIn from "./components/Authentication/signin"
 class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      loggedIn: false,
-      username: null
-    };
 
-    this.updateUser = this.updateUser.bind(this);
-  }
-  componentDidMount() {
-    const accessString = localStorage.getItem("jwt");
+  state = {
+    loggedIn: false,
+    username: null
+  };
 
-    axios
-      .get("/user", {
-        headers: {
-          Authorization: `bearer ${accessString}`
-        }
-      })
-      .then(response => {
-        if (response.data.user) {
-          this.setState({ loggedIn: true });
-        }
-      })
-      .catch(e => {
-        if (e.response.data.message === "jwt expired") {
-          alert("Token has Expired please LogIn again");
-          return;
-        }
-      });
-  }
-
-  updateUser(userObject) {
+  updateUser = (userObject) => {
     this.setState(userObject);
   }
+
+
+
 
   render() {
     return (
       <div className="App">
         <Router>
-        <Route
-          exact
-          path="/user"
-          render={() => <Home updateUser={this.updateUser} loggedIn={this.state.loggedIn} />}
-        />
-        <Route
-          exact
-          path="/"
-          render={() => <SignIn updateUser={this.updateUser} />}
-        />
+          <Route
+            exact
+            path="/user"
+            render={() => <Home loggedIn={this.state.loggedIn} user={this.state.username} />}
+          />
+          <Route
+            exact
+            path="/"
+            render={() => <SignIn updateUser={this.updateUser} />}
+          />
           <Route exact path="/signup" component={Signup} />
           <Route exact path="/forgot-password" component={ForgotPassword} />
           <Route exact path="/reset/:token" component={ResetPassword} />
