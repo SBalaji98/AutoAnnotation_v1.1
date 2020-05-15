@@ -38,6 +38,13 @@ class Navbar extends Component {
   }
 
 
+  componentDidMount(){
+    if(!this.props.loggedIn){
+      this.setState({redirectTo:true})
+    }
+  }
+
+
   render() {
     const loggedIn = this.props.loggedIn;
     // const { history } = this.props;

@@ -32,7 +32,7 @@ export const Preview = ({ handlePreview, previewImages }: props) => {
                 previewImages.map((item, i) => (
                   <tr onClick={() => handlePreview(item)}>
                     <td>{i + 1}</td>
-                    <td className='w3-hover-grey'>{item}</td>
+                    <td className='w3-hover-grey'>{item[1]}</td>
                   </tr>
                 ))}
             </tbody>

@@ -17,10 +17,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import logo from '../../images/logo.png'
 import car from '../../images/carback.jpg'
 import axios from "axios";
-import { withRouter,Redirect } from "react-router-dom";
+import { withRouter, Redirect } from "react-router-dom";
 import Loader from '../Loader/Loader';
 import swal from 'sweetalert';
-import {HashRouter as Router,Link} from 'react-router-dom'
+import { HashRouter as Router, Link } from 'react-router-dom'
 
 
 
@@ -75,7 +75,7 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
- function SignInSide(props) {
+function SignIn(props) {
 
     const classes = useStyles();
     const [loading, setLoading] = useState(false)
@@ -88,57 +88,59 @@ const useStyles = makeStyles((theme) => ({
         setusername(event.target.value);
     }
 
-const  titleHandler = (error) => {
-    switch (error.message) {
-        case "Request failed with status code 401":
-            return "Incorect Username or Password"
-       
-        default:
-            return error.message
-    }
+    const titleHandler = (error) => {
+        switch (error.message) {
+            case "Request failed with status code 401":
+                return "Incorect Username or Password"
 
-}
+            default:
+                return error.message
+        }
+
+    }
     const handlePass = (event) => {
         setpassword(event.target.value);
     }
     const handleSubmit = (event) => {
         event.preventDefault();
         const { history } = props;
-        if(username && password !== null){
-        setLoading(true);
-        axios
-            .post("/user/login", {
-                username: username,
-                password: password
-            })
-            .then(response => {
-                if (response.status === 200) {
-                    // update App.js state
-                    setLoading(false)
-                    props.updateUser({
-                        loggedIn: true,
-                        username: response.data.username
-                    });
-
-                    //update local storage
-                    localStorage.setItem("jwt", response.data.token);
-
-                    // update the state to redirect to home
-                    setRed("/user");
-                }
-            })
-            .catch(error => {
-                setLoading(false)
-                swal({
-                    title: titleHandler(error),
-                    icon: "warning",
-                    buttons: true,
-                    // dangerMode: true,
+        if (username && password !== null) {
+            setLoading(true);
+            axios
+                .post("/user/login", {
+                    username: username,
+                    password: password
                 })
-                history.push('/')
-            });
+                .then(response => {
+                    if (response.status === 200) {
+                        console.log("[login]", response)
+
+                        // update App.js state
+                        setLoading(false)
+                        props.updateUser({
+                            loggedIn: true,
+                            username: response.data.username
+                        });
+
+                        //update local storage
+                        localStorage.setItem("jwt", response.data.token);
+
+                        // update the state to redirect to home
+                        setRed("/user");
+                    }
+                })
+                .catch(error => {
+                    setLoading(false)
+                    swal({
+                        title: titleHandler(error),
+                        icon: "warning",
+                        buttons: true,
+                        // dangerMode: true,
+                    })
+                    history.push('/')
+                });
         }
-        else{
+        else {
             swal({
                 title: "All fields are Mandatory",
                 icon: "warning",
@@ -147,29 +149,40 @@ const  titleHandler = (error) => {
             })
         }
     }
-if(localStorage.getItem("jwt")){
-    axios.get('/user',
-    {
-        headers: {
-          Authorization: `bearer ${localStorage.getItem("jwt")}`
-        }
-      }
-    )
-    .then(response => {
-        if (response.status === 200) {
-            // update App.js state
-            props.updateUser({
-                loggedIn: true,
-                username: response.data.username
+    if (localStorage.getItem("jwt")) {
+        axios.get('/user',
+            {
+                headers: {
+                    Authorization: `bearer ${localStorage.getItem("jwt")}`
+                }
+            }
+        )
+            .then(response => {
+                console.log("[check]", response)
+                if (response.data.error === "jwt expired") {
+                    localStorage.removeItem("jwt");
+                    swal({
+                        title: "Session Expired",
+                        text:"login again",
+                        icon: "danger",
+                        buttons: true,
+                        // dangerMode: true,
+                    })
+                  }
+                if (response.status === 200) {
+                    // update App.js state
+                    props.updateUser({
+                        loggedIn: true,
+                        username: response.data.user.userName
+                    });
+                    setRed("/user");
+                }
+            })
+            .catch(error => {
+                setLoading(false)
+                alert("login in again session expired");
             });
-            setRed("/user");
-        }
-    })
-    .catch(error => {
-        setLoading(false)
-        alert("login in again session expired");
-    });
-}
+    }
 
     if (redirectTo) {
         return <Redirect to={{ pathname: redirectTo }} />;
@@ -255,4 +268,4 @@ if(localStorage.getItem("jwt")){
 
     );
 }
-export default withRouter(SignInSide)
+export default withRouter(SignIn)

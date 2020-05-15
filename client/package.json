@@ -39,7 +39,7 @@
     "start": "react-scripts start",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build":"react-scripts build"
+    "build": "react-scripts build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -68,5 +68,5 @@
   "prettier": {
     "semi": false
   },
-  "proxy": "http://annotation-applicationv10-dev222222.ap-south-1.elasticbeanstalk.com/"
+  "proxy": "http://localhost:8080"
 }

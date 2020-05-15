@@ -100,29 +100,6 @@ export const MetaData = ({ allowed_metadata, metadata, onChange }: Props) => {
                     allowed_metadata.area.map(c => ({ value: c, label: c }))
                 )}
             />
-            <div>
-                <label>Number of Lanes</label>
-                <input className="w3-button w3-border w3-margin-bottom" placeholder='no. of Lanes' type="number"
-                    onChange={o =>
-                        onChange({
-                            ...(metadata),
-                            no_of_lanes: o.currentTarget.value
-                        })
-                    }
-                ></input>
-            </div>
-            <div>
-                <label>Number of classes</label>
-                <input className="w3-button w3-border w3-margin-bottom " placeholder='no. of classes' type="number"
-                    onChange={o =>
-                        onChange({
-                            ...(metadata),
-                            no_of_classes: o.currentTarget.value
-                        })
-                    }></input>
-            </div>
-
-
         </SidebarBoxContainer>
 
     )

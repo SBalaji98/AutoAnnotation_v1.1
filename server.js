@@ -18,13 +18,13 @@ app.use(express.static(path.join(__dirname, "client", "build")));
 
 // enables cors
 app.use(
-  cors()
-  //   {
-  //   origin: "*",
-  //   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  //   preflightContinue: false,
-  // }
-  
+  cors(
+    {
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+  }
+  )
 );
 
 // MIDDLEWARE
