@@ -323,9 +323,25 @@ class ImageRender extends Component {
                 else {
                     t.images[0].regions.map((annotation) => {
                         let points = []
+                        if (!annotation.cls) {
+                            this.setState({
+                                loading: false,
+                                regions: t.images[0].regions,
+                                metadata: (JSON.parse(localStorage.getItem("metadata"))) ? JSON.parse(localStorage.getItem("metadata")) : null
+                            })
+                            exit = true
+                            swal({
+                                title: "Annotations class cannot be empty",
+                                icon: "warning",
+                                buttons: true,
+                                // dangerMode: true,
+                            })
+
+                        }
                         annotation.points.map((seg, i) => {
                             points.push([seg[0] * imgWidth, seg[1] * imgHeight])
                         })
+                        
                         updated_regions.push({
                             cls: annotation.cls,
                             highlighted: false,
