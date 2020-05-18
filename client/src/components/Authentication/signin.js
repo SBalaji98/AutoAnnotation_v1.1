@@ -244,9 +244,9 @@ function SignIn(props) {
                                 </Button>
                         <Grid container>
                             <Grid item xs>
-                                <Link to="/forgot-password" variant="body2">
+                                <ReactLink to="/forgot-password" variant="body2">
                                     Forgot password?
-                                    </Link>
+                                    </ReactLink>
                             </Grid>
                             <Grid item>
                                 <ReactLink to="/signup" variant="body2">

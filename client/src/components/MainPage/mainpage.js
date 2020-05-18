@@ -104,6 +104,18 @@ class ImageRender extends Component {
                     // dangerMode: true,
                 })
             }
+            else if(res.data.message){
+                this.setState({ loading: false, src: null })
+                exit = true
+                    swal({
+                    title: res.data.message,
+                    text: "come back later",
+                    icon: "warning",
+                    buttons: true,
+                    // dangerMode: true,
+                })
+            }
+
             else {
                 localStorage.setItem('metadata', JSON.stringify(res.data.metadata));
                 this.toArrayBuffer(res.data.image.data)
@@ -399,7 +411,20 @@ class ImageRender extends Component {
                                 buttons: true,
                                 // dangerMode: true,
                             })
-                        } else {
+                        } 
+                        else if(res.data.message){
+                            this.setState({ loading: false, src: null })
+                            exit = true
+                            swal({
+                                title: res.data.message,
+                                text: "come back later",
+                                icon: "warning",
+                                buttons: true,
+                                // dangerMode: true,
+                            })
+                        }
+            
+                        else {
                             this.toArrayBuffer(res.data.image.data)
                                 .then((t) => {
                                     const imgFile = new Blob([t], {

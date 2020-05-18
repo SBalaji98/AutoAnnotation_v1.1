@@ -303,9 +303,9 @@ export default function SignInSide(props) {
                                 </Button>
             <Grid container>
               <Grid item>
-                <ReactLink href="/" variant="body2">
+                <Link href="/" variant="body2">
                   {"Have an account? Sign In"}
-                </ReactLink>
+                </Link>
               </Grid>
             </Grid>
             <Box mt={5}>
