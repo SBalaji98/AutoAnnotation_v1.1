@@ -160,6 +160,8 @@ module.exports = {
         ],
         where: {
           isDeleted: false,
+          isActive: true,
+          isAdmin: false,
         },
       });
       res.json(userCollection);
