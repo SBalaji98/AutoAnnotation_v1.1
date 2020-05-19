@@ -150,7 +150,14 @@ module.exports = {
   async getAllUsers(req, res) {
     try {
       const userCollection = await User.findAll({
-        attributes: ["id", "firstName", "lastName", "email", "phone"],
+        attributes: [
+          "id",
+          "firstName",
+          "lastName",
+          "userName",
+          "email",
+          "phone",
+        ],
         where: {
           isDeleted: false,
         },
