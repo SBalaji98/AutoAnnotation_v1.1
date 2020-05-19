@@ -104,10 +104,10 @@ class ImageRender extends Component {
                     // dangerMode: true,
                 })
             }
-            else if(res.data.message){
+            else if (res.data.message) {
                 this.setState({ loading: false, src: null })
                 exit = true
-                    swal({
+                swal({
                     title: res.data.message,
                     text: "come back later",
                     icon: "warning",
@@ -353,7 +353,7 @@ class ImageRender extends Component {
                         annotation.points.map((seg, i) => {
                             points.push([seg[0] * imgWidth, seg[1] * imgHeight])
                         })
-                        
+
                         updated_regions.push({
                             cls: annotation.cls,
                             highlighted: false,
@@ -411,8 +411,8 @@ class ImageRender extends Component {
                                 buttons: true,
                                 // dangerMode: true,
                             })
-                        } 
-                        else if(res.data.message){
+                        }
+                        else if (res.data.message) {
                             this.setState({ loading: false, src: null })
                             exit = true
                             swal({
@@ -423,7 +423,7 @@ class ImageRender extends Component {
                                 // dangerMode: true,
                             })
                         }
-            
+
                         else {
                             this.toArrayBuffer(res.data.image.data)
                                 .then((t) => {

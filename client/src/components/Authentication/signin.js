@@ -176,7 +176,7 @@ function SignIn(props) {
             })
             .catch(error => {
                 setLoading(false)
-                alert("login in again session expired");
+                alert(error);
             });
     }
 
