@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import axios from "axios";
 import ReactImageAnnotate from "../Annotator/ind";
 import swal from "sweetalert";
+import ErrorBoundary from '../ErrorBoundary/ErrorBoundary'
 
 
 
@@ -71,7 +72,11 @@ class ImageRender extends Component {
         let dim;
         let imgUrl;
         let response;
+        let exit = false;
         console.log("Mainapi")
+        if (exit) {
+            return
+        }
         await axios.get(
             "annotations/get-image-data-by-user",
             {
@@ -83,14 +88,14 @@ class ImageRender extends Component {
                     call_type: type,
                     curr_image_index: (type === 'first') ? 0 : this.state.curr_image_index,
                     image_key: (type === 'first') ? key : key[1],
-                    projectId: (type === 'first') ? this.state.projectId : key[0]
+                    projectid: (type === 'first') ? this.state.projectId : key[0]
                 }
             }
         ).then((res) => {
             console.log(`[${type}]`, res)
-            response = res
             if (res.data.error) {
                 this.setState({ loading: false, src: null })
+                exit = true
                 swal({
                     title: res.data.error,
                     text: "come back later",
@@ -99,6 +104,18 @@ class ImageRender extends Component {
                     // dangerMode: true,
                 })
             }
+            else if(res.data.message){
+                this.setState({ loading: false, src: null })
+                exit = true
+                    swal({
+                    title: res.data.message,
+                    text: "come back later",
+                    icon: "warning",
+                    buttons: true,
+                    // dangerMode: true,
+                })
+            }
+
             else {
                 localStorage.setItem('metadata', JSON.stringify(res.data.metadata));
                 this.toArrayBuffer(res.data.image.data)
@@ -179,6 +196,7 @@ class ImageRender extends Component {
                                     }
                                     console.log("[generarted regions]", regions)
                                     this.setState({
+                                        loading: false,
                                         curr_image_index: this.state.curr_image_index,
                                         src: imgUrl,
                                         regions: regions,
@@ -186,7 +204,6 @@ class ImageRender extends Component {
                                         image_key: res.data.image_key,
                                         projectId: res.data.projectId,
                                         dimension: dimension,
-                                        loading: false
                                     })
                                 }
                                 else {
@@ -194,7 +211,6 @@ class ImageRender extends Component {
                                         // region:null,
                                         loading: false
                                     })
-
                                     swal({
                                         title: "NO Annotations",
                                         icon: "warning",
@@ -216,14 +232,14 @@ class ImageRender extends Component {
                             })
                             .catch(error => {
                                 this.setState({
+                                    loading: false,
                                     curr_image_index: this.state.curr_image_index,
                                     src: imgUrl,
                                     regions: null,
                                     metadata: res.data.metadata,
                                     image_key: res.data.image_key,
                                     projectId: res.data.projectId,
-                                    dimension: dim,
-                                    loading: false
+                                    dimension: dim
 
                                 })
                                 if (error.message !== "Cannot read property 'map' of undefined") {
@@ -238,6 +254,7 @@ class ImageRender extends Component {
                     })
                     .catch(error => {
                         this.setState({
+                            loading: false,
                             curr_image_index: this.state.curr_image_index,
                             src: imgUrl,
                             regions: null,
@@ -245,7 +262,6 @@ class ImageRender extends Component {
                             image_key: res.data.image_key,
                             dimension: dim,
                             projectId: res.data.projectId,
-                            loading: false
 
                         })
                         swal({
@@ -259,14 +275,11 @@ class ImageRender extends Component {
         })
             .catch(error => {
                 this.setState({
+                    loading: false,
                     curr_image_index: this.state.curr_image_index,
                     src: imgUrl,
                     regions: null,
-                    metadata: response.data.metadata,
-                    image_key: response.data.image_key,
-                    projectId: response.data.projectId,
                     dimension: dim,
-                    loading: false
 
                 })
                 swal({
@@ -282,13 +295,29 @@ class ImageRender extends Component {
         console.log("next", t)
         let updated_regions = []
         let imgUrl
-        let response
         let dim
+        let exit = false
+        localStorage.setItem("metadata", JSON.stringify(t.metadata))
         const { imgWidth, imgHeight } = this.state.dimension
         if (t.metadata != null) {
             if ((t.images[0].regions !== null)) {
                 if (this.state.annotatemode === "object_detection") {
                     t.images[0].regions.map((annotation) => {
+                        if (!annotation.cls) {
+                            this.setState({
+                                loading: false,
+                                regions: t.images[0].regions,
+                                metadata: (JSON.parse(localStorage.getItem("metadata"))) ? JSON.parse(localStorage.getItem("metadata")) : null
+                            })
+                            exit = true
+                            swal({
+                                title: "Annotations class cannot be empty",
+                                icon: "warning",
+                                buttons: true,
+                                // dangerMode: true,
+                            })
+
+                        }
                         updated_regions.push({
                             cls: annotation.cls,
                             highlighted: false,
@@ -306,9 +335,25 @@ class ImageRender extends Component {
                 else {
                     t.images[0].regions.map((annotation) => {
                         let points = []
+                        if (!annotation.cls) {
+                            this.setState({
+                                loading: false,
+                                regions: t.images[0].regions,
+                                metadata: (JSON.parse(localStorage.getItem("metadata"))) ? JSON.parse(localStorage.getItem("metadata")) : null
+                            })
+                            exit = true
+                            swal({
+                                title: "Annotations class cannot be empty",
+                                icon: "warning",
+                                buttons: true,
+                                // dangerMode: true,
+                            })
+
+                        }
                         annotation.points.map((seg, i) => {
                             points.push([seg[0] * imgWidth, seg[1] * imgHeight])
                         })
+                        
                         updated_regions.push({
                             cls: annotation.cls,
                             highlighted: false,
@@ -333,13 +378,16 @@ class ImageRender extends Component {
                         localStorage.setItem('checkList', JSON.stringify([[this.state.projectId, this.state.image_key]]))
                     }
                 }
+                if (exit) {
+                    return
+                }
 
                 axios.post('/annotations/update-get-image-data-by-user',
                     {
                         image_key: this.state.image_key,
                         metadata: t.metadata,
                         annotations: updated_regions,
-                        projectId: this.state.projectId
+                        projectid: this.state.projectId
                     },
                     {
                         headers: {
@@ -352,18 +400,31 @@ class ImageRender extends Component {
                         }
                     })
                     .then((res) => {
-                        response = res
                         localStorage.setItem('metadata', JSON.stringify(res.data.metadata));
                         console.log("[next api]", res)
                         if (res.data.error) {
                             this.setState({ loading: false, src: null })
+                            exit = true
                             swal({
                                 title: res.data.error,
                                 icon: "warning",
                                 buttons: true,
                                 // dangerMode: true,
                             })
-                        } else {
+                        } 
+                        else if(res.data.message){
+                            this.setState({ loading: false, src: null })
+                            exit = true
+                            swal({
+                                title: res.data.message,
+                                text: "come back later",
+                                icon: "warning",
+                                buttons: true,
+                                // dangerMode: true,
+                            })
+                        }
+            
+                        else {
                             this.toArrayBuffer(res.data.image.data)
                                 .then((t) => {
                                     const imgFile = new Blob([t], {
@@ -452,6 +513,7 @@ class ImageRender extends Component {
                                         })
                                         .catch(error => {
                                             this.setState({
+                                                loading: false,
                                                 curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
                                                 src: imgUrl,
                                                 metadata: res.data.metadata,
@@ -461,7 +523,6 @@ class ImageRender extends Component {
                                                 projectId: res.data.projectId,
 
                                                 previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
-                                                loading: false
                                             })
                                             if (error.message !== "Cannot read property 'map' of undefined") {
 
@@ -477,6 +538,7 @@ class ImageRender extends Component {
                                 })
                                 .catch(error => {
                                     this.setState({
+                                        loading: false,
                                         curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
                                         src: imgUrl,
                                         metadata: res.data.metadata,
@@ -485,7 +547,6 @@ class ImageRender extends Component {
                                         regions: null,
                                         projectId: res.data.projectId,
                                         previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
-                                        loading: false
                                     })
                                     if (error.message !== "Cannot read property 'map' of undefined") {
                                         swal({
@@ -500,16 +561,12 @@ class ImageRender extends Component {
                     })
                     .catch(error => {
                         this.setState({
+                            loading: false,
                             curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
                             src: imgUrl,
-                            metadata: response.data.metadata,
-                            image_key: response.data.image_key,
                             dimension: dim,
                             regions: null,
-                            projectId: response.data.projectId,
-
                             previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
-                            loading: false
                         })
                         if (error.message !== "Cannot read property 'map' of undefined") {
                             swal({
@@ -522,9 +579,8 @@ class ImageRender extends Component {
                     })
             }
             else {
-                console.log("exit if")
                 this.setState({ loading: false, metadata: (JSON.parse(localStorage.getItem("metadata"))) ? JSON.parse(localStorage.getItem("metadata")) : null })
-
+                // t.metadata})
                 swal({
                     title: "Annotations  cannot be empty",
                     icon: "warning",
@@ -536,15 +592,14 @@ class ImageRender extends Component {
         else {
             console.log("[image]", t.images[0].regions, "[state]", this.state.regions)
             this.setState({
-                // region:null,
-                loading: false
+                loading: false,
+                regions: t.images[0].regions
             })
 
             swal({
                 title: "metadata cannot be empty",
                 icon: "warning",
                 buttons: true,
-                // dangerMode: true,
             })
         }
     }
@@ -609,8 +664,7 @@ class ImageRender extends Component {
                     loading: false
                 })
                 swal({
-                    title: "No more images",
-                    text: "Try reload or come back later",
+                    title: "Try reload",
                     icon: "warning",
                     buttons: true,
                     // dangerMode: true,
@@ -748,41 +802,43 @@ class ImageRender extends Component {
         const { loading, message, metadata, allowed_metadata, previewList, curr_image_index, annotatemode, class_list, src, regions } = this.state
 
         return (
-            <ReactImageAnnotate
-                loading={loading}
-                message={message}
-                metadata={metadata}
-                allowed_metadata={allowed_metadata}
-                // updateRegion={this.updateRegion}
-                // nextImage={this.nextImage}
-                // prevImage={this.prevImage}
-                preview={this.preview}
-                previewList={previewList}
-                curr_image_index={curr_image_index}
-                changeAnnotateMode={this.changeAnnotateMode}
-                annotatemode={annotatemode}
-                allowedArea={{
-                    x: 0,
-                    y: 0,
-                    w: 1,
-                    h: 1
-                }
-                }
-                taskDescription="Annotate the imaes by selecting the mode for object detection or segmentationl"
-                images={
-                    [
-                        {
-                            src: src,
-                            name: "Task:Enter the Metadata First then Annotate",
-                            regions: regions
-                        }
-                    ]}
-                regionClsList={class_list}
-                // regionTagList={["Road", "Highway", "LeaseRoad", "MainRoad"]}
-                onPrevImage={this.prevImage}
-                onNextImage={this.nextImage}
-                onExit={this.checkImage}
-            />
+            <ErrorBoundary>
+                <ReactImageAnnotate
+                    loading={loading}
+                    message={message}
+                    metadata={metadata}
+                    allowed_metadata={allowed_metadata}
+                    // updateRegion={this.updateRegion}
+                    // nextImage={this.nextImage}
+                    // prevImage={this.prevImage}
+                    preview={this.preview}
+                    previewList={previewList}
+                    curr_image_index={curr_image_index}
+                    changeAnnotateMode={this.changeAnnotateMode}
+                    annotatemode={annotatemode}
+                    allowedArea={{
+                        x: 0,
+                        y: 0,
+                        w: 1,
+                        h: 1
+                    }
+                    }
+                    taskDescription="Annotate the imaes by selecting the mode for object detection or segmentationl"
+                    images={
+                        [
+                            {
+                                src: src,
+                                name: "Task:Enter the Metadata First then Annotate",
+                                regions: regions
+                            }
+                        ]}
+                    regionClsList={class_list}
+                    // regionTagList={["Road", "Highway", "LeaseRoad", "MainRoad"]}
+                    onPrevImage={this.prevImage}
+                    onNextImage={this.nextImage}
+                    onExit={this.checkImage}
+                />
+            </ErrorBoundary>
         );
     }
 }

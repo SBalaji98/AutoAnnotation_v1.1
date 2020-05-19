@@ -19,6 +19,7 @@ import axios from "axios";
 import { Redirect } from "react-router-dom";
 import Loader from '../Loader/Loader';
 import swal from 'sweetalert';
+import { HashRouter as Router,  Link as ReactLink} from 'react-router-dom'
 
 
 

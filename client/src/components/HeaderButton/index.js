@@ -7,11 +7,11 @@ import useEventCallback from "use-event-callback"
 
 const StyledButton = styled(Button)({
   width: 80,
-  margin: 2
 })
 
 const IconName = styled("div")({
-  fontWeight: "bold"
+  fontWeight: "bold",
+  fontSize:10
 })
 
 export const HeaderButtonContext = createContext()

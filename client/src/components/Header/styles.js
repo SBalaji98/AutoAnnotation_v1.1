@@ -1,4 +1,4 @@
-import { grey } from "@material-ui/core/colors"
+// import { black } from "@material-ui/core/colors"
 
 export default {
   header: {
@@ -11,15 +11,15 @@ export default {
   },
   fileInfo: {
     alignItems: "center",
-    flexGrow: 1,
+     flexGrow: 1,
     "&.videoMode": {
       flexMode: 0.1
     },
     display: "flex",
     fontWeight: "bold",
-    color: grey[800],
+    color: "black",
     marginRight: 16,
-    fontSize: 24,
+    fontSize: 16,
     paddingLeft: 16
   }
 }

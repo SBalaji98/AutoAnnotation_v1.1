@@ -16,7 +16,7 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    padding: 8,
+    padding: 8  ,
     paddingLeft: 16,
     paddingRight: 16
   },
@@ -46,7 +46,7 @@ const useStyles = makeStyles({
     }
   },
   expandedContent: {
-    maxHeight: 300,
+    maxHeight: 200,
     overflowY: "auto",
     "&.noScroll": {
       overflowY: "visible",

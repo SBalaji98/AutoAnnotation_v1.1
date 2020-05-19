@@ -15,13 +15,12 @@ class Home extends Component {
       return (
         <div>
            <ErrorBoundary>
-           <Navbar loggedIn={loggedIn} updateUser={updateUser} /> 
+           <Navbar loggedIn={loggedIn} user={user} updateUser={updateUser} /> 
            </ErrorBoundary>
          
           <ErrorBoundary>
             <ImageRender user={user} />
           </ErrorBoundary>
-          
         </div>
       );
     }

@@ -20,9 +20,6 @@ class App extends Component {
     this.setState(userObject);
   }
 
-
-
-
   render() {
     return (
       <div className="App">
@@ -30,7 +27,7 @@ class App extends Component {
           <Route
             exact
             path="/user"
-            render={() => <Home loggedIn={this.state.loggedIn} user={this.state.username} />}
+            render={() => <Home updateUser={this.updateUser} loggedIn={this.state.loggedIn} user={this.state.username} />}
           />
           <Route
             exact
