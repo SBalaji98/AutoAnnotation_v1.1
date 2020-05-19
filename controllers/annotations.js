@@ -212,10 +212,13 @@ module.exports = {
       if (data.isObjectDetected === "null") {
         data.isObjectDetected = null;
       }
+      if (data.annotations === "null") {
+        data.annotations = null;
+      }
       let dataMap = {
         userId: data.UUID,
         fileName: data.frame_cloud,
-        isDLAnnotated: true,
+        isDLAnnotated: data.isDLAnnotated,
         dlAnnotatedData: data.annotations,
         projectId: data.project_id,
         isObjectDetected: data.isObjectDetected,
