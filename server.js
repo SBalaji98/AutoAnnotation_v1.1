@@ -18,13 +18,11 @@ app.use(express.static(path.join(__dirname, "client", "build")));
 
 // enables cors
 app.use(
-  cors(
-    {
+  cors({
     origin: "*",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
-  }
-  )
+  })
 );
 
 // MIDDLEWARE
@@ -32,11 +30,11 @@ app.use(morgan("dev"));
 
 app.use(
   bodyParser.urlencoded({
-    limit: "50mb",
+    limit: "1500mb",
     extended: false,
   })
 );
-app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.json({ limit: "1500mb" }));
 app.use(bodyParser.raw({ type: "application/vnd.custom-type" }));
 
 // Passport

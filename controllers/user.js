@@ -86,6 +86,12 @@ module.exports = {
                 userName: req.body.username,
               },
             }).then((user) => {
+              if (!JSON.parse(JSON.stringify(user)).isActive) {
+                return res.json({
+                  error:
+                    "User is not active anymore please contact with the admin for activation",
+                });
+              }
               const token = jwt.sign(
                 { sub: user.id, username: user.userName, isad: user.isAdmin },
                 process.env.JWT_SECRET,
