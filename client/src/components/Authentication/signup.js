@@ -148,9 +148,8 @@ export default function SignInSide(props) {
         })
         .catch(error => {
           setLoading(false)
-          let errors = error.response.data.errors;
           swal({
-            title: errors[0].msg,
+            title: error.message,
             icon: "warning",
             buttons: true,
             // dangerMode: true,
