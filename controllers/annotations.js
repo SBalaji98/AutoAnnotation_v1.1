@@ -295,7 +295,7 @@ module.exports = {
         .then((data) => {
           if (!data[0].length) {
             return res.json({
-              error: `No data for this user for ${annotate_mode}`,
+              message: `No data for this user for ${annotate_mode}`,
             });
           }
           let fileNameArray = new Array();
@@ -306,7 +306,7 @@ module.exports = {
               if (err) {
                 console.log(err);
                 return res.json({
-                  error: "Redis error while creating data in redis",
+                  error: "Redis error",
                 });
               }
             });
@@ -319,7 +319,7 @@ module.exports = {
               if (err) {
                 console.log(e);
                 return res.json({
-                  error: "Redis error while creating fileName array in redis",
+                  error: "Redis error",
                 });
               }
             }

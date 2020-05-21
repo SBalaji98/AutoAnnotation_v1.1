@@ -106,9 +106,9 @@ module.exports = {
               JSON.stringify(req.body),
               (err, re) => {
                 if (err) {
+                  console.log(err);
                   return res.json({
-                    error:
-                      "Redis error while setting annotation data in next call",
+                    error: "Redis error",
                   });
                 }
               }
@@ -159,14 +159,7 @@ module.exports = {
              */
             await s3.getObject(getParams, function (err, data) {
               if (err) {
-                console.log(err);
-                if (err.code === "NoSuchKey") {
-                  fileNameArray.splice(index, 1);
-                  fileName = fileNameArray[index];
-                  fileData = JSON.parse(result[`${fileName}`]);
-                } else {
-                  return res.json({ error: err.message });
-                }
+                return res.json({ error: err.message });
               } else {
                 return res.json({
                   image: data.Body,
