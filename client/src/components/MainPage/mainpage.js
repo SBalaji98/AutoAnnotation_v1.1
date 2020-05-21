@@ -211,12 +211,6 @@ class ImageRender extends Component {
                                         // region:null,
                                         loading: false
                                     })
-                                    swal({
-                                        title: "NO Annotations",
-                                        icon: "warning",
-                                        buttons: true,
-                                        // dangerMode: true,
-                                    })
                                     this.setState({
                                         curr_image_index: this.state.curr_image_index,
                                         src: imgUrl,
@@ -435,6 +429,7 @@ class ImageRender extends Component {
                                         .then((dimension) => {
                                             dim = dimension
                                             let regions = []
+                                            if (res.data.annotations != null) {
                                             if ((type === 'next' || 'review') && (res.data.annotations.obj_detect || res.data.annotations.segmentation)) {
                                                 (this.state.annotatemode === "object_detection") ?
                                                     (res.data.annotations.obj_detect.map((annotation, i) => {
@@ -500,6 +495,7 @@ class ImageRender extends Component {
                                                     )
                                             }
                                             this.setState({
+                                                loading: false,
                                                 curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
                                                 src: imgUrl,
                                                 regions: regions,
@@ -507,9 +503,25 @@ class ImageRender extends Component {
                                                 image_key: res.data.image_key,
                                                 dimension: dimension,
                                                 previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
-                                                projectId: res.data.projectId,
+                                                projectId: res.data.projectId
+                                            })
+                                        }
+                                        else{
+                                            this.setState({
+                                                // region:null,
                                                 loading: false
                                             })
+                                            this.setState({
+                                                curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
+                                                src: imgUrl,
+                                                regions: null,
+                                                metadata: res.data.metadata,
+                                                image_key: res.data.image_key,
+                                                dimension: dimension,
+                                                projectId: res.data.projectId
+        
+                                            })
+                                        }
                                         })
                                         .catch(error => {
                                             this.setState({
