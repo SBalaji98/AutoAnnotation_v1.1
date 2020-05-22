@@ -60,13 +60,17 @@ module.exports = {
           //check for the call type previous to show last indexed image data
           if (call_type === "previous") {
             if (index == 0) {
-              return res.json({ error: "No more images to go previous" });
+              return res.json({ message: "No more images to go previous" });
             }
             index = index - 1;
             client.hmset(user.id, "index", index, (err, re) => {
               if (err) {
+                console.log(
+                  "error while udating index for the previous call",
+                  err
+                );
                 return res.json({
-                  error: "error in setting index for previous call",
+                  error: "Redis error",
                 });
               }
             });
@@ -77,9 +81,12 @@ module.exports = {
               JSON.stringify(req.body),
               (err, re) => {
                 if (err) {
+                  console.log(
+                    `error while udating index for the previous call for ${user.id}`,
+                    err
+                  );
                   return res.json({
-                    error:
-                      "Redis error while setting annotation data in previous call",
+                    error: "Redis error ",
                   });
                 }
               }
@@ -106,7 +113,10 @@ module.exports = {
               JSON.stringify(req.body),
               (err, re) => {
                 if (err) {
-                  console.log(err);
+                  console.log(
+                    `error while udating index for the next call for ${user.id}`,
+                    err
+                  );
                   return res.json({
                     error: "Redis error",
                   });
@@ -136,7 +146,7 @@ module.exports = {
                 where: { fileName: fileName, projectId: projectId },
               });
               if (data === null) {
-                return res.json({ error: "no data found for review" });
+                return res.json({ message: "no data found for review" });
               }
               data = JSON.parse(JSON.stringify(data));
               fileData.image_key = fileName;
@@ -159,7 +169,7 @@ module.exports = {
              */
             await s3.getObject(getParams, function (err, data) {
               if (err) {
-                return res.json({ error: err.message });
+                return res.json({ error: err.code });
               } else {
                 return res.json({
                   image: data.Body,

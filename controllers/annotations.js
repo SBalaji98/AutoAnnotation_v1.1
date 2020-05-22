@@ -411,10 +411,12 @@ module.exports = {
         this.getImageData(req, res, user);
       }
     } catch (e) {
-      console.log(e);
+      console.log(
+        "Database error while update annotations and call for next image",
+        e
+      );
       return res.json({
-        error:
-          "Database error while update annotations and call for next image",
+        error: "Database error",
       });
     }
   },
