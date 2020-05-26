@@ -129,6 +129,24 @@ router.get(
   }
 );
 
+router.get(
+  "/admin/all-annotations/project",
+  auth.basicAuth,
+  acl.authorize,
+  (req, res, next) => {
+    annotationController.getAnnotationsByProjectIdName(req, res);
+  }
+);
+
+router.get(
+  "/admin/all-annotations/user",
+  auth.basicAuth,
+  acl.authorize,
+  (req, res, next) => {
+    annotationController.getAnnotationsByUserIdName(req, res);
+  }
+);
+
 // to get changed fromat data
 router.get(
   "/admin/all-annotations-csv",

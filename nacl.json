@@ -58,6 +58,16 @@
         "action": "allow"
       },
       {
+        "resource": "/admin/all-annotations/user",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "/admin/all-annotations/project",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
         "resource": "annotations/update-get-image-data-by-user",
         "methods": ["POST"],
         "action": "deny"
@@ -124,6 +134,16 @@
       },
       {
         "resource": "/admin/all-annotations",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "/admin/all-annotations/user",
+        "methods": ["GET"],
+        "action": "allow"
+      },
+      {
+        "resource": "/admin/all-annotations/project",
         "methods": ["GET"],
         "action": "allow"
       },

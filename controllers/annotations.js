@@ -23,47 +23,7 @@ module.exports = {
     try {
       const { user } = req;
       const { dataFor, dataForIdName } = req.query;
-      if (dataFor === "project") {
-        model.sequelize
-          .query("SELECT * FROM get_annotated_images_per_proj(:proj_id)", {
-            replacements: {
-              proj_id: dataForIdName,
-            },
-          })
-          .then((data) => {
-            if (!data[0].length) {
-              return res.json({
-                error: "No annotated data for this project",
-              });
-            }
-            return res.json(data[0]);
-          })
-          .catch((e) => {
-            return res.json({
-              error: "DB error while searching annotated data for projects",
-            });
-          });
-      } else if (dataFor === "user") {
-        model.sequelize
-          .query("SELECT * FROM get_annotated_images_per_user(:user_id )", {
-            replacements: {
-              user_id: dataForIdName,
-            },
-          })
-          .then((data) => {
-            if (!data[0].length) {
-              return res.json({
-                error: "No annotated data for this user",
-              });
-            }
-            return res.json(data[0]);
-          })
-          .catch((e) => {
-            return res.json({
-              error: "DB error while searching annotated data for users ",
-            });
-          });
-      } else if (dataFor === "file") {
+      if (dataFor === "file") {
         model.sequelize
           .query("SELECT * FROM get_annotated_images_details(:filename)", {
             replacements: {
@@ -109,6 +69,66 @@ module.exports = {
       console.log(e);
       res.status(500).json({ error: e });
     }
+  },
+
+  /**
+   * @description  get all the annotaion data from the database for a project
+   * @param {*} req Request from client which conatains the query parameters
+   * @param {query} req id_or_name - id or name of the project
+   * @param {*} res Response to the request
+   * @returns object - json object of the all annotated data in the db for a project
+   */
+  getAnnotationsByProjectIdName(req, res) {
+    const { id_or_name } = req.query;
+    model.sequelize
+      .query("SELECT * FROM get_annotated_images_per_proj(:proj_id)", {
+        replacements: {
+          proj_id: id_or_name,
+        },
+      })
+      .then((data) => {
+        if (!data[0].length) {
+          return res.json({
+            error: "No annotated data for this project",
+          });
+        }
+        return res.json(data[0]);
+      })
+      .catch((e) => {
+        return res.json({
+          error: "DB error while searching annotated data for projects",
+        });
+      });
+  },
+
+  /**
+   * @description  get all the annotaion data from the database for a user
+   * @param {*} req Request from client which conatains the query parameters
+   * @param {query} req id_or_name - id or name of the user
+   * @param {*} res Response to the request
+   * @returns object - json object of the all annotated data in the db for a user
+   */
+  getAnnotationsByUserIdName(req, res) {
+    const { id_or_name } = req.query;
+    model.sequelize
+      .query("SELECT * FROM get_annotated_images_per_user(:user_id )", {
+        replacements: {
+          user_id: id_or_name,
+        },
+      })
+      .then((data) => {
+        if (!data[0].length) {
+          return res.json({
+            error: "No annotated data for this user",
+          });
+        }
+        return res.json(data[0]);
+      })
+      .catch((e) => {
+        return res.json({
+          error: "DB error while searching annotated data for users ",
+        });
+      });
   },
 
   /**
