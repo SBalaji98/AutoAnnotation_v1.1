@@ -32,7 +32,7 @@ module.exports = {
           })
           .then((data) => {
             if (!data[0].length) {
-              return res.json({
+              return res.status(204).json({
                 error: "The file is not been annotated",
               });
             }
@@ -40,7 +40,7 @@ module.exports = {
           })
           .catch((e) => {
             console.log(e);
-            return res.json({
+            return res.status(500).json({
               error: "DB error while searching annotated data for filename",
             });
           });
@@ -88,14 +88,14 @@ module.exports = {
       })
       .then((data) => {
         if (!data[0].length) {
-          return res.json({
+          return res.status(204).json({
             error: "No annotated data for this project",
           });
         }
         return res.json(data[0]);
       })
       .catch((e) => {
-        return res.json({
+        return res.status(500).json({
           error: "DB error while searching annotated data for projects",
         });
       });
@@ -118,14 +118,14 @@ module.exports = {
       })
       .then((data) => {
         if (!data[0].length) {
-          return res.json({
+          return res.status(204).json({
             error: "No annotated data for this user",
           });
         }
         return res.json(data[0]);
       })
       .catch((e) => {
-        return res.json({
+        return res.status(500).json({
           error: "DB error while searching annotated data for users ",
         });
       });
