@@ -28,7 +28,8 @@ class ImageRender extends Component {
         loading: true,
         message: 'Fetching Image for annotation',
         projectId: null,
-        lockMode: false
+        lockMode: false,
+        prevResponse: {}
     };
 
     /**
@@ -406,7 +407,6 @@ class ImageRender extends Component {
                         }
                     })
                     .then((res) => {
-                        console.log("[next api]", res)
                         if (res.data.error) {
                             this.setState({ loading: false, src: null })
                             exit = true
@@ -427,6 +427,7 @@ class ImageRender extends Component {
                             })
                         }
                         else {
+                            this.setState({ prevResponse: res })
                             this.toArrayBuffer(res.data.image.data)
                                 .then((t) => {
                                     const imgFile = new Blob([t], {
@@ -786,8 +787,48 @@ class ImageRender extends Component {
     * @param {object} stateParam state object from mainlayout component
     */
     changeLock = (status, stateParam) => {
+        let regions = [];
         localStorage.setItem("metadata", JSON.stringify(stateParam.metadata))
         this.setState({ lockMode: status, regions: stateParam.images[0].regions, metadata: stateParam.metadata })
+        if (status === false) {
+            if (this.state.prevResponse.data) {
+                (this.state.annotatemode === "object_detection") ?
+                    (this.state.prevResponse.data.annotations.obj_detect.map((annotation, i) => {
+                        regions.push({
+                            cls: annotation.Class_Name,
+                            highlighted: false,
+                            id: this.getRandomId(),
+                            x: annotation.Region[0] / this.state.dimension.imgWidth,
+                            y: annotation.Region[1] / this.state.dimension.imgHeight,
+                            w: annotation.Region[2] / this.state.dimension.imgWidth,
+                            h: annotation.Region[3] / this.state.dimension.imgHeight,
+                            color: "hsl(82,100%,50%)",
+                            type: "box"
+                        })
+                    })) : (
+                        this.state.prevResponse.data.annotations.segmentation.map((annotation, i) => {
+                            let points = []
+                            annotation.Region.map((seg, i) => {
+                                points.push([seg[0] / this.state.dimension.imgWidth, seg[1] / this.state.dimension.imgHeight])
+                            })
+                            regions.push({
+                                cls: annotation.Class_Name,
+                                highlighted: false,
+                                id: this.getRandomId(),
+                                points: points,
+                                color: "hsl(82,100%,50%)",
+                                type: "polygon"
+                            })
+                        })
+                    )
+                this.setState({
+                    regions: regions,
+                })
+            }
+            else {
+                return
+            }
+        }
     }
 
 
