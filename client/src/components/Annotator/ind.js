@@ -74,7 +74,9 @@ export const Annotator = ({
   previewList,
   curr_image_index,
   changeAnnotateMode,
+  changeLock,
   annotatemode,
+  lockMode,
   allowed_metadata,
   metadata = {},
   loading,
@@ -105,6 +107,8 @@ export const Annotator = ({
         // prevImage,
         preview,
         previewList,
+        lockMode,
+        changeLock,
         changeAnnotateMode,
         annotatemode,
         showTags,
@@ -144,6 +148,9 @@ export const Annotator = ({
 
         return onExit(without(state, "history"))
       }
+      // else if(["lock","unlock"].includes(action.buttonName)){
+      //     return state.changeLock(state)
+      // }
       else if (action.buttonName === "next image" && onNextImage) {
         dispatchToReducer({ type: "CHANGE_METADATA", metadata: null })
         return onNextImage(without(state, "history"))
@@ -182,6 +189,12 @@ export const Annotator = ({
     }
 
   }, [state.annotatemode])
+
+  useEffect(() => {
+
+    state.changeLock(state.lockMode,state)
+
+  }, [state.lockMode])
 
   // useEffect(()=>{
   //   updateRegion(state.images[0].regions)

@@ -96,6 +96,7 @@ export const Header = (
           )}
           <HeaderButton name={(state.annotatemode==="object_detection")?("SEGMENTATION"):("OBJECT DETECTION")} Icon={HotkeysIcon} />
           {/* <HeaderButton name="changemode" Icon={HotkeysIcon} /> */}
+          <HeaderButton name={(state.lockMode===false)?("lock"):("unlock")} Icon={QueuePlayNextIcon} />
 
           {(state.curr_image_index > 0) && (
           <HeaderButton name="prev image" Icon={BackIcon} />
