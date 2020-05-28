@@ -9,8 +9,8 @@ require("dotenv").config();
  * @desc Create new s3 object with the secret Key
  */
 const s3 = new aws.S3({
-  accessKeyId: process.env.QA_ACCESS_KEY_ID,
-  secretAccessKey: process.env.QA_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY,
 });
 
 module.exports = {
@@ -160,7 +160,7 @@ module.exports = {
               fileData.projectid = projectId;
             }
             let getParams = {
-              Bucket: process.env.QA_BUCKET,
+              Bucket: process.env.BUCKET,
               Key: fileName,
             };
 
