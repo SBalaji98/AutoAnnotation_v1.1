@@ -9,8 +9,8 @@ require("dotenv").config();
  * @desc Create new s3 object with the secret Key
  */
 const s3 = new aws.S3({
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey: process.env.SECRET_ACCESS_KEY,
+  accessKeyId: process.env.QA_ACCESS_KEY_ID,
+  secretAccessKey: process.env.QA_SECRET_ACCESS_KEY,
 });
 
 module.exports = {
@@ -160,17 +160,16 @@ module.exports = {
               fileData.projectid = projectId;
             }
             let getParams = {
-              Bucket: process.env.BUCKET,
+              Bucket: process.env.QA_BUCKET,
               Key: fileName,
             };
 
             /**
              * @desc fetch the image form S3 bucket and concat with the annotation data of the image and send as response
              */
-            await s3.getObject(getParams, function (err, data) {
-              if (err) {
-                return res.json({ error: err.code });
-              } else {
+            s3.getObject(getParams)
+              .promise()
+              .then((data) => {
                 return res.json({
                   image: data.Body,
                   image_key: fileData.image_key,
@@ -178,8 +177,26 @@ module.exports = {
                   metadata: fileData.metadata,
                   projectId: fileData.projectid,
                 });
-              }
-            });
+              })
+              .catch((e) => {
+                if (e.code === "NoSuchKey") {
+                  fileNameArray.splice(index, 1);
+                  client.hmset(
+                    user.id,
+                    "fileNameArray",
+                    JSON.stringify(fileNameArray),
+                    (err, result) => {
+                      if (err) {
+                        console.log(e);
+                        return res.json({
+                          error: "Redis error",
+                        });
+                      }
+                    }
+                  );
+                  return this.getListedObject(req, res, user);
+                }
+              });
           }
         }
       });

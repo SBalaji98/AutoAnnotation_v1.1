@@ -50,18 +50,25 @@ module.exports = {
             error: "data is not available for provided keys",
           });
         }
-        Annotations.findAll({
-          where: {
-            isAnnotated: true,
-          },
-        })
+        model.sequelize
+          .query("SELECT * FROM download_annotation_proc(:name_or_id, :mode)", {
+            replacements: {
+              name_or_id: req.query.name_or_id || "",
+              mode: req.query.mode || "alldetails",
+            },
+          })
           .then((data) => {
-            return res.json(data);
+            if (!data[0].length) {
+              return res.status(204).json({
+                error: "No annotated data",
+              });
+            }
+            return res.json(data[0]);
           })
           .catch((e) => {
             console.log(e);
-            return res.json({
-              error: "DB error while getting data for all the annotated images",
+            return res.status(500).json({
+              error: "DB error ",
             });
           });
       }
@@ -81,9 +88,10 @@ module.exports = {
   getAnnotationsByProjectIdName(req, res) {
     const { id_or_name } = req.query;
     model.sequelize
-      .query("SELECT * FROM get_annotated_images_per_proj(:proj_id)", {
+      .query("SELECT * FROM download_annotation_proc(:name_or_id, :mode)", {
         replacements: {
-          proj_id: id_or_name,
+          name_or_id: id_or_name,
+          mode: req.query.mode || "project",
         },
       })
       .then((data) => {
@@ -111,9 +119,10 @@ module.exports = {
   getAnnotationsByUserIdName(req, res) {
     const { id_or_name } = req.query;
     model.sequelize
-      .query("SELECT * FROM get_annotated_images_per_user(:user_id )", {
+      .query("SELECT * FROM download_annotation_proc(:name_or_id, :mode)", {
         replacements: {
-          user_id: id_or_name,
+          name_or_id: id_or_name,
+          mode: req.query.mode || "user",
         },
       })
       .then((data) => {
