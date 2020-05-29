@@ -26,7 +26,7 @@ function Copyright() {
             {'Copyright © '}
             <Link color="inherit" href="https://fluxauto.xyz/">
                 www.fluxauto.xyz
-      </Link>{' '}
+      </Link>{'  '}
             {new Date().getFullYear()}
             {'.'}
         </Typography>
@@ -44,7 +44,6 @@ const useStyles = makeStyles((theme) => ({
         backgroundImage: `url(${logo})`,
         backgroundRepeat: 'no-repeat',
         backgroundColor: 'black',
-        //   theme.palette.type === 'light' ? theme.palette.grey[50] : theme.palette.grey[900],
         backgroundSize: '500px 500px',
         backgroundPosition: 'center',
     },
@@ -109,18 +108,14 @@ function SignIn(props) {
                 })
                 .then(response => {
                     if (response.status === 200) {
-                        console.log("[login]", response)
-
                         // update App.js state
                         setLoading(false)
                         props.updateUser({
                             loggedIn: true,
                             username: response.data.username
                         });
-
                         //update local storage
                         localStorage.setItem("jwt", response.data.token);
-
                         // update the state to redirect to home
                         setRed("/user");
                     }
@@ -131,7 +126,6 @@ function SignIn(props) {
                         title: titleHandler(error),
                         icon: "warning",
                         buttons: true,
-                        // dangerMode: true,
                     })
                     history.push('/')
                 });
@@ -141,7 +135,6 @@ function SignIn(props) {
                 title: "All fields are Mandatory",
                 icon: "warning",
                 buttons: true,
-                // dangerMode: true,
             })
         }
     }
@@ -154,7 +147,6 @@ function SignIn(props) {
             }
         )
             .then(response => {
-                console.log("[check]", response)
                 if (response.data.error === "jwt expired") {
                     localStorage.removeItem("jwt");
                     swal({
@@ -162,7 +154,6 @@ function SignIn(props) {
                         text:"login again",
                         icon: "danger",
                         buttons: true,
-                        // dangerMode: true,
                     })
                   }
                 if (response.status === 200) {
@@ -197,9 +188,6 @@ function SignIn(props) {
                         <h2 className="w3-text-red">AUTO</h2>
                         <h2>ANNOTATION</h2>
                     </div>
-
-                    {/* <img src={logo} height='100px' width='100px'></img> */}
-
                     <Typography component="h1" variant="h5">
                         Sign in
           </Typography>
@@ -228,11 +216,7 @@ function SignIn(props) {
                             autoComplete="current-password"
                             required
                         />
-                        {/* <FormControlLabel
-                                control={<Checkbox value="remember" color="primary" />}
-                                label="Remember me"
-                            /> */}
-                        <Button
+                                           <Button
                             type="submit"
                             fullWidth
                             onClick={handleSubmit}

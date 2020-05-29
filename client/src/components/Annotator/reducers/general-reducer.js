@@ -538,6 +538,14 @@ export default (state: MainLayoutState, action: Action) => {
         case "segmentation":{
           return setIn(state, ["annotatemode"], "segmentation")
         }
+
+        case "lock":{
+          return setIn(state, ["lockMode"], true)
+
+        }
+        case "unlock":{
+          return setIn(state, ["lockMode"], false)
+        }
       }
       return state
     }
