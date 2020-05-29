@@ -142,6 +142,7 @@ class ImageRender extends Component {
                 })
             }
             else {
+                console.log('[first]', res.data)
                 localStorage.setItem('metadata', JSON.stringify(res.data.metadata));
                 this.toArrayBuffer(res.data.image.data)
                     .then((t) => {
@@ -427,6 +428,7 @@ class ImageRender extends Component {
                             })
                         }
                         else {
+                            console.log(`[${type}]`, res.data)
                             this.setState({ prevResponse: res })
                             this.toArrayBuffer(res.data.image.data)
                                 .then((t) => {
@@ -438,8 +440,13 @@ class ImageRender extends Component {
                                         .then((dimension) => {
                                             dim = dimension
                                             let regions = []
+                                            // if (res.data.metadata !== null) {
+                                            //     localStorage.setItem('metadata', JSON.stringify(res.data.metadata));
+                                            // }
                                             if (this.state.lockMode === false) {
-                                                localStorage.setItem('metadata', JSON.stringify(res.data.metadata));
+                                                if (res.data.metadata !== null) {
+                                                    localStorage.setItem('metadata', JSON.stringify(res.data.metadata));
+                                                }
                                                 if (res.data.annotations != null) {
                                                     if ((type === 'next' || 'review') && (res.data.annotations.obj_detect || res.data.annotations.segmentation)) {
                                                         (this.state.annotatemode === "object_detection") ?
@@ -509,7 +516,7 @@ class ImageRender extends Component {
                                                         curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
                                                         src: imgUrl,
                                                         regions: regions,
-                                                        metadata: res.data.metadata,
+                                                        metadata: JSON.parse(localStorage.getItem("metadata")),
                                                         image_key: res.data.image_key,
                                                         dimension: dimension,
                                                         previewList: (JSON.parse(localStorage.getItem("checkList"))) ? JSON.parse(localStorage.getItem("checkList")) : [],
@@ -524,7 +531,7 @@ class ImageRender extends Component {
                                                         curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
                                                         src: imgUrl,
                                                         regions: null,
-                                                        metadata: res.data.metadata,
+                                                        metadata: JSON.parse(localStorage.getItem("metadata")),
                                                         image_key: res.data.image_key,
                                                         dimension: dimension,
                                                         projectId: res.data.projectId
@@ -539,7 +546,7 @@ class ImageRender extends Component {
                                                     curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
                                                     src: imgUrl,
                                                     image_key: res.data.image_key,
-                                                    metadata: (JSON.parse(localStorage.getItem("metadata"))) ? JSON.parse(localStorage.getItem("metadata")) : null,
+                                                    metadata: JSON.parse(localStorage.getItem("metadata")),
                                                     dimension: dimension,
                                                     projectId: res.data.projectId
                                                 })
@@ -550,7 +557,7 @@ class ImageRender extends Component {
                                                 loading: false,
                                                 curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
                                                 src: imgUrl,
-                                                metadata: res.data.metadata,
+                                                metadata: JSON.parse(localStorage.getItem("metadata")),
                                                 image_key: res.data.image_key,
                                                 dimension: dim,
                                                 regions: null,
@@ -571,7 +578,7 @@ class ImageRender extends Component {
                                         loading: false,
                                         curr_image_index: (type === "previous") ? (this.state.curr_image_index - 1) : (this.state.curr_image_index + 1),
                                         src: imgUrl,
-                                        metadata: res.data.metadata,
+                                        metadata: JSON.parse(localStorage.getItem("metadata")),
                                         image_key: res.data.image_key,
                                         dimension: dim,
                                         regions: null,
@@ -792,8 +799,8 @@ class ImageRender extends Component {
         this.setState({ lockMode: status, regions: stateParam.images[0].regions, metadata: stateParam.metadata })
         if (status === false) {
             if (this.state.prevResponse.data) {
-                (this.state.annotatemode === "object_detection") ?
-                    (this.state.prevResponse.data.annotations.obj_detect.map((annotation, i) => {
+                if(this.state.annotatemode === "object_detection") {
+                    this.state.prevResponse.data.annotations.obj_detect.map((annotation, i) => {
                         regions.push({
                             cls: annotation.Class_Name,
                             highlighted: false,
@@ -805,7 +812,9 @@ class ImageRender extends Component {
                             color: "hsl(82,100%,50%)",
                             type: "box"
                         })
-                    })) : (
+                    }) }
+                    else{
+                        if(this.state.prevResponse.data.annotations.segmentation){
                         this.state.prevResponse.data.annotations.segmentation.map((annotation, i) => {
                             let points = []
                             annotation.Region.map((seg, i) => {
@@ -820,7 +829,8 @@ class ImageRender extends Component {
                                 type: "polygon"
                             })
                         })
-                    )
+                    }
+                    }
                 this.setState({
                     regions: regions,
                 })
