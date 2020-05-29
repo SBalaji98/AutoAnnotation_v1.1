@@ -29,7 +29,7 @@ module.exports = {
   production: {
     username: process.env.RDS_USER,
     password: process.env.RDS_PASSWORD,
-    database: process.env.RDS_DATABASE_PROD,
+    database: process.env.RDS_DATABASE,
     host: process.env.RDS_HOST,
     dialect: "postgres",
     dialectOptions: {
