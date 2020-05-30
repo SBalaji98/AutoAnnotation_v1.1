@@ -51,12 +51,16 @@ module.exports = {
           });
         }
         model.sequelize
-          .query("SELECT * FROM download_annotation_proc(:name_or_id, :mode)", {
-            replacements: {
-              name_or_id: req.query.name_or_id || "",
-              mode: req.query.mode || "alldetails",
-            },
-          })
+          .query(
+            "SELECT * FROM download_annotation_proc(:name_or_id, :mode, :property)",
+            {
+              replacements: {
+                name_or_id: req.query.name_or_id || "",
+                mode: req.query.mode || "alldetails",
+                property: req.query.selection_flag,
+              },
+            }
+          )
           .then((data) => {
             if (!data[0].length) {
               return res.status(204).json({
@@ -86,14 +90,19 @@ module.exports = {
    * @returns object - json object of the all annotated data in the db for a project
    */
   getAnnotationsByProjectIdName(req, res) {
-    const { id_or_name } = req.query;
+    const { id_or_name, selection_flag, mode } = req.query;
+    console.log(req.query);
     model.sequelize
-      .query("SELECT * FROM download_annotation_proc(:name_or_id, :mode)", {
-        replacements: {
-          name_or_id: id_or_name,
-          mode: req.query.mode || "project",
-        },
-      })
+      .query(
+        "SELECT * FROM download_annotation_proc(:name_or_id, :mode, :property)",
+        {
+          replacements: {
+            name_or_id: id_or_name,
+            mode: mode || "project",
+            property: selection_flag,
+          },
+        }
+      )
       .then((data) => {
         if (!data[0].length) {
           return res.status(204).json({
@@ -103,6 +112,7 @@ module.exports = {
         return res.json(data[0]);
       })
       .catch((e) => {
+        console.log(e);
         return res.status(500).json({
           error: "DB error while searching annotated data for projects",
         });
@@ -119,12 +129,16 @@ module.exports = {
   getAnnotationsByUserIdName(req, res) {
     const { id_or_name } = req.query;
     model.sequelize
-      .query("SELECT * FROM download_annotation_proc(:name_or_id, :mode)", {
-        replacements: {
-          name_or_id: id_or_name,
-          mode: req.query.mode || "user",
-        },
-      })
+      .query(
+        "SELECT * FROM download_annotation_proc(:name_or_id, :mode, :property)",
+        {
+          replacements: {
+            name_or_id: id_or_name,
+            mode: req.query.mode || "user",
+            property: req.query.selection_flag,
+          },
+        }
+      )
       .then((data) => {
         if (!data[0].length) {
           return res.status(204).json({
@@ -134,6 +148,7 @@ module.exports = {
         return res.json(data[0]);
       })
       .catch((e) => {
+        console.log(e);
         return res.status(500).json({
           error: "DB error while searching annotated data for users ",
         });
