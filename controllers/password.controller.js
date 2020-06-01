@@ -41,7 +41,9 @@ module.exports = {
           const link = `${process.env.RESET_LINK}/${token}`;
 
           const transporter = nodemailer.createTransport({
-            service: "gmail",
+            // service: "gmail",
+            host:"smtp.zoho.com",
+            Port: 465,
             auth: {
               user: process.env.SOURCE_EMAIL,
               pass: process.env.EMAIL_PASSWORD,

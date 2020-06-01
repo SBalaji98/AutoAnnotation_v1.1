@@ -68,5 +68,5 @@
   "prettier": {
     "semi": false
   },
-  "proxy": "http://annotation-applicationv10-dev222222.ap-south-1.elasticbeanstalk.com/"
+  "proxy": "http://localhost:8080/"
 }
