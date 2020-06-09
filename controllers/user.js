@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const User = require("../models").User;
+const roles = require("../models").Roles;
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const s3Controller = require("../S3-bucket/s3.controller");
@@ -92,19 +93,42 @@ module.exports = {
                     "User is not active anymore please contact with the admin for activation",
                 });
               }
-              const token = jwt.sign(
-                { sub: user.id, username: user.userName, isad: user.isAdmin },
-                process.env.JWT_SECRET,
-                {
-                  expiresIn: 60 * 60 * 24,
-                }
-              );
-              res.status(200).send({
-                auth: true,
-                username: user.userName,
-                token,
-                message: "user found & logged in",
-              });
+              roles
+                .findOne({
+                  attributes: ["role"],
+                  where: {
+                    id: user.roleId,
+                  },
+                })
+                .then((result) => {
+                  result = JSON.parse(JSON.stringify(result));
+                  user.role = result.role;
+                  const token = jwt.sign(
+                    {
+                      sub: user.id,
+                      username: user.userName,
+                      isad: user.isAdmin,
+                      role: user.role,
+                    },
+                    process.env.JWT_SECRET,
+                    {
+                      expiresIn: 60 * 60 * 24,
+                    }
+                  );
+                  res.status(200).send({
+                    auth: true,
+                    username: user.userName,
+                    token,
+                    message: "user found & logged in",
+                  });
+                })
+                .catch((e) => {
+                  console.log(
+                    "DB error while searching for role in auth middleware",
+                    e
+                  );
+                  return res.json({ error: "DB error" });
+                });
             });
           });
         }
