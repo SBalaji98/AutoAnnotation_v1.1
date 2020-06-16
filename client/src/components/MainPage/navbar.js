@@ -21,7 +21,8 @@ class Navbar extends Component {
       localStorage.removeItem("jwt");
       this.props.updateUser({
         loggedIn: false,
-        username: null
+        username: null,
+        role:null
       });
     })
     .catch(()=>{
@@ -53,7 +54,7 @@ class Navbar extends Component {
   }
 
   render() {
-    const loggedIn = this.props.loggedIn;
+    const {loggedIn,role,user} = this.props;
     // const { history } = this.props;
     if (this.state.redirectTo) {
       return <Redirect to='/' />
@@ -74,7 +75,7 @@ class Navbar extends Component {
         {/* <button class="w3-button "><AccountCircleIcon /></button> */}
 
         <strong><span className="w3-bar-item w3-right">
-          Hi {this.props.user}</span></strong>
+        {user}({role})</span></strong>
       </div>
     );
   }

@@ -9,6 +9,7 @@
     "@material-ui/icons": "^4.9.1",
     "axios": "^0.19.2",
     "get-image-data": "^3.0.1",
+    "jwt-decode": "^2.2.0",
     "material-survey": "^1.0.34",
     "moment": "^2.23.0",
     "react-full-screen": "^0.2.4",

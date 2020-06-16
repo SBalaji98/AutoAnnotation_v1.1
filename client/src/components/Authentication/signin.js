@@ -1,6 +1,6 @@
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -16,8 +16,9 @@ import axios from "axios";
 import { withRouter, Redirect } from "react-router-dom";
 import Loader from '../Loader/Loader';
 import swal from 'sweetalert';
-import { HashRouter as Router,  Link as ReactLink} from 'react-router-dom'
-
+import { HashRouter as Router, Link as ReactLink } from 'react-router-dom'
+import jwt from 'jwt-decode'
+import JwtDecode from 'jwt-decode';
 
 
 function Copyright() {
@@ -107,12 +108,16 @@ function SignIn(props) {
                     password: password
                 })
                 .then(response => {
+                    console.log("[login]",response)
                     if (response.status === 200) {
                         // update App.js state
                         setLoading(false)
+                        const userInfo= jwt(response.data.token)
+                        console.log("[userInfo]",userInfo)
                         props.updateUser({
                             loggedIn: true,
-                            username: response.data.username
+                            username: response.data.username,
+                            role:userInfo.role
                         });
                         //update local storage
                         localStorage.setItem("jwt", response.data.token);
@@ -138,38 +143,50 @@ function SignIn(props) {
             })
         }
     }
-    if (localStorage.getItem("jwt")) {
-        axios.get('/user',
-            {
-                headers: {
-                    Authorization: `bearer ${localStorage.getItem("jwt")}`
+
+    const loadUser = () => {
+        if (localStorage.getItem("jwt")) {
+
+            axios.get('/user',
+                {
+                    headers: {
+                        Authorization: `bearer ${localStorage.getItem("jwt")}`
+                    }
                 }
-            }
-        )
-            .then(response => {
-                if (response.data.error === "jwt expired") {
-                    localStorage.removeItem("jwt");
-                    swal({
-                        title: "Session Expired",
-                        text:"login again",
-                        icon: "danger",
-                        buttons: true,
-                    })
-                  }
-                if (response.status === 200) {
-                    // update App.js state
-                    props.updateUser({
-                        loggedIn: true,
-                        username: response.data.user.userName
-                    });
-                    setRed("/user");
-                }
-            })
-            .catch(error => {
-                setLoading(false)
-                alert(error);
-            });
+            )
+                .then(response => {
+                    if (response.data.error === "jwt expired") {
+                        localStorage.removeItem("jwt");
+                        swal({
+                            title: "Session Expired",
+                            text: "login again",
+                            icon: "danger",
+                            buttons: true,
+                        })
+                        setRed("/");
+                    }
+                    if (response.status === 200) {
+                        // update App.js state
+                        const userInfo=jwt(localStorage.getItem("jwt"))
+                        props.updateUser({
+                            loggedIn: true,
+                            username: response.data.user.userName,
+                            role:userInfo.role
+                        });
+                        setRed("/user");
+                    }
+                })
+                .catch(error => {
+                    setLoading(false)
+                    alert(error);
+                });
+        }
     }
+    useEffect(() => {
+        loadUser()
+    }, []);
+
+
 
     if (redirectTo) {
         return <Redirect to={{ pathname: redirectTo }} />;
@@ -216,7 +233,7 @@ function SignIn(props) {
                             autoComplete="current-password"
                             required
                         />
-                                           <Button
+                        <Button
                             type="submit"
                             fullWidth
                             onClick={handleSubmit}

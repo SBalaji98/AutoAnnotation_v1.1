@@ -13,11 +13,13 @@ class App extends Component {
 
   state = {
     loggedIn: false,
-    username: null
+    username: null,
+    role:null
   };
 
   updateUser = (userObject) => {
     this.setState(userObject);
+    console.log("[userObject]",userObject)
   }
 
   render() {
@@ -27,7 +29,7 @@ class App extends Component {
           <Route
             exact
             path="/user"
-            render={() => <Home updateUser={this.updateUser} loggedIn={this.state.loggedIn} user={this.state.username} />}
+            render={() => <Home updateUser={this.updateUser} userState={this.state} />}
           />
           <Route
             exact
