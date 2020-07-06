@@ -48,84 +48,85 @@ export default ({
     const fn = (...args: any) =>
       params.length > 0
         ? dispatch(
-            ({
-              type,
-              ...params.reduce((acc, p, i) => ((acc[p] = args[i]), acc), {})
-            }: any)
+          ({
+            type,
+            ...params.reduce((acc, p, i) => ((acc[p] = args[i]), acc), {})
+          }: any)
           )
         : dispatch({ type, ...args[0] })
-    memoizedActionFns.current[fnKey] = fn
-    return fn
-  }
+  memoizedActionFns.current[fnKey] = fn
+  return fn
+}
 
-  const { currentImageIndex, activeImage } = getActiveImage(state)
-  let nextImage
-  if (currentImageIndex !== null) {
-    nextImage = state.images[currentImageIndex + 1]
-  }
+const { currentImageIndex, activeImage } = getActiveImage(state)
+let nextImage
+if (currentImageIndex !== null) {
+  nextImage = state.images[currentImageIndex + 1]
+}
 
-  useKey(() => dispatch({ type: "CANCEL" }), {
-    detectKeys: [27]
-  })
+useKey(() => dispatch({ type: "CANCEL" }), {
+  detectKeys: [27]
+})
 
-  const isAVideoFrame = activeImage && activeImage.frameTime !== undefined
+const isAVideoFrame = activeImage && activeImage.frameTime !== undefined
 
-  let impliedVideoRegions = useImpliedVideoRegions(state)
+let impliedVideoRegions = useImpliedVideoRegions(state)
 
-  return (
-    <Fullscreen
-      enabled={state.fullScreen}
-      onChange={open => {
-        if (!open) {
-          action("HEADER_BUTTON_CLICKED", "buttonName")("Exit Fullscreen")
-        }
-      }}
+return (
+  <Fullscreen
+    enabled={state.fullScreen}
+    onChange={open => {
+      if (!open) {
+        action("HEADER_BUTTON_CLICKED", "buttonName")("Exit Fullscreen")
+      }
+    }}
+  >
+    <div
+      className={classnames(
+        classes.container,
+        state.fullScreen && "Fullscreen"
+      )}
     >
-      <div
-        className={classnames(
-          classes.container,
-          state.fullScreen && "Fullscreen"
-        )}
-      >
-        <div className={classes.headerContainer}>
-          <Header
-            onHeaderButtonClick={action("HEADER_BUTTON_CLICKED", "buttonName")}
-            videoMode={state.annotationType === "video"}
-            alwaysShowNextButton={alwaysShowNextButton}
-            alwaysShowPrevButton={alwaysShowPrevButton}
-            inFullScreen={state.fullScreen}
-            isAVideoFrame={isAVideoFrame}
-            nextVideoFrameHasRegions={
-              !nextImage || (nextImage.regions && nextImage.regions.length > 0)
-            }
-            videoDuration={state.videoDuration}
-            multipleImages={state.images && state.images.length > 1}
-            title={
-              state.annotationType === "image"
-                ? activeImage
-                  ? activeImage.name
-                  : "No Image Selected"
-                : state.videoName || ""
-            }
-            onChangeCurrentTime={action("CHANGE_VIDEO_TIME", "newTime")}
-            videoPlaying={state.videoPlaying}
-            currentVideoTime={state.currentVideoTime}
-            keyframes={state.keyframes}
-          />
-        </div>
-        <div className={classes.workspace}>
-          <div className={classes.iconToolsContainer}>
-            {/* <IconTools
+      <div className={classes.headerContainer}>
+        <Header
+          state={state}
+          onHeaderButtonClick={action("HEADER_BUTTON_CLICKED", "buttonName")}
+          videoMode={state.annotationType === "video"}
+          alwaysShowNextButton={alwaysShowNextButton}
+          alwaysShowPrevButton={alwaysShowPrevButton}
+          inFullScreen={state.fullScreen}
+          isAVideoFrame={isAVideoFrame}
+          nextVideoFrameHasRegions={
+            !nextImage || (nextImage.regions && nextImage.regions.length > 0)
+          }
+          videoDuration={state.videoDuration}
+          multipleImages={state.images && state.images.length > 1}
+          title={
+            state.annotationType === "image"
+              ? activeImage
+                ? activeImage.name
+                : "No Image Selected"
+              : state.videoName || ""
+          }
+          onChangeCurrentTime={action("CHANGE_VIDEO_TIME", "newTime")}
+          videoPlaying={state.videoPlaying}
+          currentVideoTime={state.currentVideoTime}
+          keyframes={state.keyframes}
+        />
+      </div>
+      <div className={classes.workspace}>
+        <div className={classes.iconToolsContainer}>
+          {/* <IconTools
               enabledTools={state.enabledTools}
               showTags={state.showTags}
               selectedTool={state.selectedTool}
               onClickTool={action("SELECT_TOOL", "selectedTool")}
             /> */}
-          </div>
-          <div className={classes.imageCanvasContainer}>
-            {state.annotationType === "image" && !state.selectedImage ? (
-              <div className={classes.noImageSelected}>No Image Selected</div>
-            ) : (
+        </div>
+        <div className={classes.imageCanvasContainer}>
+          {state.annotationType === "image" && !state.selectedImage ? (
+            <div className={classes.noImageSelected}>No Image Selected</div>
+          ) : (
               <div style={{ height: "100%", width: "100%" }}>
                 <ImageCanvas
                   {...settings}
@@ -199,42 +200,43 @@ export default ({
                 />
               </div>
             )}
-          </div>
-          <div className={classes.sidebarContainer}>
-            <Sidebar
-              debug={window.localStorage.$ANNOTATE_DEBUG_MODE && state}
-              taskDescription={state.taskDescription}
-              images={state.images}
-              regions={activeImage ? activeImage.regions : null}
-              history={state.history}
-              currentImage={activeImage}
-              labelImages={state.labelImages}
-              imageClsList={state.imageClsList}
-              imageTagList={state.imageTagList}
-              keyframes={state.keyframes}
-              currentVideoTime={state.currentVideoTime}
-              onChangeImage={action("CHANGE_IMAGE", "delta")}
-              onSelectRegion={action("SELECT_REGION", "region")}
-              onDeleteRegion={action("DELETE_REGION", "region")}
-              onSelectImage={action("SELECT_IMAGE", "image")}
-              onChangeRegion={action("CHANGE_REGION", "region")}
-              onRestoreHistory={action("RESTORE_HISTORY")}
-              onChangeVideoTime={action("CHANGE_VIDEO_TIME", "newTime")}
-              onDeleteKeyframe={action("DELETE_KEYFRAME", "time")}
-              onShortcutActionDispatched={dispatch}
-            />
-          </div>
         </div>
-        <SettingsDialog
-          open={state.settingsOpen}
-          onClose={() =>
-            dispatch({
-              type: "HEADER_BUTTON_CLICKED",
-              buttonName: "Settings"
-            })
-          }
-        />
+        <div className={classes.sidebarContainer}>
+          <Sidebar
+            metadata={state.metadata}
+            debug={window.localStorage.$ANNOTATE_DEBUG_MODE && state}
+            taskDescription={state.taskDescription}
+            images={state.images}
+            regions={activeImage ? activeImage.regions : null}
+            history={state.history}
+            currentImage={activeImage}
+            labelImages={state.labelImages}
+            imageClsList={state.imageClsList}
+            imageTagList={state.imageTagList}
+            keyframes={state.keyframes}
+            currentVideoTime={state.currentVideoTime}
+            onChangeImage={action("CHANGE_IMAGE", "delta")}
+            onSelectRegion={action("SELECT_REGION", "region")}
+            onDeleteRegion={action("DELETE_REGION", "region")}
+            onSelectImage={action("SELECT_IMAGE", "image")}
+            onChangeRegion={action("CHANGE_REGION", "region")}
+            onRestoreHistory={action("RESTORE_HISTORY")}
+            onChangeVideoTime={action("CHANGE_VIDEO_TIME", "newTime")}
+            onDeleteKeyframe={action("DELETE_KEYFRAME", "time")}
+            onShortcutActionDispatched={dispatch}
+          />
+        </div>
       </div>
-    </Fullscreen>
-  )
+      <SettingsDialog
+        open={state.settingsOpen}
+        onClose={() =>
+          dispatch({
+            type: "HEADER_BUTTON_CLICKED",
+            buttonName: "Settings"
+          })
+        }
+      />
+    </div>
+  </Fullscreen>
+)
 }

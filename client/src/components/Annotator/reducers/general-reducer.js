@@ -520,6 +520,14 @@ export default (state: MainLayoutState, action: Action) => {
           //state.prevImage()
           return state
         }
+
+        case "accept":{
+            
+        }
+
+        case "reject":{
+          
+        }
         // case "changemode": {
 
         //   if (state.annotatemode === "object_detection") {
@@ -531,6 +539,8 @@ export default (state: MainLayoutState, action: Action) => {
         //   }
 
         // }
+
+
         case "object detection":{
           return setIn(state, ["annotatemode"], "object_detection")
 

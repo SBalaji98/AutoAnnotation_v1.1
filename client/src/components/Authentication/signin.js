@@ -171,7 +171,9 @@ function SignIn(props) {
                         props.updateUser({
                             loggedIn: true,
                             username: response.data.user.userName,
-                            role:userInfo.role
+                            role:userInfo.role,
+                            userId:response.data.user.id
+
                         });
                         setRed("/user");
                     }

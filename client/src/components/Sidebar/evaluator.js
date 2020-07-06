@@ -47,6 +47,7 @@ type Props = {
 const emptyArr = []
 
 export const Sidebar = ({
+  metadata,
   debug,
   taskDescription,
   keyframes,
@@ -70,15 +71,22 @@ export const Sidebar = ({
 }: Props) => {
   const classes = useStyles()
 
+  let defaultMeta ={
+    climate:'None',
+    road:'None',
+    time_of_day:"None",
+    area:"None"
+  }
   if (!regions) regions = emptyArr
 
   return (
     <div>
       {/* <History history={history} onRestoreHistory={() => onRestoreHistory()} />
       {debug && <DebugBox state={debug} lastAction={debug.lastAction} />} */}
-      {(taskDescription || "").length > 1 && (
+      {/* {(taskDescription || "").length > 1 && (
         <TaskDescription description={taskDescription} />
-      )}
+      )} */}
+              <TaskDescription description={taskDescription} />
       {labelImages && (
         <TagsSidebarBox
           currentImage={currentImage}
@@ -91,7 +99,10 @@ export const Sidebar = ({
       {images && images.length > 1 && (
         <ImageSelector onSelect={onSelectImage} images={images} />
       )}
-      <Metadata />
+      <Metadata 
+        metadata={(metadata===null)?defaultMeta:metadata}
+
+      />
       <RegionSelector
         regions={regions}
         onSelectRegion={onSelectRegion}

@@ -12,9 +12,9 @@ import { Meta_Data } from "./metadata-tools"
 
 
 
-type Props = {
-    // metadata: Meta_Data
-}
+// type Props = {
+//     metadata: Meta_Data
+// }
 const MarkdownContainer = styled("div")({
     paddingLeft: 16,
     paddingRight: 16,
@@ -30,14 +30,14 @@ const MarkdownContainer = styled("div")({
     "& img": { width: "100%" }
 })
 
-export const MetaData = ({ allowed_metadata, onChange }: Props) => {
+export const MetaData = ({ metadata }: Props) => {
 
-    const metadata={
-        road:'least',
-        area:'rural',
-        time_of_day:'night',
-        climate:'sunny'
-    }
+    // const metadata={
+    //     road:'least',
+    //     area:'rural',
+    //     time_of_day:'night',
+    //     climate:'sunny'
+    // }
     return (
         <SidebarBoxContainer
             title="Meta Data"
@@ -46,19 +46,19 @@ export const MetaData = ({ allowed_metadata, onChange }: Props) => {
         >
 
             <MarkdownContainer>
-            <h2><strong>Climate : {metadata.climate ?metadata.climate: null}</strong></h2>
+                <h2><strong>Climate : {metadata.climate ? metadata.climate : null}</strong></h2>
             </MarkdownContainer>
-            
+
             <MarkdownContainer>
-            <h2><strong>Road :  {metadata.road ?metadata.road: null}</strong></h2>
+                <h2><strong>Road :  {metadata.road ? metadata.road : null}</strong></h2>
             </MarkdownContainer>
-            
+
             <MarkdownContainer>
-            <h2><strong>Time of Day : {metadata.time_of_day ?metadata.time_of_day: null}</strong></h2>
+                <h2><strong>Time of Day : {metadata.time_of_day ? metadata.time_of_day : null}</strong></h2>
             </MarkdownContainer>
-            
+
             <MarkdownContainer>
-            <h2><strong>Area : {metadata.area ?metadata.area: null}</strong></h2>
+                <h2><strong>Area : {metadata.area ? metadata.area : null}</strong></h2>
             </MarkdownContainer>
 
         </SidebarBoxContainer>

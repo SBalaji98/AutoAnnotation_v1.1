@@ -40,7 +40,7 @@ type Props = {
   videoSrc?: string,
   keyframes?: Object,
   videoName?: string,
-  
+
 }
 
 export const Annotator = ({
@@ -63,9 +63,14 @@ export const Annotator = ({
   videoName,
   onExit,
   onNextImage,
-  onPrevImage
+  onPrevImage,
+  metadata,
+  curr_image_index,
+  annotatemode,
+  changeAnnotateMode,
+
 }: Props) => {
-  console.log("[annotate-image]",images)
+  console.log("[annotate-image]", images)
   if (!images && !videoSrc)
     return 'Missing required prop "images" or "videoSrc"'
   const annotationType = images ? "image" : "video"
@@ -78,35 +83,39 @@ export const Annotator = ({
     ),
     makeImmutable(
       {
-      annotationType,
-      showTags,
-      allowedArea,
-      showPointDistances,
-      pointDistancePrecision,
-      selectedTool: "select",
-      mode: null,
-      taskDescription,
-      labelImages: imageClsList.length > 0 || imageTagList.length > 0,
-      regionClsList,
-      regionTagList,
-      imageClsList,
-      imageTagList,
-      currentVideoTime: videoTime,
-      enabledTools,
-      history: [],
-      videoName,
-      ...(annotationType === "image"
-        ? {
+        metadata,
+        curr_image_index,
+        annotatemode,
+        changeAnnotateMode,
+        annotationType,
+        showTags,
+        allowedArea,
+        showPointDistances,
+        pointDistancePrecision,
+        selectedTool: "select",
+        mode: null,
+        taskDescription,
+        labelImages: imageClsList.length > 0 || imageTagList.length > 0,
+        regionClsList,
+        regionTagList,
+        imageClsList,
+        imageTagList,
+        currentVideoTime: videoTime,
+        enabledTools,
+        history: [],
+        videoName,
+        ...(annotationType === "image"
+          ? {
             selectedImage,
             images,
             selectedImageFrameTime:
               images && images.length > 0 ? images[0].frameTime : undefined
           }
-        : {
+          : {
             videoSrc,
             keyframes
           })
-    }
+      }
     )
   )
 
@@ -114,23 +123,49 @@ export const Annotator = ({
     if (action.type === "HEADER_BUTTON_CLICKED") {
       if (["Exit", "Done", "Save", "Complete"].includes(action.buttonName)) {
         return onExit(without(state, "history"))
-      }else if (action.buttonName === "Next Set"){
-        console.log(state) 
-        
+      } else if (action.buttonName === "Next Set") {
+        console.log(state)
+
         return state
-      } 
-      else if (action.buttonName === "Next" && onNextImage) {
+      }
+      else if (action.buttonName === "next image" && onNextImage) {
+        dispatchToReducer({ type: "CHANGE_METADATA", metadata: null })
         return onNextImage(without(state, "history"))
-      } else if (action.buttonName === "Prev" && onPrevImage) {
+      } else if (action.buttonName === "prev image" && onPrevImage) {
+        dispatchToReducer({ type: "CHANGE_METADATA", metadata: null })
+
         return onPrevImage(without(state, "history"))
       }
     }
     dispatchToReducer(action)
   })
 
+
+  useEffect(() => {
+    dispatchToReducer({ type: "IMAGE_INDEX", curr_image_index: curr_image_index })
+  }, [curr_image_index])
   useEffect(() => {
     dispatchToReducer({ type: "SELECT_IMAGE", image: state.images.find(img => img.src === selectedImage) })
   }, [selectedImage])
+  useEffect(() => {
+    dispatchToReducer({ type: "RELOAD", image: images })
+    dispatchToReducer({ type: "SELECT_IMAGE", image: images[0] })
+  }, [images])
+  useEffect(() => {
+    dispatchToReducer({ type: "CHANGE_METADATA", metadata: metadata })
+  }, [metadata])
+  useEffect(() => {
+    if (state.annotatemode === "object_detection") {
+      dispatchToReducer({ type: "ANNOTATION_MODE" })
+      state.changeAnnotateMode(state.annotatemode)
+
+    } else {
+      dispatchToReducer({ type: "ANNOTATION_MODE" })
+      state.changeAnnotateMode(state.annotatemode)
+
+    }
+
+  }, [state.annotatemode])
 
   return (
     <SettingsProvider>

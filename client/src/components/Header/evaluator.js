@@ -6,6 +6,8 @@ import HeaderButton, { HeaderButtonContext } from "../HeaderButton"
 import BackIcon from "@material-ui/icons/KeyboardArrowLeft"
 import NextIcon from "@material-ui/icons/KeyboardArrowRight"
 import PlayIcon from "@material-ui/icons/PlayArrow"
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
+import HighlightOff from "@material-ui/icons/HighlightOff"
 import PauseIcon from "@material-ui/icons/Pause"
 import SettingsIcon from "@material-ui/icons/Settings"
 import HelpIcon from "@material-ui/icons/Help"
@@ -17,6 +19,9 @@ import styles from "./styles"
 import KeyframeTimeline from "../KeyframeTimeline"
 import classnames from "classnames"
 import BookmarkIcon from "@material-ui/icons/Bookmark"
+
+
+
 const useStyles = makeStyles(styles)
 
 type Props = {
@@ -37,21 +42,21 @@ type Props = {
 export const Header = (
   {
     state,
-  onHeaderButtonClick,
-  title,
-  inFullScreen,
-  videoMode,
-  isAVideoFrame = false,
-  nextVideoFrameHasRegions = false,
-  videoDuration,
-  currentVideoTime,
-  multipleImages,
-  videoPlaying,
-  onChangeCurrentTime,
-  keyframes,
-  alwaysShowPrevButton,
-  alwaysShowNextButton
-}: Props) => {
+    onHeaderButtonClick,
+    title,
+    inFullScreen,
+    videoMode,
+    isAVideoFrame = false,
+    nextVideoFrameHasRegions = false,
+    videoDuration,
+    currentVideoTime,
+    multipleImages,
+    videoPlaying,
+    onChangeCurrentTime,
+    keyframes,
+    alwaysShowPrevButton,
+    alwaysShowNextButton
+  }: Props) => {
   const classes = useStyles()
   return (
     <div className={classes.header}>
@@ -71,7 +76,7 @@ export const Header = (
       )}
       <div className={classes.headerActions}>
         <HeaderButtonContext.Provider value={{ onHeaderButtonClick }}>
-          {(multipleImages || alwaysShowPrevButton) && (
+          {/* {(multipleImages || alwaysShowPrevButton) && (
             <HeaderButton name="Prev" Icon={BackIcon} />
           )}
           {(multipleImages || alwaysShowNextButton) && (
@@ -83,29 +88,38 @@ export const Header = (
                 Icon={QueuePlayNextIcon}
               />
             </>
-          )}
+          )} */}
           {videoMode && (
             <>
               {!videoPlaying ? (
                 <HeaderButton key="play" name="Play" Icon={PlayIcon} />
               ) : (
-                <HeaderButton key="pause" name="Pause" Icon={PauseIcon} />
-              )}
+                  <HeaderButton key="pause" name="Pause" Icon={PauseIcon} />
+                )}
             </>
           )}
           {/* <HeaderButton name="changemode" Icon={HotkeysIcon} /> */}
           {/* {(state.curr_image_index > 0) && (
           <HeaderButton name="prev image" Icon={BackIcon} />
           )} */}
+          <HeaderButton name="reject" Icon={HighlightOff} />
+          <HeaderButton name="accept" Icon={CheckCircleOutlineIcon} />
+          <HeaderButton name={(state.annotatemode==="object_detection")?("SEGMENTATION"):("OBJECT DETECTION")} Icon={HotkeysIcon} />
+
+
+          {(state.curr_image_index > 0) && (
+            <HeaderButton name="prev image" Icon={BackIcon} />
+          )}
+
           <HeaderButton name="next image" Icon={NextIcon} />
-        
+
 
           <HeaderButton name="Settings" Icon={SettingsIcon} />
           {inFullScreen ? (
             <HeaderButton name="Window" Icon={FullscreenIcon} />
           ) : (
-            <HeaderButton name="Fullscreen" Icon={FullscreenIcon} />
-          )}
+              <HeaderButton name="Fullscreen" Icon={FullscreenIcon} />
+            )}
           {/* <HeaderButton name="Hotkeys" Icon={HotkeysIcon} /> */}
           {/* <HeaderButton name="Save" Icon={ExitIcon} /> */}
 

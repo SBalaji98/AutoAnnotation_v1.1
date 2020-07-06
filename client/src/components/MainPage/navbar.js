@@ -5,6 +5,8 @@ import ExitIcon from "@material-ui/icons/ExitToApp"
 import { withRouter } from "react-router-dom";
 import swal from 'sweetalert'
 import Axios from "axios";
+import SideDrawer from "../SideDrawer"
+
 class Navbar extends Component {
 
   state = {
@@ -22,12 +24,12 @@ class Navbar extends Component {
       this.props.updateUser({
         loggedIn: false,
         username: null,
-        role:null
+        role: null
       });
     })
-    .catch(()=>{
-      alert("cannot logout")
-    })
+      .catch(() => {
+        alert("cannot logout")
+      })
 
   };
 
@@ -54,7 +56,7 @@ class Navbar extends Component {
   }
 
   render() {
-    const {loggedIn,role,user} = this.props;
+    const { loggedIn, role, user, userId, updateImage_key } = this.props;
     // const { history } = this.props;
     if (this.state.redirectTo) {
       return <Redirect to='/' />
@@ -63,19 +65,20 @@ class Navbar extends Component {
     return (
       <div className="w3-bar w3-black">
         <a className="w3-bar-item">
-          {/* <img src={logo} className="App-logo" alt="logo" /> */}
           <strong><span className="w3-text-red ">AUTO</span>&nbsp;</strong>
           <strong><span >ANNOTATION</span></strong></a>
+        {role === "evaluator" &&
+          <SideDrawer id={userId} updateImage_key={updateImage_key} />
+        }
+
         <button
           className="w3-bar-item w3-button w3-hover-dark-gray  w3-right"
           onClick={this.confirmLogout}
         >
           <ExitIcon />
         </button>
-        {/* <button class="w3-button "><AccountCircleIcon /></button> */}
-
         <strong><span className="w3-bar-item w3-right">
-        {user}({role})</span></strong>
+          {user}({role})</span></strong>
       </div>
     );
   }

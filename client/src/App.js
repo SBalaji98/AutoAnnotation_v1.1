@@ -14,7 +14,8 @@ class App extends Component {
   state = {
     loggedIn: false,
     username: null,
-    role:null
+    role:null,
+    userId:null
   };
 
   updateUser = (userObject) => {

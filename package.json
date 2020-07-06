@@ -36,7 +36,7 @@
     "build": "babel server.js --out-file server.compiled.js",
     "prod": "node dist/api.bundle.js",
     "deploy_prod": "git pull && ( eb deploy Annotation-applicationV10-dev7 )",
-    "start": "npm install && nodemon --exec  babel-node server.js",
+    "start": "nodemon --exec  babel-node server.js",
     "server": "nodemon server.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\""
